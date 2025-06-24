@@ -1,5 +1,5 @@
 import { Player } from "shared/player"
-import { StateBase } from "../state/base"
+import { StateBase } from "./base"
 
 /**
  * Rail component interface

@@ -8,7 +8,7 @@ import { CharacterInfo } from "shared/characterinfo"
 import { UIMain } from "./ui"
 import { Animation } from "./draw/animation"
 import { FrameworkState } from "shared/common/frameworkstate"
-import { Ground } from "./component/interface/ground"
+import { Ground } from "./modules/ground"
 
 /**
  * Flags list

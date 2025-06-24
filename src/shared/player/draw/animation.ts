@@ -11,7 +11,6 @@ export class Animation {
 
     constructor(Player:Player) {
         Player.Physics
-        const anims = Player.Animations
 
         this.Animations = DeepCopy(Player.Animations)
         this.Last = "Idle"

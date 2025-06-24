@@ -1,6 +1,6 @@
 import { Player } from "shared/player"
 import { PhysicsHandler } from "shared/player/physics/physics"
-import { StateBase } from "../state/base"
+import { StateBase } from "./base"
 import { CheckJump } from "./jump"
 
 /**

@@ -1,8 +1,8 @@
 import { Player } from "shared/player"
 import { PhysicsHandler } from "shared/player/physics/physics"
-import { CheckJump } from "../interface/jump"
-import { CheckSkid } from "../interface/skid"
-import { CheckSpindash } from "../interface/spindash"
+import { CheckJump } from "./jump"
+import { CheckSkid } from "./skid"
+import { CheckSpindash } from "./spindash"
 import { StateBase } from "./base"
 
 /**

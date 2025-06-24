@@ -1,7 +1,7 @@
 import { Player } from "shared/player"
 import { PhysicsHandler } from "shared/player/physics/physics"
-import { CheckBounce } from "../interface/bounce"
-import { CheckHomingAttack } from "../interface/homing"
+import { CheckBounce } from "./bounce"
+import { CheckHomingAttack } from "./homing"
 import { StateBase } from "./base"
 
 /**

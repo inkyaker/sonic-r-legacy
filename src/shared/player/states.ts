@@ -1,9 +1,9 @@
-import { StateSkid } from "./component/interface/skid"
-import { StateSpindash, StateRoll } from "./component/interface/spindash"
-import { StateAirborne } from "./component/state/airborne"
-import { StateBase } from "./component/state/base"
-import { StateGrounded } from "./component/state/grounded"
-import { StateNone } from "./component/state/none"
+import { StateSkid } from "./modules/skid"
+import { StateSpindash, StateRoll } from "./modules/spindash"
+import { StateAirborne } from "./modules/airborne"
+import { StateBase } from "./modules/base"
+import { StateGrounded } from "./modules/grounded"
+import { StateNone } from "./modules/none"
 
 export type PlayerState = StateBase
 
