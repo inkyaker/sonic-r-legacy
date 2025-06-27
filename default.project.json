@@ -30,10 +30,7 @@
 		"StarterPlayer": {
 			"$className": "StarterPlayer",
 			"StarterPlayerScripts": {
-				"$className": "StarterPlayerScripts",
-				"TS": {
-					"$path": "out/client"
-				}
+				"$className": "StarterPlayerScripts"
 			}
 		},
 		"Workspace": {

@@ -1,7 +1,7 @@
 import { Constants } from "shared/common/constants"
 import { Player } from "."
 
-import { AddLog } from "shared/common/logger"
+import { AddLog } from "shared/common/utility/logger"
 import { PlayerState, StateList } from "./states"
 import { FrameworkState } from "shared/common/frameworkstate"
 
@@ -25,7 +25,7 @@ export class StateMachine {
     public List: StatesList
     public Current: PlayerState
 
-    constructor(Player:Player) {
+    constructor(Player: Player) {
         this.List = new Map()
 
         MainMap.forEach((Value, Index) => {
@@ -45,11 +45,11 @@ export class StateMachine {
 
         this.Current.Tick(this.Player)
     }
-    
+
     /**
      * Update the state machine, **only run this if you know what you're doing!**
      */
-    public Update(DeltaTime:number) {
+    public Update(DeltaTime: number) {
         // Generic fixed update loop
         this.TickTimer = math.min(this.TickTimer + DeltaTime * (60 * FrameworkState.GameSpeed), 10)
         while (this.TickTimer > 1) {
@@ -69,7 +69,7 @@ export class StateMachine {
      * @returns Found PlayerState
      * @throws If invalid state is searched for
      */
-    public Get(Index: StatesUnion):PlayerState {
+    public Get(Index: StatesUnion): PlayerState {
         const Pick = this.List.get(Index)
 
         if (Pick !== undefined) {

@@ -3,7 +3,7 @@ import { AddLog } from "./logger"
 
 export const List = new Map<string, Callback>
 
-export function RegisterStepped(Name:string, Value:number, Callback:Callback) {
+export function RegisterStepped(Name: string, Value: number, Callback: Callback) {
     if (List.get(Name)) {
         UnregisterStepped(Name)
 
@@ -14,7 +14,7 @@ export function RegisterStepped(Name:string, Value:number, Callback:Callback) {
     RunService.BindToRenderStep(Name, Value, Callback)
 }
 
-export function UnregisterStepped(Name:string) { 
+export function UnregisterStepped(Name: string) {
     List.delete(Name)
     RunService.UnbindFromRenderStep(Name)
 }

@@ -1,8 +1,8 @@
-import { AddLog } from "shared/common/logger"
+import { AddLog } from "shared/common/utility/logger"
 import { Camera } from "./draw/camera"
 import { Renderer } from "./draw/renderer"
 import { StateMachine } from "./statemachine"
-import * as Render from "shared/common/renderregistry"
+import * as Render from "shared/common/utility/renderregistry"
 import { Input } from "./control/input"
 import { CharacterInfo } from "shared/characterinfo"
 import { UIMain } from "./ui"
@@ -23,9 +23,9 @@ export class DefaultFlags {
     public BallEnabled = false
     public TrailEnabled = false
 
-    
+
     public Gravity = new Vector3(0, -1, 0)
-    
+
     // Moves
     /**
      * Timer to reduce gravity while holding `Player.Input.Button.Jump` 
@@ -34,9 +34,18 @@ export class DefaultFlags {
     public SpindashSpeed = 0
     public Bounces = 0
     public IsBounce = false
+
+    /**
+     * Amount of updates joystick input should be locked for
+     */
+    public LockTimer = 0
+    /**
+     * Flag that cancels out gravity while `Player.LockTimer > 0`
+     */
+    public DirectVelocity = false
 }
 
-let PreviousAngle:CFrame|undefined
+let PreviousAngle: CFrame | undefined
 
 /**
  * Player
@@ -51,10 +60,10 @@ export class Player {
     public LastCFrame: CFrame
     public CurrentCFrame: CFrame
     public RenderCFrame: CFrame
-    
+
     // Flags
-    public Flags:DefaultFlags
-    
+    public Flags: DefaultFlags
+
     // Character info
     public readonly Physics
     public readonly Animations
@@ -66,7 +75,7 @@ export class Player {
     public readonly Renderer: Renderer
     public readonly Input: Input
     public readonly UI: UIMain
-    
+
     // Components
     public Ground: Ground
 
@@ -95,7 +104,7 @@ export class Player {
         this.Flags = new DefaultFlags()
 
         Render.RegisterStepped("Player", Enum.RenderPriority.Input.Value + 1, (DeltaTime) => this.Update(DeltaTime))
-        
+
         PreviousAngle = CFrame.identity
 
         AddLog(`Loaded new player ${Character}`)
@@ -105,13 +114,13 @@ export class Player {
      * Destroys the Player
      */
     public Destroy() {
-        
+
     }
 
     /**
      * Update player once per frame, **do not run this method if you do not know what you're doing!**
      */
-    public Update(DeltaTime:number) {
+    public Update(DeltaTime: number) {
         // Angle
         if (PreviousAngle !== this.Angle) {
             this.SetGroundRelative()
@@ -139,7 +148,7 @@ export class Player {
      * Returns the players current CFrame
      * @returns {CFrame}
      */
-    public GetAngle() {
+    public GetCFrame() {
         return this.Angle.add(this.Position)
     }
 
@@ -150,8 +159,8 @@ export class Player {
      * @param Vector Vector to convert
      * @returns Local vector
      */
-    public ToLocal(Vector:Vector3) {
-        return (this.GetAngle().mul(CFrame.Angles(0, math.rad(90), 0))).VectorToObjectSpace(Vector)
+    public ToLocal(Vector: Vector3) {
+        return (this.GetCFrame().mul(CFrame.Angles(0, math.rad(90), 0))).VectorToObjectSpace(Vector)
     }
 
     /**
@@ -161,8 +170,8 @@ export class Player {
      * @param Vector Vector to convert
      * @returns Global vector
      */
-    public ToGlobal(Vector:Vector3) {
-        return (this.GetAngle().mul(CFrame.Angles(0, math.rad(90), 0))).VectorToWorldSpace(Vector)
+    public ToGlobal(Vector: Vector3) {
+        return (this.GetCFrame().mul(CFrame.Angles(0, math.rad(90), 0))).VectorToWorldSpace(Vector)
     }
 
     /**

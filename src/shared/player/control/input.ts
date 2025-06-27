@@ -1,7 +1,7 @@
 import { Player } from "..";
 import { ButtonState } from "./buttonstate";
-import * as VUtil from "shared/common/vutil";
-import * as CFUtil from "shared/common/cfutil";
+import * as VUtil from "shared/common/utility/vutil";
+import * as CFUtil from "shared/common/utility/cfutil";
 import { UserInputService } from "@rbxts/services";
 
 type ButtonUnion = ExtractKeys<Input["Button"], ButtonState>
@@ -11,8 +11,8 @@ type ButtonUnion = ExtractKeys<Input["Button"], ButtonState>
  */
 export class Input {
     public Button
-    public PlatformContext:string
-    public ControllerContext:String
+    public PlatformContext: string
+    public ControllerContext: String
     public Stick
 
     constructor() {
@@ -33,7 +33,7 @@ export class Input {
         this.Stick = Vector2.zero
     }
 
-    private BindKeyCode(Input:ButtonState, KeyCode:Enum.KeyCode[]) {
+    private BindKeyCode(Input: ButtonState, KeyCode: Enum.KeyCode[]) {
         KeyCode.forEach((Key) => {
             Input.KeyCodes.push(Key)
         })
@@ -44,9 +44,9 @@ export class Input {
      * @param Key KeyCode
      * @returns List of all k
      */
-    public KeyCodeToButton(Key:Enum.KeyCode) {
-        const List:ButtonUnion[] = []
-        for (const [Index , Button] of pairs(this.Button)) {
+    public KeyCodeToButton(Key: Enum.KeyCode) {
+        const List: ButtonUnion[] = []
+        for (const [Index, Button] of pairs(this.Button)) {
             const Target = Button.KeyCodes.find(Object => Object === Key)
             if (Target) {
                 List.push(Index)
@@ -59,7 +59,7 @@ export class Input {
     public GetInputState() {
         const KeyboardState = UserInputService.GetKeysPressed()
         const ControllerState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1)
-        const MobileState:InputObject[] = [] // TODO: automatically create mobile buttons and match them to keycodes
+        const MobileState: InputObject[] = [] // TODO: automatically create mobile buttons and match them to keycodes
 
         return $tuple(KeyboardState, ControllerState, MobileState)
     }
@@ -70,7 +70,7 @@ export class Input {
     public Update() {
         const [KeyboardState, ControllerState, MobileState] = this.GetInputState()
 
-        let KeyList:string[] = []
+        let KeyList: string[] = []
         const TotalState = [KeyboardState, ControllerState, MobileState]
         TotalState.forEach((DeviceState) => {
             DeviceState.forEach((Object) => {
@@ -80,7 +80,7 @@ export class Input {
                     if (Key) {
                         if (!KeyList.find(Object => Object === Key)) {
                             KeyList.push(Key)
-    
+
                             this.Button[Key].Update(true)
                         }
                     }
@@ -100,13 +100,13 @@ export class Input {
         let PCStickY = 0
         let CStickX = 0
         let CStickY = 0
-        
+
         PCStickX += UserInputService.IsKeyDown(Enum.KeyCode.A) && -1 || 0
         PCStickX += UserInputService.IsKeyDown(Enum.KeyCode.D) && 1 || 0
         PCStickY -= UserInputService.IsKeyDown(Enum.KeyCode.W) && 1 || 0
         PCStickY -= UserInputService.IsKeyDown(Enum.KeyCode.S) && -1 || 0
 
-        ControllerState.forEach((Key) => {  
+        ControllerState.forEach((Key) => {
             if (Key.KeyCode === Enum.KeyCode.Thumbstick1) {
                 if (Key.Position.Magnitude <= .15) { return } // TODO: customizable deadzone
 
@@ -134,42 +134,42 @@ export class Input {
      * @param Player 
      * @returns Current turn value
      */
-    public GetTurn(Player:Player) {
+    public GetTurn(Player: Player) {
         if (!game.Workspace.CurrentCamera || this.Stick.Magnitude === 0) { return 0 }
 
         //Get character vectors
-		const tgt_up = Vector3.yAxis // TODO: camera chagne
-		const look = Player.Angle.LookVector
-		const up = Player.Angle.UpVector
-		
-		//Get camera angle, aligned to our target up vector
-		let [cam_look] = VUtil.PlaneProject(game.Workspace.CurrentCamera.CFrame.LookVector, tgt_up)
-		if (cam_look.Magnitude !== 0) {
-            cam_look = cam_look.Unit  
+        const tgt_up = Vector3.yAxis // TODO: camera chagne
+        const look = Player.Angle.LookVector
+        const up = Player.Angle.UpVector
+
+        //Get camera angle, aligned to our target up vector
+        let [cam_look] = VUtil.PlaneProject(game.Workspace.CurrentCamera.CFrame.LookVector, tgt_up)
+        if (cam_look.Magnitude !== 0) {
+            cam_look = cam_look.Unit
         } else {
             cam_look = look
         }
-		//Get move vector in world space, aligned to our target up vector
-		let cam_move = CFrame.fromAxisAngle(tgt_up, math.atan2(-Player.Input.Stick.X, -Player.Input.Stick.Y)).mul(cam_look)
-		
-		//Update last up
-		if (tgt_up.Dot(up) >= -0.999) {
+        //Get move vector in world space, aligned to our target up vector
+        let cam_move = CFrame.fromAxisAngle(tgt_up, math.atan2(-Player.Input.Stick.X, -Player.Input.Stick.Y)).mul(cam_look)
+
+        //Update last up
+        if (tgt_up.Dot(up) >= -0.999) {
             Player.Flags.LastUp = up
         }
-		
-		//Get final rotation and move vector
-		const final_rotation = CFUtil.FromToRotation(tgt_up, Player.Flags.LastUp)
-		
-		let [final_move] = VUtil.PlaneProject(final_rotation.mul(cam_move), up)
-		if (final_move.Magnitude !== 0) {
-			final_move = final_move.Unit
-		} else {
+
+        //Get final rotation and move vector
+        const final_rotation = CFUtil.FromToRotation(tgt_up, Player.Flags.LastUp)
+
+        let [final_move] = VUtil.PlaneProject(final_rotation.mul(cam_move), up)
+        if (final_move.Magnitude !== 0) {
+            final_move = final_move.Unit
+        } else {
             final_move = look
         }
-		
-		//Get turn amount
-		const turn = VUtil.SignedAngle(look, final_move, up)
-		return turn
+
+        //Get turn amount
+        const turn = VUtil.SignedAngle(look, final_move, up)
+        return turn
     }
 
     /**
@@ -177,7 +177,7 @@ export class Input {
      * @param Player 
      * @returns Tuple: {HasControl, StickMagnitude, PlayerTurn}
      */
-    public Get(Player:Player) {
+    public Get(Player: Player) {
         // has_control, stick_mag, last_turn
         // TODO: has_control
         return $tuple(true && this.Stick.Magnitude !== 0, this.GetTurn(Player), this.Stick.Magnitude)

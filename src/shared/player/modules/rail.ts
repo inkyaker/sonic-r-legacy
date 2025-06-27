@@ -18,7 +18,7 @@ export class Rail {
     RailGrace: number = 0 // TODO
     RailBonusTime: number = 0 // TODO
 
-    Connections: [RBXScriptConnection?] = []
+    Connections: RBXScriptConnection[] = []
     SpatialMap: undefined // TODO
 }
 

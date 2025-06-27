@@ -1,6 +1,6 @@
 import { Player } from "..";
-import * as VUtil from "shared/common/vutil";
-import * as CFUtil from "shared/common/cfutil";
+import * as VUtil from "shared/common/utility/vutil";
+import * as CFUtil from "shared/common/utility/cfutil";
 
 export enum IntertiaState {
     FULL_INERTIA,
@@ -13,16 +13,16 @@ export const PhysicsHandler = {
      * Apply grounded acceleration, gravity calculations are separate
      * @param Player 
      */
-    AccelerateGrounded: (Player:Player) => {
+    AccelerateGrounded: (Player: Player) => {
         const MaxXSoeed = Player.Physics.MaxXSpeed
         const RunAcceleration = Player.Physics.RunAcceleration
         const Friction = /*self.flag.grounded and self.frict_mult*/ 1 || 1
 
         //Get analogue state
-        let Acceleration = new Vector3(0,0,0)
+        let Acceleration = new Vector3(0, 0, 0)
         let MovementAcceleration = 0
         let [HasControl, Turn, Magnitude] = Player.Input.Get(Player)
-        
+
         //X air drag
         // TODO: see if i can improve
         if (HasControl) {
@@ -44,10 +44,10 @@ export const PhysicsHandler = {
                 Acceleration = Acceleration.add(new Vector3(Player.Speed.X * Player.Physics.AirResist.X))
             }
         }
-        
+
         //Y and Z air drag
         Player.Speed = Player.Speed.add(Player.Speed.mul(new Vector3(0, Player.Physics.AirResist.Y, Player.Physics.AirResist.Z)))
-        
+
         //Movement
         if (HasControl) {
             //Get acceleration
@@ -61,7 +61,7 @@ export const PhysicsHandler = {
             } else {
                 //Get acceleration, stopping at intervals based on analogue stick magnitude
                 MovementAcceleration = 0
-                
+
                 if (Player.Speed.X >= Player.Physics.JogSpeed) {
                     if (Player.Speed.X >= Player.Physics.RunSpeed) {
                         if (Magnitude <= 0.9) {
@@ -84,7 +84,7 @@ export const PhysicsHandler = {
                     MovementAcceleration = RunAcceleration * Magnitude
                 }
             }
-            
+
             //Turning
             const AbsoluteTurn = math.abs(Turn)
             if (math.abs(Player.Speed.X) < 0.001 && AbsoluteTurn > math.rad(22.5)) {
@@ -109,23 +109,23 @@ export const PhysicsHandler = {
                     PhysicsHandler.Turn(Player, Turn, undefined)
                 }
             }
-        } else { 
+        } else {
             //Decelerate
             MovementAcceleration = PhysicsHandler.GetDecel(Player.Speed.X + Acceleration.X, Player.Physics.StandardDeceleration)
         }
-        
+
         //Apply movement acceleration
         Acceleration = Acceleration.add(new Vector3(MovementAcceleration * Friction, 0, 0))
 
         //Apply acceleration
         Player.Speed = Player.Speed.add(Acceleration)
     },
-    
+
     /**
      * Apply airborne acceleration, gravity calculations are separate
      * @param Player 
      */
-    AccelerateAirborne: (Player:Player) => {
+    AccelerateAirborne: (Player: Player) => {
         // TODO:
         PhysicsHandler.AccelerateGrounded(Player)
 
@@ -136,9 +136,9 @@ export const PhysicsHandler = {
     },
 
     // Gravity
-    ApplyGravity: (Player:Player) => {
+    ApplyGravity: (Player: Player) => {
         const weight = Player.Physics.Weight
-        
+
         //Get cross product between our moving velocity and floor normal
         const FloorCrossSpeed = Player.Flags.LastUp.Cross(Player.ToGlobal(Player.Speed)) // TODO: replace with floor normal if needed
         let GravityAcceleration = Player.ToLocal(Player.Flags.Gravity.mul(weight))
@@ -146,14 +146,14 @@ export const PhysicsHandler = {
             if (Player.Ground.DotProduct >= 0.1 || math.abs(FloorCrossSpeed.Y) <= 0.6 || Player.Speed.X < 1.16) {
                 if (Player.Ground.DotProduct >= -0.4 || Player.Speed.X <= 1.16) {
                     if (Player.Ground.DotProduct < -0.3 && Player.Speed.X > 1.16) {
-                    
+
                     } else if (Player.Ground.DotProduct < -0.1 && Player.Speed.X > 1.16) {
 
                     } else if (Player.Ground.DotProduct < 0.5 && math.abs(Player.Speed.X) < Player.Physics.RunSpeed) {
                         GravityAcceleration = GravityAcceleration.mul(new Vector3(4.225, 1, 4.225))
                     } else if (Player.Ground.DotProduct >= 0.7 || math.abs(Player.Speed.X) > Player.Physics.RunSpeed) {
                         if (Player.Ground.DotProduct >= 0.87 || Player.Physics.JogSpeed <= math.abs(Player.Speed.X)) {
-                            
+
                         } else {
                             GravityAcceleration = GravityAcceleration.mul(new Vector3(1, 1, 1.4))
                         }
@@ -175,25 +175,25 @@ export const PhysicsHandler = {
 
     // Movement
     // TOOD: port https://github.com/SonicOnset/DigitalSwirl-Client/blob/master/ControlScript/Player/Movement.lua
-    AlignToGravity: (Player:Player) => {
+    AlignToGravity: (Player: Player) => {
         if (/*Player.Speed.magnitude < Player.p.dash_speed*/ true /*TODO: this*/) {
             //Remember previous speed
             const prev_spd = Player.ToGlobal(Player.Speed)
-            
+
             //Get next angle
             const from = Player.Angle.UpVector
             const to = Player.Flags.Gravity.Unit.mul(-1)
             const turn = VUtil.Angle(from, to)
-            
+
             if (turn !== 0) {
                 const max_turn = math.rad(11.25)
                 const lim_turn = math.clamp(turn, -max_turn, max_turn)
-                
+
                 const next_ang = CFUtil.FromToRotation(from, to).mul(Player.Angle)
-                
+
                 Player.Angle = (Player.Angle.Lerp(next_ang, lim_turn / turn))
             }
-            
+
             //Keep using previous speed
             Player.Speed = Player.ToLocal(prev_spd)
         }
@@ -204,14 +204,14 @@ export const PhysicsHandler = {
      * Used in `Skid` and `Spindash`
      * @param Player 
      */
-    Skid: (Player:Player) => {
+    Skid: (Player: Player) => {
         const FrictionMultiplier = 1 // TODO: fricton mult
 
-        
+
         // TODO: see if sm is required here
         const XFriction = Player.Physics.SkidFriction * FrictionMultiplier
         const ZFriction = Player.Physics.GroundFriction.Z * FrictionMultiplier
-        
+
         Player.Speed = Player.Speed.add(Player.Speed.mul(Player.Physics.AirResist)).add(new Vector3(PhysicsHandler.GetDecel(Player.Speed.X, XFriction), 0, PhysicsHandler.GetDecel(Player.Speed.Z, ZFriction)))
     },
 
@@ -219,7 +219,7 @@ export const PhysicsHandler = {
      * Replacement function for `AccelerateGrounded` and `AccelerateAirborne` for the `Roll` state, disables acceleration and keeps speed
      * @param Player 
      */
-    RollInertia: (Player:Player) => {
+    RollInertia: (Player: Player) => {
         // TODO: see if i can seperate the gravity from this
         const Weight = Player.Physics.Weight
         let Acceleration = Player.ToLocal(Player.Flags.Gravity.mul(Weight))
@@ -239,7 +239,7 @@ export const PhysicsHandler = {
 
         Player.Speed = Player.Speed.add(Acceleration)
     },
-    
+
     // Turning
     /**
      * Raw turning function used in the main Player.Turn function, will directly rotate the Players Y axis
@@ -248,7 +248,7 @@ export const PhysicsHandler = {
      * @param Player 
      * @param Turn Amount in radians to turn
      */
-    TurnRaw: (Player:Player, Turn:number) => {
+    TurnRaw: (Player: Player, Turn: number) => {
         Player.Angle = Player.Angle.mul(CFrame.Angles(0, Turn, 0))
     },
 
@@ -265,7 +265,7 @@ export const PhysicsHandler = {
      * @param Turn Amount in radians to turn
      * @param IState Inertia configs to match Digital Swirl
      */
-    Turn: (Player:Player, Turn:number, IState:IntertiaState|undefined) => {
+    Turn: (Player: Player, Turn: number, IState: IntertiaState | undefined) => {
         let MaxTurn = math.abs(Turn)
         const [HasControl] = Player.Input.Get(Player)
         const PreviousSpeed = Player.ToGlobal(Player.Speed)
@@ -279,7 +279,7 @@ export const PhysicsHandler = {
             if (MaxTurn <= math.rad(45)) {
                 if (MaxTurn <= math.rad(22.5)) {
                     MaxTurn /= 8
-                }else {
+                } else {
                     MaxTurn /= 4
                 }
             } else {
@@ -293,7 +293,7 @@ export const PhysicsHandler = {
                 MaxTurn = math.max(MaxTurn - (math.sqrt(((Player.Speed.X - Player.Physics.DashSpeed) * 0.0625)) * MaxTurn), 0)
             }
         }
-        
+
         MaxTurn = math.abs(MaxTurn)
 
         //Turn
@@ -317,8 +317,8 @@ export const PhysicsHandler = {
 
                 /*
                 if self.frict_mult < 1 then
-				    inertia *= self.frict_mult
-			    end
+                    inertia *= self.frict_mult
+                end
                 */
 
                 Player.Speed = Player.Speed.mul(1 - Inertia).add(Player.ToLocal(PreviousSpeed).mul(Inertia))
@@ -345,7 +345,7 @@ export const PhysicsHandler = {
      * @param Deceleration Maximum deceleration rate
      * @returns Applied deceleration speed
      */
-    GetDecel(Speed:number, Deceleration:number) {
+    GetDecel(Speed: number, Deceleration: number) {
         if (Speed > 0) {
             return -math.min(Speed, -Deceleration)
         } else if (Speed < 0) {
