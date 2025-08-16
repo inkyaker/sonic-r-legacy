@@ -1,6 +1,6 @@
 import { Client } from "shared/client"
 import { PhysicsHandler } from "shared/client/physics/physics"
-import { State } from "./state"
+import { SrcState } from "./state"
 
 /**
  * Function ran in `State.CheckInput`
@@ -15,7 +15,7 @@ export function CheckSkid(Client: Client) {
 
     if (Skid) {
         Client.Animation.Current = "Skid"
-        Client.State.Current = Client.State.Get("Skid")
+        Client.State.Current = Client.State.States.Skid
     }
 
     return Skid
@@ -30,7 +30,7 @@ export function CheckSkid(Client: Client) {
 export function CheckStopSkid(Client: Client) {
     if (Client.Speed.X <= .01) {
         Client.Speed = Client.Speed.mul(new Vector3(0, 1, 1))
-        Client.State.Current = Client.State.Get("Grounded")
+        Client.State.Current = Client.State.States.Grounded
 
         return true
     } else {
@@ -38,7 +38,7 @@ export function CheckStopSkid(Client: Client) {
         const StopSkid = HasControl && (math.abs(Turn) <= math.rad(135)) || false
 
         if (StopSkid) {
-            Client.State.Current = Client.State.Get("Grounded")
+            Client.State.Current = Client.State.States.Grounded
         }
 
         return StopSkid
@@ -48,9 +48,9 @@ export function CheckStopSkid(Client: Client) {
 /**
  * @class
  * @state
- * @augments State
+ * @augments SrcState
  */
-export class StateSkid extends State {
+export class StateSkid extends SrcState {
     constructor() {
         super()
     }

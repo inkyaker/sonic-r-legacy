@@ -2,19 +2,20 @@ import { Client } from "shared/client"
 import { PhysicsHandler } from "shared/client/physics/physics"
 import { CheckBounce } from "./bounce"
 import { CheckHomingAttack } from "./homing"
-import { State } from "./state"
+import { SrcState } from "./state"
+import { CheckRail } from "./rail"
 
 /**
  * @class
- * @augments State
+ * @augments SrcState
  */
-export class StateAirborne extends State {
+export class StateAirborne extends SrcState {
     constructor() {
         super()
     }
 
     protected CheckInput(Client: Client) {
-        return CheckHomingAttack(Client) || CheckBounce(Client)
+        return CheckHomingAttack(Client) || CheckBounce(Client) || CheckRail(Client)
     }
 
     protected AfterUpdateHook(Client: Client) {
@@ -34,7 +35,7 @@ export class StateAirborne extends State {
 
                 Client.Flags.IsBounce = false
             } else {
-                Client.State.Current = Client.State.Get("Grounded")
+                Client.State.Current = Client.State.States.Grounded
                 Client.Land()
             }
         }

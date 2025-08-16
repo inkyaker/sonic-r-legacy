@@ -83,6 +83,24 @@ export let CharacterInfo = {
 			spd_i: [.3, .3, .4], // speed incremental
 			spd_a: false,
 		},
+		Rail: {
+			[0]: { id: "103281797241307", asset: BaseAnimation }
+		},
+		RailCrouch: {
+			[0]: { id: "0", asset: BaseAnimation }
+		},
+		RailLand: {
+			[0]: { id: "0", asset: BaseAnimation }
+		},
+		RailBalance: {
+			[0]: { id: "0", asset: BaseAnimation }
+		},
+		RailSwitchLeft: {
+			[0]: { id: "0", asset: BaseAnimation }
+		},
+		RailSwitchRight: {
+			[0]: { id: "0", asset: BaseAnimation }
+		},
 	}
 }
 

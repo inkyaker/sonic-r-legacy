@@ -17,7 +17,7 @@ for (const [_, Module] of pairs((script.Parent as Folder & { objects: Folder }).
 export class ObjectController {
     public Params: RaycastParams
     public Objects: Map<Model, SrcObject>
-    public Skin: number = .5
+    public Skin: number = 1
     private LastUpdatedPosition: Vector3
     private Client
 
@@ -48,7 +48,6 @@ export class ObjectController {
     }
 
     public CollideWithClient() {
-        print("collide check")
         if (this.LastUpdatedPosition !== this.Client.Position) {
             const Look = CFrame.lookAt(this.LastUpdatedPosition, this.Client.Position)
             const Magnitude = this.LastUpdatedPosition.Distance(this.Client.Position)

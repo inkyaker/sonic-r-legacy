@@ -5,7 +5,7 @@ import { RunCollision } from "shared/client/physics/collision"
  * State base type
  * @class
  */
-export class State {
+export class SrcState {
     /**
      * @constructor
      */
@@ -41,6 +41,18 @@ export class State {
     }
 
     /**
+     * Specialized function designed for per-state cooldown management.
+     * 
+     * Look at rails for reference
+     * 
+     * Runs every tick after state update
+     * @param Client 
+     */
+    public Step(Client: Client) {
+        this.OnStep(Client)
+    }
+
+    /**
      * Override method for state input checking
      * 
      * States can be changed in this method, and the new state will be Ticked
@@ -66,5 +78,8 @@ export class State {
      * @param Client Client
      */
     protected AfterUpdateHook(Client: Client) {
+    }
+
+    protected OnStep(Client: Client) {
     }
 }

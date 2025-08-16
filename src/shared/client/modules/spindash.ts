@@ -1,6 +1,6 @@
 import { Client } from "shared/client"
 import { PhysicsHandler } from "shared/client/physics/physics"
-import { State } from "./state"
+import { SrcState } from "./state"
 import { CheckJump } from "./jump"
 
 /**
@@ -11,7 +11,7 @@ import { CheckJump } from "./jump"
  */
 export function CheckSpindash(Client: Client) {
     if (Client.Input.Button.Spindash.Pressed) {
-        Client.State.Current = Client.State.Get("Spindash")
+        Client.State.Current = Client.State.States.Spindash
         Client.Flags.SpindashSpeed = math.max(Client.Speed.X, 2)
         Client.EnterBall()
 
@@ -22,9 +22,9 @@ export function CheckSpindash(Client: Client) {
 /**
  * @class
  * @state
- * @augments State
+ * @augments SrcState
  */
-export class StateSpindash extends State {
+export class StateSpindash extends SrcState {
     constructor() {
         super()
     }
@@ -38,7 +38,7 @@ export class StateSpindash extends State {
             // Release
             Client.Speed = Client.Speed.mul(new Vector3(0, 1, 1)).add(new Vector3(Client.Flags.SpindashSpeed, 0, 0))
             Client.EnterBall()
-            Client.State.Current = Client.State.Get("Roll")
+            Client.State.Current = Client.State.States.Roll
         }
     }
 
@@ -52,7 +52,7 @@ export class StateSpindash extends State {
             Client.Animation.Current = "Spindash"
         } else {
             Client.Animation.Current = "Roll"
-            Client.State.Current = Client.State.Get("Airborne")
+            Client.State.Current = Client.State.States.Airborne
         }
     }
 }
@@ -60,9 +60,9 @@ export class StateSpindash extends State {
 /**
  * @class
  * @state
- * @augments State
+ * @augments SrcState
  */
-export class StateRoll extends State {
+export class StateRoll extends SrcState {
     constructor() {
         super()
     }
@@ -70,7 +70,7 @@ export class StateRoll extends State {
     protected CheckInput(Client: Client) {
         if (Client.Input.Button.Roll.Pressed || Client.Speed.X < Client.Physics.RollGetup) {
             // TODO: ceil clip
-            Client.State.Current = Client.State.Get("Grounded")
+            Client.State.Current = Client.State.States.Grounded
             Client.ExitBall()
 
             return true
@@ -86,7 +86,7 @@ export class StateRoll extends State {
         if (Client.Ground.Grounded) {
             Client.Animation.Current = "Roll"
         } else {
-            Client.State.Current = Client.State.Get("Airborne")
+            Client.State.Current = Client.State.States.Airborne
         }
     }
 }

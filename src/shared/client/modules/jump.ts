@@ -8,7 +8,7 @@ import { Client } from "shared/client"
  */
 export function CheckJump(Client: Client) {
     if (Client.Input.Button.Jump.Pressed) {
-        Client.State.Current = Client.State.Get("Airborne")
+        Client.State.Current = Client.State.States.Airborne
         Client.Speed = Client.Speed.add(new Vector3(0, Client.Physics.JumpInitalForce, 0))
 
         Client.Ground.Grounded = false

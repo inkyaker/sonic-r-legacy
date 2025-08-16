@@ -9,6 +9,7 @@ import { UIMain } from "./ui"
 import { Animation } from "./draw/animation"
 import { FrameworkState } from "shared/common/frameworkstate"
 import { ObjectController } from "./object/objectcontroller"
+import { Rail } from "./modules/rail"
 
 /**
  * Flags list
@@ -106,6 +107,7 @@ export class Client {
     public readonly Input: Input
     public readonly UI: UIMain
     public readonly Object: ObjectController
+    public readonly Rail: Rail
 
     // Components
     public Ground
@@ -130,6 +132,7 @@ export class Client {
         this.Input = new Input(this)
         this.UI = new UIMain()
         this.Object = new ObjectController(this)
+        this.Rail = new Rail()
 
         this.Ground = new Ground()
 

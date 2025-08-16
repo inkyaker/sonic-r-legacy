@@ -1,13 +1,13 @@
 import { Client } from "shared/client"
-import { State } from "./state"
+import { SrcState } from "./state"
 
 /**
  * State which does not apply any collision or physics objects
  * 
  * @class
- * @augments State
+ * @augments SrcState
  */
-export class StateNone extends State {
+export class StateNone extends SrcState {
     constructor() {
         super()
     }

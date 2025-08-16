@@ -3,19 +3,20 @@ import { PhysicsHandler } from "shared/client/physics/physics"
 import { CheckJump } from "./jump"
 import { CheckSkid } from "./skid"
 import { CheckSpindash } from "./spindash"
-import { State } from "./state"
+import { SrcState } from "./state"
+import { CheckRail } from "./rail"
 
 /**
  * @class
- * @augments State
+ * @augments SrcState
  */
-export class StateGrounded extends State {
+export class StateGrounded extends SrcState {
     constructor() {
         super()
     }
 
     protected CheckInput(Client: Client) {
-        return CheckJump(Client) || CheckSpindash(Client) || CheckSkid(Client)
+        return CheckJump(Client) || CheckSpindash(Client) || CheckSkid(Client) || CheckRail(Client)
     }
 
     protected AfterUpdateHook(Client: Client) {
@@ -25,13 +26,13 @@ export class StateGrounded extends State {
 
         if (Client.Ground.Grounded) {
             const Slip = math.sqrt(1)
-            const Acceleration = math.min(math.abs(Client.Speed.X)/Client.Physics.CrashSpeed, 1)
+            const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Physics.CrashSpeed, 1)
 
             Client.Animation.Current = Client.Speed.X > 0 && "Run" || "Idle"
             Client.Animation.Speed = Client.Animation.Current === "Run" && 1 || math.lerp(Client.Speed.X / Slip + (1 - Slip) * 2, Client.Speed.X, Acceleration)
         } else {
             Client.Animation.Current = "Fall"
-            Client.State.Current = Client.State.Get("Airborne")
+            Client.State.Current = Client.State.States.Airborne
         }
     }
 }
