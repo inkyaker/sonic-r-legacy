@@ -1,3 +1,3 @@
 export let FrameworkState = {
-    GameSpeed: .5,
+    GameSpeed: 1,
 }

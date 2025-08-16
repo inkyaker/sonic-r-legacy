@@ -23,6 +23,7 @@ export let CharacterInfo = {
 		RollGetup: 1.39, // Point at which the roll state should uncurl you
         RushSpeed: 2.3,
         DashSpeed: 5.09,
+		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
 
         RunAcceleration: .05,
         MaxXSpeed: 3,

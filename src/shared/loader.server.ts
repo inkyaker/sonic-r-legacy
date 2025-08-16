@@ -13,18 +13,22 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Players, RunService } from "@rbxts/services"
-import { Player } from "shared/player"
+import { Players } from "@rbxts/services"
+import { Client } from "shared/client"
+
+if (!game.IsLoaded()) {
+    game.Loaded.Wait()
+}
 
 const LocalPlayer = Players.LocalPlayer
-let PlayerObject:Player | undefined = undefined
+let RunningClient: Client | undefined = undefined
 
 function CharacterAdded() {
     const Character = LocalPlayer.Character
 
     assert(Character, "Character not found!")
 
-    PlayerObject = new Player(Character)
+    RunningClient = new Client(Character)
 }
 
 function CharacterRemoving() {

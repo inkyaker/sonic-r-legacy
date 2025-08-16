@@ -7,7 +7,10 @@ include/
 # vsc workspace
 *.code-workspace
 
-#rbxl
+# rbxl
 main.rbxl
 main.rbxl.*
 *.rbxl
+
+# flamework
+flamework.build

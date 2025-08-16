@@ -1,0 +1,67 @@
+import { Client } from "shared/client"
+import { PhysicsHandler } from "shared/client/physics/physics"
+import { State } from "./state"
+
+/**
+ * Function ran in `State.CheckInput`
+ * @move
+ * @param Client 
+ * @returns Move successful
+ */
+export function CheckSkid(Client: Client) {
+    const [HasControl, Turn] = Client.Input.Get()
+
+    const Skid = HasControl && (math.abs(Turn) > math.rad(135)) || false
+
+    if (Skid) {
+        Client.Animation.Current = "Skid"
+        Client.State.Current = Client.State.Get("Skid")
+    }
+
+    return Skid
+}
+
+/**
+ * Function ran in `State.CheckInput`
+ * @move
+ * @param Client 
+ * @returns Move successful
+ */
+export function CheckStopSkid(Client: Client) {
+    if (Client.Speed.X <= .01) {
+        Client.Speed = Client.Speed.mul(new Vector3(0, 1, 1))
+        Client.State.Current = Client.State.Get("Grounded")
+
+        return true
+    } else {
+        const [HasControl, Turn] = Client.Input.Get()
+        const StopSkid = HasControl && (math.abs(Turn) <= math.rad(135)) || false
+
+        if (StopSkid) {
+            Client.State.Current = Client.State.Get("Grounded")
+        }
+
+        return StopSkid
+    }
+}
+
+/**
+ * @class
+ * @state
+ * @augments State
+ */
+export class StateSkid extends State {
+    constructor() {
+        super()
+    }
+
+    protected CheckInput(Client: Client) {
+        return CheckStopSkid(Client)
+    }
+
+    protected AfterUpdateHook(Client: Client) {
+        PhysicsHandler.ApplyGravity(Client)
+        PhysicsHandler.Skid(Client)
+    }
+}
+

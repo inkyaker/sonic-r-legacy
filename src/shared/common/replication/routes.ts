@@ -3,7 +3,7 @@ import { t } from "@rbxts/t"
 
 // UPDATE
 export type UpdateData = {
-    // list of player arguments to replicate
+    // list of client arguments to replicate
     Angle:CFrame,
     Position:Vector3,
 }

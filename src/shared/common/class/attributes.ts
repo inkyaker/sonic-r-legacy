@@ -11,7 +11,7 @@ export function Attributes<T extends {[Index:string]: ValidAttributeTypes}>(Obje
         __newindex: (_, Index, Value) => {
             Object.SetAttribute(Index as unknown as string, Value as unknown as ValidAttributeTypes)
         },
-        __call: (AttributeChanged) => {
+        __call: (_, AttributeChanged) => {
             assert(typeOf(AttributeChanged) === "string", `Attribute provided was not string.`)
 
             return Object.GetAttributeChangedSignal(AttributeChanged as unknown as string)
