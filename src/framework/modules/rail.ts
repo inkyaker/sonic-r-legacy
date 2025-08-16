@@ -1,4 +1,4 @@
-import { Client } from "shared/client"
+import { Client } from "framework"
 import { Workspace } from "shared/common/globals"
 import { CheckJump } from "./jump"
 import { SrcState } from "./state"
@@ -156,7 +156,7 @@ export function CheckRail(Client: Client) {
 export class StateRail extends SrcState {
     public Params: RaycastParams
     public LastUpdatedPosition?: Vector3
-    public Skin:number = 1
+    public Skin: number = 1
 
     constructor() {
         super()

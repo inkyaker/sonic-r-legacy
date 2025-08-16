@@ -1,4 +1,4 @@
-import { Client } from "shared/client";
+import { Client } from "framework";
 import SrcObject from "../baseobj";
 import { Attributes } from "shared/common/class/attributes";
 
@@ -7,13 +7,14 @@ import { Attributes } from "shared/common/class/attributes";
  * @object
  * @augments SrcObject
  */
-class DashRamp extends SrcObject {
+class DashPanel extends SrcObject {
     public Speed = 0
     public LockTime = 0
     public Data
 
     constructor(Object: Model) {
         super(Object)
+
         this.Data = Attributes<{ Speed: number, LockTime: number }>(Object)
 
         this.Speed = this.Data.Speed
@@ -24,16 +25,17 @@ class DashRamp extends SrcObject {
     }
 
     protected OnTouch(Client: Client) {
+        Client.Angle = this.Root.GetPivot().Rotation
+
+        const LookVector = Client.ToLocal(this.Root.GetPivot().LookVector)
+        Client.Speed = Client.Speed.add(LookVector.mul(this.Speed))
+
         Client.Flags.DirectVelocity = false
         Client.Flags.LockTimer = math.ceil(this.LockTime * 60)
-
-        Client.Angle = this.Root.GetPivot().Rotation
         Client.Position = this.Root.GetPivot().Position
 
-        Client.Speed = new Vector3(this.Speed, this.Speed / 1.5, 0)
-
-        this.Debounce = 12
+        this.Debounce = 25
     }
 }
 
-export = DashRamp
+export = DashPanel

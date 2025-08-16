@@ -1,6 +1,7 @@
 import { Workspace } from "shared/common/globals"
 import SrcObject from "./objects/baseobj"
 import { Client } from ".."
+import { AddLog } from "shared/common/utility/logger"
 
 // TODO: see if theres a better way to do this
 // a dynamic list for all that extends SrcObject would be nice, and could also be implemented for states rather than a fixed registry
@@ -25,19 +26,18 @@ export class ObjectController {
         this.Objects = new Map()
         this.Client = Client
 
-        print(ObjectClasses)
-
-        for (const [Index, Model] of pairs(Workspace.Level.Objects.GetDescendants())) {
-            if (!Model.IsA("Model")) { print(`continue`); continue }
+        for (const [_, Model] of pairs(Workspace.Level.Objects.GetDescendants())) {
+            if (!Model.IsA("Model")) { continue }
             
             const Class = ObjectClasses.get(Model.Name)
-            print(`missing class ${Model.Name}`)
-            if (!Class) { continue }
+            if (!Class) { 
+                AddLog(`Failed to initialize Object ${Model}, unable to find corresponding Object module!`)
+                continue
+            }
 
             const Target = new Class(Model)
 
             this.Objects.set(Model, Target)
-            print(`added object ${Model.Name}`)
         }
 
         this.Params = new RaycastParams()

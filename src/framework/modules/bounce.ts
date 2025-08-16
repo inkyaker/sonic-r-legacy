@@ -1,4 +1,4 @@
-import { Client } from "shared/client"
+import { Client } from "framework"
 
 /**
  * Function ran in `State.CheckInput`

@@ -39,6 +39,8 @@ export let CharacterInfo = {
 
         AirResist: new Vector3(-.008, -.01, -.4),
 
+		CameraOffset: new Vector3(0, 2, 0),
+
 		// Moves
 		HomingForce: {AirDash:5, HomingAttack:5}
     },

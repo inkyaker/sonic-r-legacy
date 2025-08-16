@@ -32,6 +32,7 @@ export class Camera {
         })
 
         this.Humanoid = Client.Character.WaitForChild("Humanoid") as Humanoid
+        this.Humanoid.CameraOffset = Client.Physics.CameraOffset
     }
 
     /**

@@ -1,5 +1,5 @@
-import { Client } from "shared/client"
-import { RunCollision } from "shared/client/physics/collision"
+import { Client } from "framework"
+import { RunCollision } from "framework/physics/collision"
 
 /**
  * State base type

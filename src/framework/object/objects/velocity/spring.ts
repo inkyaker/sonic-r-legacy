@@ -1,4 +1,4 @@
-import { Client } from "shared/client";
+import { Client } from "framework";
 import SrcObject from "../baseobj";
 import { Attributes } from "shared/common/class/attributes";
 

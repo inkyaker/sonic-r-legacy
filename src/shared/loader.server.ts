@@ -14,7 +14,7 @@
     limitations under the License.
 */
 import { Players } from "@rbxts/services"
-import { Client } from "shared/client"
+import { Client } from "framework"
 
 if (!game.IsLoaded()) {
     game.Loaded.Wait()

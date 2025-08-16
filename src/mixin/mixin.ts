@@ -1,6 +1,7 @@
 import type ts from "typescript"
 
 // Module provides functions that "mixin" to base types through a transformer.
+// Module does not exist in the main system as it exports nothing, purely exists for transformer functions.
 
 type Property = ts.SyntaxKind.PropertyAccessExpression
 type Call = ts.SyntaxKind.CallExpression

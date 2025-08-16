@@ -1,5 +1,5 @@
-import { Client } from "shared/client"
-import { PhysicsHandler } from "shared/client/physics/physics"
+import { Client } from "framework"
+import { PhysicsHandler } from "framework/physics/physics"
 import { CheckBounce } from "./bounce"
 import { CheckHomingAttack } from "./homing"
 import { SrcState } from "./state"

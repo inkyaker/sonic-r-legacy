@@ -1,4 +1,4 @@
-import { Client } from "shared/client"
+import { Client } from "framework"
 import { SrcState } from "./state"
 
 /**

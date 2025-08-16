@@ -1,6 +1,6 @@
 import { Connector } from "shared/common/class/connector"
 import { AddLog } from "shared/common/utility/logger"
-import { Client } from "shared/client"
+import { Client } from "framework"
 
 /**
  * @class

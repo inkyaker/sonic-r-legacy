@@ -1,5 +1,5 @@
 {
-	"name": "main",
+	"name": "digitalswirl-ts",
 	"globIgnorePaths": [
 		"**/package.json",
 		"**/tsconfig.json"
@@ -24,7 +24,10 @@
 				}
 			},
 			"TS": {
-				"$path": "out/shared"
+				"$path": "out/shared",
+				"framework": {
+					"$path": "out/framework"
+				}
 			}
 		},
 		"StarterPlayer": {
