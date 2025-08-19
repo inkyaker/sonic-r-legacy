@@ -2,7 +2,6 @@ import { Client } from "framework";
 import SrcObject from "../baseobj";
 import { TweenService } from "@rbxts/services";
 import { GetAttribute } from "shared/common/class/attributes";
-import { NumCompare } from "shared/common/utility/util";
 
 /**
  * @class
@@ -38,7 +37,7 @@ class Ring extends SrcObject {
             } else if (Instance.IsA("Light")) {
                 const DefaultBright = GetAttribute(Instance, "DefaultBrightness", Instance.Brightness)
 
-                TweenService.Create(Instance, new TweenInfo(1), {Brightness: NumCompare(Transparency === 1, 0, DefaultBright)}).Play()
+                TweenService.Create(Instance, new TweenInfo(1), {Brightness: Transparency === 1 ? 0 : DefaultBright}).Play()
             }
         }
     }

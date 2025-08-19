@@ -1,16 +1,6 @@
 import { deepCopy as DeepCopy } from "@rbxts/deepcopy";
 import { Client } from "..";
-import { AnimationList, InferredAnimation } from "shared/characterinfo";
-
-type AnimationData = {
-    EndAnimation?: keyof AnimationList,
-    Transitions?: {
-        [Index: string]: {
-            From?: number,
-            To?: number
-        }
-    }
-}
+import { AnimationData, AnimationList, InferredAnimation, SetAnimation } from "shared/characterinfo";
 
 /**
  * @class
@@ -37,22 +27,34 @@ export class Animation {
         const AnimationController: Animator = (Client.Character.WaitForChild("Humanoid").WaitForChild("Animator") as Animator) // TODO: make animationcontroller.animator
         for (const [_, AnimationInfo] of pairs(this.Animations)) {
             for (const [Key, Value] of pairs(AnimationInfo)) {
-                if (typeOf(Key) === "number") {
-                    const NewInstance = new Instance("Animation")
-                    NewInstance.AnimationId = `rbxassetid://${Value.AnimationID}`
+                let Animation = Value as InferredAnimation[0]
 
-                    Value.Asset = AnimationController.LoadAnimation(NewInstance)
-                    Value.Asset.Looped = Value.Looped
+                if (typeIs(Key, "number")) {
+                    const NewInstance = new Instance("Animation", AnimationController)
+                    NewInstance.AnimationId = `rbxassetid://${Animation.AnimationID}`
+
+                    Animation.Asset = AnimationController.LoadAnimation(NewInstance)
+                    Animation.Asset.Looped = Animation.Looped
                 }
             }
         }
     }
 
     /**
-     * TODO: this
+     * Will error out the framework if you do not load animations immediately! Beware of using this function without proper precautions
      */
     public UnloadAnimations() {
+        for (const [_, AnimationInfo] of pairs(this.Animations)) {
+            for (const [Key, Value] of pairs(AnimationInfo)) {
+                let Animation = Value as InferredAnimation[0]
 
+                if (typeIs(Key, "number")) {
+                    Animation.Asset.Animation?.Destroy()
+                    Animation.Asset.Destroy()
+                    Animation.Asset = undefined as unknown as AnimationTrack
+                }
+            }
+        }
     }
 
     /**
@@ -63,7 +65,7 @@ export class Animation {
     private UpdateState(Animation: InferredAnimation, Playing: boolean, TransitionTime?: number) {
         for (const [Key, Value] of pairs(Animation)) {
             if (typeOf(Key) !== "number") { continue }
-            Value.Asset[Playing && "Play" || "Stop"](TransitionTime)
+            Value.Asset[Playing ? "Play" : "Stop"](TransitionTime)
         }
     }
 
@@ -117,7 +119,7 @@ export class Animation {
 
                     Value.Asset.AdjustSpeed(Speed)
                 }
-                Value.Asset.AdjustWeight(Triggered && .999 || .001)
+                Value.Asset.AdjustWeight(Triggered ? 1 : .01)
             }
         }
     }
@@ -127,16 +129,16 @@ export class Animation {
      * @param Client 
      */
     public Animate(Client: Client) {
-        const Previous = (this.Animations[this.Last] as InferredAnimation & AnimationData)
-        const Next = (this.Animations[this.Current] as InferredAnimation & AnimationData)
+        const Previous = (this.Animations[this.Last])
+        const Next = (this.Animations[this.Current])
 
         if (Previous === Next && Next.EndAnimation) {
             const Track = this.GetCurrentTrack(Client, Next)
             if (!Track.IsPlaying || Track.TimePosition >= Track.Length) {
                 Track.Play(0, undefined, 1)
-                Track.TimePosition = Track.Length - (1/60)
+                Track.TimePosition = Track.Length - .001
                 
-                this.Current = Next.EndAnimation as keyof AnimationList
+                this.Current = Next.EndAnimation
             }
         }
 
@@ -178,8 +180,6 @@ export class Animation {
                     }
                 }
             }
-
-            print(TransitionTo, TransitionFrom)
 
             this.UpdateState(Previous, false, TransitionFrom)
             this.UpdateState(Next, true, TransitionTo)

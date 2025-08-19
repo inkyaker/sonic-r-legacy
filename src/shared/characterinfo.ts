@@ -1,12 +1,11 @@
 // TODO: completely remake this system
 
-export type CharacterInfo = typeof CharacterInfo
 export type AnimationList = typeof CharacterInfo.Animations
 export type InferredAnimation = {
 	[Index: number]: {
 		AnimationID: string,
 		Asset: AnimationTrack,
-		Position: number | undefined,
+		Position?: number,
 		Looped: boolean,
 		Speed?: {
 			Base: number,
@@ -16,10 +15,27 @@ export type InferredAnimation = {
 	};	
 }
 
+export type AnimationData = {
+    EndAnimation?: keyof AnimationList,
+    Transitions?: {
+        [Index: string]: {
+            From?: number,
+            To?: number
+        }
+    }
+}
+
 let BaseAnimation: AnimationTrack = (undefined as unknown as AnimationTrack)
 
-export let CharacterInfo = {
-	Physics: {
+export type SetAnimation = InferredAnimation & AnimationData
+
+export interface CharacterInfo {
+	Physics: typeof CharacterInfo.Physics,
+	Animations: {[Index:string]: SetAnimation}
+}
+
+class Info {
+	public Physics = {
 		// Collision
 		Height: 5,
 		Scale: .6,
@@ -55,17 +71,11 @@ export let CharacterInfo = {
 
 		// Moves
 		HomingForce: { AirDash: 5, HomingAttack: 5 }
-	},
+	}
 
-	Animations: {
+	public Animations:CharacterInfo["Animations"] = {
 		Idle: {
 			[0]: { AnimationID: "120676159453993", Asset: BaseAnimation, Looped: true },
-			Transitions: {
-				All: {
-					From: 0,
-					To: 0
-				}
-			}
 		},
 		Roll: {
 			[0]: { AnimationID: "89521650226043", Asset: BaseAnimation, Looped: true, Speed: {Base: 1.5, Increment: .65, Absolute: true} },
@@ -85,21 +95,24 @@ export let CharacterInfo = {
 			EndAnimation: "Spring",
 			Transitions: {
 				All: {
-					From: 0,
-					To: .5
-				},
-				Spring: {
 					To: 0
-				}
+				}//,
+			//	Spring: {
+			//		To: 0
+			//	}
 			}
 		},
 		Spring: {
 			[0]: { AnimationID: "139915985594263", Asset: BaseAnimation, Looped: true},
-			Transitions: {
-				SpringStart: {
-					From: 0
-				}
-			}
+			//Transitions: {
+			//	SpringStart: {
+			//		From: 0
+			//	}
+			//}
+		},
+		SpringEnd: {
+			[0]: { AnimationID: "138856667761535", Asset:BaseAnimation, Looped: false},
+			EndAnimation: "Fall"
 		},
 		Run: {
 			[0]: {
@@ -163,6 +176,8 @@ export let CharacterInfo = {
 	}
 }
 
+export let CharacterInfo = new Info
+
 
 /*
 
@@ -211,31 +226,30 @@ return {
 		air_max_speed = 6,
 	},
 	Assets = player,
-	animations = {
-		Idle = {
+	animations = Idle = {
 			tracks = { {
 				name = "Idle",
-				AnimationID = "120676159453993"
+				id = "120676159453993"
 			} }
 		},
 		Idle2 = {
 			tracks = { {
 				name = "Idle2",
-				AnimationID = "132878115859327"
+				id = "132878115859327"
 			} },
 			end_anim = "Idle"
 		},
 		LandShortStill = {
 			tracks = { {
 				name = "LandShortStill",
-				AnimationID = "84985275274473"
+				id = "84985275274473"
 			} },
 			end_anim = "Idle2"
 		},
 		HomingAttack = {
 			tracks = { {
 				name = "HomingAttack",
-				AnimationID = "83146172775561"
+				id = "83146172775561"
 			} },
 			end_anim = "SpecialFall",
 			anim_speed = true,
@@ -243,13 +257,13 @@ return {
 		SpecialFall = {
 			tracks = { {
 				name = "SpecialFall",
-				AnimationID = "116403189996931"
+				id = "76495010084678"
 			} },
 		},
 		LandMoving = {
 			tracks = { {
 				name = "LandMoving",
-				AnimationID = "116920139882842"
+				id = "116920139882842"
 			} },
 			end_anim = "Run",
 			transitions = {
@@ -260,22 +274,22 @@ return {
 			tracks = { 
 				{
 					name = "Jog2",
-					AnimationID = "92382564179188",
-					Position = 0
+					id = "87236465713680", --92382564179188
+					pos = 0
 				},
 				{
 					name = "Run",
-					AnimationID = "72318789019564",
-					Position = 4
+					id = "83313857129556", --72318789019564
+					pos = 3.5
 				}, 
 				{
 					name = "Jet",
-					AnimationID = "73079985595263",
-					Position = 6.5
+					id = "86037390555153", --73079985595263
+					pos = 6
 				},	
 			},
-			spd_b = {.2, .2, .3},  -- base speed
-			spd_i = {.3, .3, .4}, -- speed incremental
+			spd_b = {.2, .3, .45},  -- base speed
+			spd_i = {.4, .45, .6}, -- speed incremental
 			spd_a = false,
 			transitions = {
 				LandMoving = .1,
@@ -284,14 +298,14 @@ return {
 		Skid = {
 			tracks = { {
 				name = "Skid",
-				AnimationID = "99388608469800"
+				id = "99388608469800"
 			} },
 			end_anim = "SkidEnd"
 		},
 		SkidEnd = {
 			tracks = { {
 				name = "SkidEnd",
-				AnimationID = "108027306781226"
+				id = "108027306781226"
 			} },
 			end_anim = "Idle2",
 			transitions = {
@@ -302,7 +316,7 @@ return {
 		JumpMoving = {
 			tracks = { {
 				name = "JumpMoving",
-				AnimationID = "103855062678356"
+				id = "103855062678356"
 			} },
 			spd = 1,
 			end_anim = "Roll"
@@ -310,7 +324,7 @@ return {
 		JumpStill = {
 			tracks = { {
 				name = "JumpStill",
-				AnimationID = "114576643561141"
+				id = "114576643561141"
 			} },
 			spd = .7,
 			end_anim = "Roll"
@@ -318,7 +332,7 @@ return {
 		Roll = {
 			tracks = { {
 				name = "Roll",
-				AnimationID = "89521650226043"
+				id = "89521650226043"
 			} },
 			spd_b = 1.5,
 			spd_i = 0.65,
@@ -327,7 +341,7 @@ return {
 		Spindash = {
 			tracks = { {
 				name = "Spindash",
-				AnimationID = "106582015184532"
+				id = "106582015184532"
 			} },
 			spd_b = 1.5,
 			spd_i = 0.65,
@@ -339,40 +353,40 @@ return {
 		Fall = {
 			tracks = { {
 				name = "Fall",
-				AnimationID = "106824283599126"
+				id = "106824283599126"
 			} }
 		},
 		AirKick = {
 			tracks = { {
 				name = "AirKick",
-				AnimationID = "0"
+				id = "0"
 			} },
 			end_anim = "Fall"
 		},
 		AirKickUp = {
 			tracks = { {
 				name = "AirKickUp",
-				AnimationID = "0"
+				id = "0"
 			} },
 			end_anim = "Fall"
 		},
 		LSD = {
 			tracks = { {
 				name = "LSD",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		Hurt1 = {
 			tracks = { {
 				name = "Hurt1",
-				AnimationID = "0"
+				id = "0"
 			} },
 			end_anim = "Fall"
 		},
 		Hurt2 = {
 			tracks = { {
 				name = "Hurt2",
-				AnimationID = "0"
+				id = "0"
 			} },
 			end_anim = "Fall"
 		},
@@ -380,7 +394,7 @@ return {
 		Rail_L = {
 			tracks = { {
 				name = "Rail_L",
-				AnimationID = "103281797241307"
+				id = "103281797241307"
 			} },
 			spd_b = 0.125,
 			spd_i = 0.5,
@@ -390,7 +404,7 @@ return {
 		Rail_R = {
 			tracks = { {
 				name = "Rail_R",
-				AnimationID = "93967315703739"
+				id = "93967315703739"
 			} },
 			spd_b = 0.125,
 			spd_i = 0.5,
@@ -401,7 +415,7 @@ return {
 		RailSwap_L_R = {
 			tracks = { {
 				name = "RailSwap_L_R",
-				AnimationID = "122204375634398"
+				id = "122204375634398"
 			} },
 			end_anim = "Rail_R"
 		},
@@ -409,7 +423,7 @@ return {
 		RailSwap_R_L = {
 			tracks = { {
 				name = "RailSwap_R_L",
-				AnimationID = "131094461125191"
+				id = "131094461125191"
 			} },
 			end_anim = "Rail_L"
 		},
@@ -417,7 +431,7 @@ return {
 		RailLand = {
 			tracks = { {
 				name = "RailLand",
-				AnimationID = "0"
+				id = "0"
 			} },
 			end_anim = "Rail_R"
 		},
@@ -425,64 +439,75 @@ return {
 		RailSwitchLeft_L = {
 			tracks = { {
 				name = "RailSwitchLeft_L",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		RailSwitchRight_L = {
 			tracks = { {
 				name = "RailSwitchRight_L",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		RailSwitchLeft_R = {
 			tracks = { {
 				name = "RailSwitchLeft_R",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		RailSwitchRight_R = {
 			tracks = { {
 				name = "RailSwitchRight_R",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		
 		SpringStart = {
 			tracks = { {
 				name = "SpringStart",
-				AnimationID = "0"
+				id = "105125944783334"
 			} },
-			end_anim = "Spring"
+			end_anim = "Spring",
+			transitions = {
+				all = 0,
+			}
 		},
 		Spring = {
 			tracks = { {
 				name = "Spring",
-				AnimationID = "0"
-			} }
+				id = "139915985594263"
+			} },
+			anim_speed = true,
+		},
+		SpringEnd = {
+			tracks = { {
+				name= "SpringEnd",
+				id = "138856667761535"
+			} },
+			end_anim = "Fall"
 		},
 		DashRamp = {
 			tracks = { {
 				name = "DashRamp",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		DashRing = {
 			tracks = { {
 				name = "DashRing",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		RainbowRing = {
 			tracks = { {
 				name = "RainbowRing",
-				AnimationID = "0"
+				id = "0"
 			} }
 		},
 		SwingPole = {
 			tracks = {
 				{
 					name = "SwingPole",
-					AnimationID = "130782712685709"
+					id = "130782712685709"
 				}
 			},
 			anim_speed = true,
@@ -491,7 +516,7 @@ return {
 			tracks = {
 				{
 					name = "SwingPoleSuccess",
-					AnimationID = "132128804816688"
+					id = "132128804816688"
 				}
 			},
 			end_anim = "SpecialFall",
@@ -500,7 +525,7 @@ return {
 			tracks = {
 				{
 					name = "RocketGrab",
-					AnimationID = "132924965224165"
+					id = "132924965224165"
 				}
 			},
 			end_anim = "RocketLaunchLoop",
@@ -509,7 +534,7 @@ return {
 			tracks = {
 				{
 					name = "RocketLaunchLoop",
-					AnimationID = "81137156764728"
+					id = "81137156764728"
 				}
 			},
 		},

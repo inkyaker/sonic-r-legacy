@@ -20,7 +20,7 @@ export function Attributes<T extends {[Index:string]: ValidAttributeTypes}>(Obje
 }
 
 export function GetAttribute<T extends ValidAttributeTypes>(Instance: Instance, Attribute:string, Value?:T): T extends undefined ? unknown|undefined : T {
-    if (Value && !Instance.GetAttribute(Attribute)) { Instance.SetAttribute(Attribute, Value) }
+    if (Value !== undefined && Instance.GetAttribute(Attribute) === undefined) { Instance.SetAttribute(Attribute, Value) }
 
     const ToReturn = Instance.GetAttribute(Attribute)
 

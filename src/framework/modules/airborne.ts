@@ -19,6 +19,12 @@ export class StateAirborne extends SrcState {
         return CheckHomingAttack(Client) || CheckAirKick(Client) || CheckBounce(Client) || CheckRail(Client)
     }
 
+    protected BeforeUpdateHook(Client: Client) {
+        if (Client.Animation.Current === "Spring" && Client.Speed.Y <= .5) {
+            Client.Animation.Current = "SpringEnd"
+        }
+    }
+
     protected AfterUpdateHook(Client: Client) {
         PhysicsHandler.ApplyGravity(Client)
         //PhysicsHandler.Turn(Client, Client.Input.GetTurn(), undefined)
