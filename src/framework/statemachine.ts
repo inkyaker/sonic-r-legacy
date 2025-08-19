@@ -34,9 +34,22 @@ export class StateMachine {
      * Update the state machine, **only run this if you know what you're doing!**
      */
     public Update(DeltaTime: number) {
+        if (FrameworkState.GameSpeed === 0) {
+            this.Client.Input.PrepareReset()
+            this.Client.Input.Update()
+            
+            return
+        }
+        
         // Internal fixed update loop
         this.TickTimer = math.min(this.TickTimer + DeltaTime * (60 * FrameworkState.GameSpeed), 10)
         while (this.TickTimer > 1) {
+            // Change input locks
+            if (this.Client.Flags.LockTimer > 0) {
+                this.Client.Flags.LockTimer -= 1
+            }
+
+            this.Client.Input.Update()
             this.Client.Input.PrepareReset()
 
             this.TickState()

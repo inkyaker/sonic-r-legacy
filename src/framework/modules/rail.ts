@@ -114,7 +114,7 @@ export function SetRail(Client: Client, Part?: Part) {
         Rail.BalanceEnabled = Part.Parent && Part.Parent.GetAttribute("Balance") && true || false
     } else if (Client.Rail.Current !== undefined) {
         Rail.Current = undefined
-        Rail.RailDebounce = 10
+        Rail.RailDebounce = 25
 
         // TODO: stop sound
         // Grind
@@ -128,21 +128,16 @@ export function SetRail(Client: Client, Part?: Part) {
 export function CheckRail(Client: Client) {
     if (Client.Rail.RailDebounce > 0 || Client.Rail.Current) { return false }
     const Rail = Client.State.States.Rail
+    const LastPosition = Client.LastCFrame.Position
 
-    if (!Rail.LastUpdatedPosition) {
-        Rail.LastUpdatedPosition = Client.Position
-    }
+    if (LastPosition !== Client.Position) {
+        const Look = CFrame.lookAt(LastPosition, Client.Position)
+        const Magnitude = LastPosition.Distance(Client.Position)
 
-    if (Rail.LastUpdatedPosition !== Client.Position) {
-        const Look = CFrame.lookAt(Rail.LastUpdatedPosition, Client.Position)
-        const Magnitude = Rail.LastUpdatedPosition.Distance(Client.Position)
-
-        const Cast = Workspace.Spherecast(Rail.LastUpdatedPosition.sub(Look.LookVector.mul(Rail.Skin)), Rail.Skin, Look.LookVector.mul(Magnitude + Rail.Skin), Rail.Params)
+        const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(Rail.Skin)), Rail.Skin, Look.LookVector.mul(Magnitude + Rail.Skin), Rail.Params)
         if (Cast) {
             SetRail(Client, Cast.Instance as Part)
         }
-
-        Rail.LastUpdatedPosition = Client.Position
     }
 
     return Client.State.Current === Client.State.States.Rail
@@ -155,8 +150,7 @@ export function CheckRail(Client: Client) {
  */
 export class StateRail extends SrcState {
     public Params: RaycastParams
-    public LastUpdatedPosition?: Vector3
-    public Skin: number = 1
+    public Skin: number = 2
 
     constructor() {
         super()
@@ -184,7 +178,7 @@ export class StateRail extends SrcState {
         const Crouching = Client.Input.Button.Roll.Pressed
 
         //Gravity
-        const Weight = Client.Physics.Weight * (false && .45 || 1)
+        const Weight = Client.GetWeight()
         // TODO: Water detection
 
         let Gravity = (Client.ToLocal(Client.Flags.Gravity).mul(Weight)).X
@@ -219,8 +213,7 @@ export class StateRail extends SrcState {
         if (math.abs(Client.Speed.X) >= 8) {
             Rail.RailBonusTime += 1
             if (Rail.RailBonusTime >= 60) {
-                //TODO: give score
-                //Client.GiveSCore(Client.Speed.X < 0 && 1000 || 700)
+                Client.CollectState.AddScore(Client.Speed.X < 0 && 1000 || 700)
                 Rail.RailBonusTime = 0
             }
         } else {
@@ -339,6 +332,7 @@ export class StateRail extends SrcState {
     protected OnStep(Client: Client) {
         if (Client.Rail.RailDebounce > 0) {
             Client.Rail.RailDebounce -= 1
+            print(Client.Rail.RailDebounce)
         }
     }
 }

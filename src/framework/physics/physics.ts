@@ -15,7 +15,7 @@ export const PhysicsHandler = {
      */
     AccelerateGrounded: (Client: Client) => {
         const MaxXSoeed = Client.Physics.MaxXSpeed
-        const RunAcceleration = Client.Physics.RunAcceleration
+        const RunAcceleration = Client.GetRunAcceleration()
         const Friction = /*self.flag.grounded and self.frict_mult*/ 1 || 1
 
         //Get analogue state
@@ -126,18 +126,18 @@ export const PhysicsHandler = {
      * @param Client 
      */
     AccelerateAirborne: (Client: Client) => {
-        // TODO:
+        // TODO: air acceleration
         PhysicsHandler.AccelerateGrounded(Client)
 
-        if /*(self.rail_trick > 0) ||*/ (Client.Flags.JumpTimer > 0 && Client.Flags.BallEnabled && Client.Input.Button.Jump.Activated) {
+        if ((Client.Rail.RailTrick > 0) || (Client.Flags.JumpTimer > 0 && Client.Flags.BallEnabled && Client.Input.Button.Jump.Activated)) {
             Client.Flags.JumpTimer -= 1
-            Client.Speed = Client.Speed.add(new Vector3(0, Client.Physics.JumpHoldForce * 0.8 /* * (1 + self.rail_trick / 2)*/, 0))
+            Client.Speed = Client.Speed.add(new Vector3(0, Client.Physics.JumpHoldForce * 0.8 * (1 + Client.Rail.RailTrick / 2), 0))
         }
     },
 
     // Gravity
     ApplyGravity: (Client: Client) => {
-        const weight = Client.Physics.Weight
+        const weight = Client.GetWeight()
 
         //Get cross product between our moving velocity and floor normal
         const FloorCrossSpeed = Client.Flags.LastUp.Cross(Client.ToGlobal(Client.Speed)) // TODO: replace with floor normal if needed
@@ -221,7 +221,7 @@ export const PhysicsHandler = {
      */
     RollInertia: (Client: Client) => {
         // TODO: see if i can seperate the gravity from this
-        const Weight = Client.Physics.Weight
+        const Weight = Client.GetWeight()
         let Acceleration = Client.ToLocal(Client.Flags.Gravity.mul(Weight))
 
         if (Client.Ground.Grounded && Client.Speed.X > Client.Physics.RunSpeed && Client.Ground.DotProduct < 0) {

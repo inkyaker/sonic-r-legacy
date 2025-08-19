@@ -24,8 +24,12 @@ class DashRamp extends SrcObject {
     }
 
     protected OnTouch(Client: Client) {
+        Client.ResetObjectState()
+        
         Client.Flags.DirectVelocity = false
         Client.Flags.LockTimer = math.ceil(this.LockTime * 60)
+        Client.Ground.Grounded = false
+        Client.State.Current = Client.State.States.Airborne
 
         Client.Angle = this.Root.GetPivot().Rotation
         Client.Position = this.Root.GetPivot().Position

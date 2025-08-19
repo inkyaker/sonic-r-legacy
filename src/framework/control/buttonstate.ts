@@ -8,12 +8,12 @@ export class ButtonState {
     private LastActivated
     public KeyCodes: Enum.KeyCode[]
 
-    constructor() {
+    constructor(InitialCodes: Enum.KeyCode[]) {
         this.Pressed = false
         this.Activated = false
         this.LastActivated = false
         this.CanBeUpdated = true
-        this.KeyCodes = []
+        this.KeyCodes = InitialCodes
     }
 
     /**

@@ -19,28 +19,18 @@ export class Input {
     constructor(Client: Client) {
         this.Client = Client
         this.Button = {
-            Jump: new ButtonState(),
-            Spindash: new ButtonState(),
-            Roll: new ButtonState(),
-            Bounce: new ButtonState(),
+            Jump: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA]),
+            Spindash: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB]),
+            Roll: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB]),
+            Bounce: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB]),
+            AirKick: new ButtonState([Enum.KeyCode.R, Enum.KeyCode.ButtonR1]),
         }
-
-        this.BindKeyCode(this.Button.Jump, [Enum.KeyCode.Space, Enum.KeyCode.ButtonA])
-        this.BindKeyCode(this.Button.Spindash, [Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB])
-        this.BindKeyCode(this.Button.Roll, [Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB])
-        this.BindKeyCode(this.Button.Bounce, [Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB])
 
         this.PlatformContext = "PC" // assume pc by default
         this.ControllerContext = "Xbox"
         this.Stick = Vector2.zero
     }
-
-    private BindKeyCode(Input: ButtonState, KeyCode: Enum.KeyCode[]) {
-        KeyCode.forEach((Key) => {
-            Input.KeyCodes.push(Key)
-        })
-    }
-
+    
     /**
      * Translates a KeyCode to a list of all binded `Input.Button`s
      * @param Key KeyCode
@@ -179,10 +169,10 @@ export class Input {
 
     /**
      * Get all input information
-     * @returns Tuple: {HasControl, StickMagnitude, ClientTurn}
+     * @returns Tuple: {HasControl, ClientTurn, StickMagnitude}
      */
     public Get() {
-        // has_control, stick_mag, last_turn
+        // has_control, last_turn, stick_mag
         // TODO: has_control
         return $tuple(true && this.Stick.Magnitude !== 0, this.GetTurn(), this.Stick.Magnitude)
     }

@@ -9,7 +9,7 @@ import { UIMain } from "./ui"
 import { Animation } from "./draw/animation"
 import { FrameworkState } from "shared/common/frameworkstate"
 import { ObjectController } from "./object/objectcontroller"
-import { Rail } from "./modules/rail"
+import { Rail, SetRail } from "./modules/rail"
 
 /**
  * Flags list
@@ -34,7 +34,8 @@ class Flags {
     public JumpTimer = 0
     public SpindashSpeed = 0
     public Bounces = 0
-    public IsBounce = false
+    public InBounce = false
+    public AirKickEnabled = false
 
     /**
      * Amount of updates joystick input should be locked for
@@ -44,6 +45,7 @@ class Flags {
      * Flag that cancels out gravity while `Client.LockTimer > 0`
      */
     public DirectVelocity = false // TODO: implement
+    public InWater = false
 }
 
 /**
@@ -55,6 +57,17 @@ class CollectState {
     public Shield: string | undefined
     public Power: string | undefined
     public Rings: number = 0
+    public Score: number = 0
+
+    public AddScore(Change:number) {
+        this.Score += Change
+    }
+
+    public AddRings(Change:number) {
+        this.Rings += Change
+    }
+
+
 }
 
 /**
@@ -75,8 +88,6 @@ class Ground {
     public DotProduct: number = -1
 }
 
-let PreviousAngle: CFrame | undefined
-
 /**
  * Client
  * @class
@@ -90,6 +101,7 @@ export class Client {
     public LastCFrame: CFrame
     public CurrentCFrame: CFrame
     public RenderCFrame: CFrame
+    public PreviousAngle: CFrame
 
     // Flags
     public Flags: Flags
@@ -141,7 +153,7 @@ export class Client {
 
         Render.RegisterStepped("Client", Enum.RenderPriority.Input.Value + 1, (DeltaTime) => this.Update(DeltaTime))
 
-        PreviousAngle = CFrame.identity
+        this.PreviousAngle = CFrame.identity
 
         AddLog(`Loaded new Client ${Character}`)
     }
@@ -150,32 +162,21 @@ export class Client {
      * Destroys the Client
      */
     public Destroy() {
-
+        //TODO
     }
 
     /**
      * Update Client once per frame, **do not run this method if you do not know what you're doing!**
      */
     public Update(DeltaTime: number) {
-        // Angle
-        if (PreviousAngle !== this.Angle) {
+        // Angle reset
+        if (this.PreviousAngle !== this.Angle) {
             this.SetGroundRelative()
-            PreviousAngle = this.Angle
+            this.PreviousAngle = this.Angle
         }
-
-        if (FrameworkState.GameSpeed === 0) {
-            this.Input.PrepareReset()
-        }
-
-        this.Input.Update()
 
         // Update state machine
         this.State.Update(DeltaTime)
-
-        // Change input locks
-        if (this.Flags.LockTimer > 0) {
-            this.Flags.LockTimer -= 1
-        }
 
         // Interpolate positions
         this.RenderCFrame = this.LastCFrame.Lerp(this.Angle.add(this.Position), this.State.TickTimer)
@@ -261,15 +262,65 @@ export class Client {
     public Land() {
         this.ExitBall()
         this.Flags.Bounces = 0
-        this.Flags.IsBounce = false
+        this.Flags.InBounce = false
     }
 
+    /**
+     * Undoes the value changes from objects 
+     */
+    public ResetObjectState() {
+        this.Flags.DirectVelocity = false
+        this.Flags.AirKickEnabled = false
+        this.Flags.InBounce = false
+        this.Flags.LockTimer = 0
+        this.Rail.RailTrick = 0
+        
+        SetRail(this)
+    }
+
+    /**
+     * Air resist when affected by water
+     */
+    public GetAirResist() {
+        return this.Physics.AirResist.mul(new Vector3(1, this.Flags.InWater && 1.5 || 1, 1))
+    }
+
+    /**
+     * Run acceleration when affected by water
+     */
+    public GetRunAcceleration() {
+        return this.Physics.RunAcceleration * (this.Flags.InWater && .65 || 1)
+    }
+
+    /**
+     * Weight when affected by water
+     */
+    public GetWeight() {
+        return this.Physics.Weight * (this.Flags.InWater && .45 || 1)
+    }
+
+    /**
+     * @returns DirectVelocity, Determines whether gravity is applied
+     */
+    public IsScripted() {
+        return this.Flags.DirectVelocity && this.Flags.LockTimer > 0 && true || false
+    }
+
+    /**
+     * Damages the player and knocks them back
+     * @param Source Origin Position
+     */
     public Damage(Source: Vector3) {
         if (Source.mul(new Vector3(1, 0, 1)) !== this.Position.mul(new Vector3(1, 0, 1))) {
             const TargetCFrame = CFrame.lookAt(this.Position.mul(new Vector3(1, 0, 1)), Source.mul(new Vector3(1, 0, 1)))
 
             this.Angle = TargetCFrame.Rotation
         }
+
+        // TODO
+        // iframes
+        // spilled ring
+        // death
 
         this.Speed = new Vector3(-2, 3, 0) // TODO: mirror https://github.com/SonicOnset/DigitalSwirl-Client/blob/1e01658bab4e8b664abe865634c60ec71bc4b114/ControlScript/Client/init.lua#L388C2-L397C5
     }

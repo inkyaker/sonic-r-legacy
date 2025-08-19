@@ -1,5 +1,8 @@
 import { Client } from "framework";
 import SrcObject from "../baseobj";
+import { TweenService } from "@rbxts/services";
+import { GetAttribute } from "shared/common/class/attributes";
+import { NumCompare } from "shared/common/utility/util";
 
 /**
  * @class
@@ -16,7 +19,9 @@ class Ring extends SrcObject {
     protected OnTouch(Client: Client) {
         if (this.Triggered) { return }
         this.Triggered = true
-        Client.CollectState.Rings += 1
+
+        Client.CollectState.AddRings(1)
+        Client.CollectState.AddScore(10)
 
         this.SetTransparency(1)
     }
@@ -30,6 +35,10 @@ class Ring extends SrcObject {
         for (const [_, Instance] of pairs(this.Object.GetDescendants())) {
             if (Instance.IsA("BasePart") || Instance.IsA("Decal")) {
                 Instance.LocalTransparencyModifier = Transparency
+            } else if (Instance.IsA("Light")) {
+                const DefaultBright = GetAttribute(Instance, "DefaultBrightness", Instance.Brightness)
+
+                TweenService.Create(Instance, new TweenInfo(1), {Brightness: NumCompare(Transparency === 1, 0, DefaultBright)}).Play()
             }
         }
     }

@@ -19,7 +19,6 @@ export class ObjectController {
     public Params: RaycastParams
     public Objects: Map<Model, SrcObject>
     public Skin: number = 1
-    private LastUpdatedPosition: Vector3
     private Client
 
     constructor(Client: Client) {
@@ -43,16 +42,15 @@ export class ObjectController {
         this.Params = new RaycastParams()
         this.Params.FilterType = Enum.RaycastFilterType.Include
         this.Params.FilterDescendantsInstances = [Workspace.Level.Objects]
-
-        this.LastUpdatedPosition = Client.Position
     }
 
     public CollideWithClient() {
-        if (this.LastUpdatedPosition !== this.Client.Position) {
-            const Look = CFrame.lookAt(this.LastUpdatedPosition, this.Client.Position)
-            const Magnitude = this.LastUpdatedPosition.Distance(this.Client.Position)
+        const LastPosition = this.Client.LastCFrame.Position
+        if (LastPosition !== this.Client.Position) {
+            const Look = CFrame.lookAt(LastPosition, this.Client.Position)
+            const Magnitude = LastPosition.Distance(this.Client.Position)
 
-            const Cast = Workspace.Spherecast(this.LastUpdatedPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params)
+            const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params)
             if (Cast) {
                 const Model = Cast.Instance.FindFirstAncestorOfClass("Model")
 
@@ -60,8 +58,6 @@ export class ObjectController {
                     this.Objects.get(Model)?.TouchClient(this.Client)
                 }
             }
-
-            this.LastUpdatedPosition = this.Client.Position
         }
     }
 

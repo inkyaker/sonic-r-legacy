@@ -44,13 +44,14 @@ export class Camera {
         if (!game.Workspace.CurrentCamera) { return }
         if (game.Workspace.CurrentCamera.CameraType === Enum.CameraType.Scriptable) { return }
 
-        let JoyLeft = Vector3.zero; let JoyRight = Vector2.zero
+        let JoyRight = Vector2.zero
 
         const GPState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1)
         GPState.forEach((Value) => {
-            if (Value.KeyCode === Enum.KeyCode.Thumbstick1) {
+            /*if (Value.KeyCode === Enum.KeyCode.Thumbstick1) {
                 JoyLeft = Value.Position
-            } else if (Value.KeyCode === Enum.KeyCode.Thumbstick2) {
+            } else */
+            if (Value.KeyCode === Enum.KeyCode.Thumbstick2) {
                 JoyRight = new Vector2(Value.Position.X, Value.Position.Y)
             }
         })

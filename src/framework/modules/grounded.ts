@@ -29,7 +29,7 @@ export class StateGrounded extends SrcState {
             const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Physics.CrashSpeed, 1)
 
             Client.Animation.Current = Client.Speed.X > 0 && "Run" || "Idle"
-            Client.Animation.Speed = Client.Animation.Current === "Run" && 1 || math.lerp(Client.Speed.X / Slip + (1 - Slip) * 2, Client.Speed.X, Acceleration)
+            Client.Animation.Speed = Client.Animation.Current === "Run" && math.lerp(Client.Speed.X / Slip + (1 - Slip) * 2, Client.Speed.X, Acceleration) || 1
         } else {
             Client.Animation.Current = "Fall"
             Client.State.Current = Client.State.States.Airborne

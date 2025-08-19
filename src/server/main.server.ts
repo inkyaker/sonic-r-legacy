@@ -10,10 +10,10 @@ RunService.Heartbeat.Connect(() => {
 
         const PlayerList = Players.GetPlayers()
 
-        PlayerList.forEach((Player) => {
+        for (const [_, Player] of pairs(Players.GetPlayers())) {
             if (Player !== Sender) {
                 ReplicationRemote.send(Packet).to(Player)
             }
-        })
+        }
     }
 })

@@ -4,6 +4,7 @@ import { CheckBounce } from "./bounce"
 import { CheckHomingAttack } from "./homing"
 import { SrcState } from "./state"
 import { CheckRail } from "./rail"
+import { CheckAirKick } from "./airkick"
 
 /**
  * @class
@@ -15,7 +16,7 @@ export class StateAirborne extends SrcState {
     }
 
     protected CheckInput(Client: Client) {
-        return CheckHomingAttack(Client) || CheckBounce(Client) || CheckRail(Client)
+        return CheckHomingAttack(Client) || CheckAirKick(Client) || CheckBounce(Client) || CheckRail(Client)
     }
 
     protected AfterUpdateHook(Client: Client) {
@@ -25,7 +26,7 @@ export class StateAirborne extends SrcState {
         PhysicsHandler.AlignToGravity(Client)
 
         if (Client.Ground.Grounded) {
-            if (Client.Flags.IsBounce) {
+            if (Client.Flags.InBounce) {
                 Client.Flags.JumpTimer = 0
 
                 const Speed = 1 + (math.abs(Client.Speed.X) / 16)
@@ -33,7 +34,7 @@ export class StateAirborne extends SrcState {
 
                 Client.Flags.Bounces += 1
 
-                Client.Flags.IsBounce = false
+                Client.Flags.InBounce = false
             } else {
                 Client.State.Current = Client.State.States.Grounded
                 Client.Land()

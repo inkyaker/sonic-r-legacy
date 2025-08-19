@@ -4,6 +4,7 @@ import { StateAirborne } from "./modules/airborne"
 import { StateGrounded } from "./modules/grounded"
 import { StateNone } from "./modules/none"
 import { StateRail } from "./modules/rail"
+import { AirKick } from "./modules/airkick"
 
 /**
  * List of all states for `StateMachine`
@@ -20,4 +21,5 @@ export class StateList {
     public Roll = new StateRoll
     public Skid = new StateSkid
     public Rail = new StateRail
+    public AirKick = new AirKick
 }

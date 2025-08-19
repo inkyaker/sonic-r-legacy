@@ -7,8 +7,8 @@ type Property = ts.SyntaxKind.PropertyAccessExpression
 type Call = ts.SyntaxKind.CallExpression
 
 interface i<Text extends string> {
-    readonly kind: ts.SyntaxKind.Identifier
-    readonly text: Text
+    kind: ts.SyntaxKind.Identifier
+    text: Text
 }
 
 interface ModelPos<Index> {
@@ -35,10 +35,10 @@ interface SubVecs<VecA, VecB> {
 }
 
 interface ModelDistance {
-    readonly kind: Property
-    readonly argumentList: true
-    readonly arguments: true
-    readonly expression: SubVecs<ModelPos<0>, ModelPos<1>>
+    kind: Property
+    argumentList: true
+    arguments: true
+    expression: SubVecs<ModelPos<0>, ModelPos<1>>
     name: i<"Magnitude">
 }
 
@@ -53,16 +53,16 @@ interface VecDist {
 declare global {
     interface Model {
         /** @metadata ast-macro {@link ModelDistance ast-macro-target} */
-        Distance(this:Model, To:Model): number
+        Distance(this: Model, To: Model): number
     }
 
     interface Vector3 {
         /** @metadata ast-macro {@link VecDist ast-macro-target} */
-        Distance(this:Vector3, To:Vector3): number
+        Distance(this: Vector3, To: Vector3): number
     }
 
     interface Vector2 {
         /** @metadata ast-macro {@link VecDist ast-macro-target} */
-        Distance(this:Vector2, To:Vector2): number
+        Distance(this: Vector2, To: Vector2): number
     }
 }

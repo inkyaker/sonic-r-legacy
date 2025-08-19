@@ -35,8 +35,13 @@ export class SrcState {
         // Tick global code in every state
         RunCollision(Client)
 
-        // Post update
-        this.AfterUpdateHook(Client)
+        // Account for object state changes
+        if (Client.State.Current === this) {
+            this.AfterUpdateHook(Client)
+        } else {
+            Client.State.Current.AfterUpdateHook(Client)
+        }
+
         Client.Animation.Animate(Client)
     }
 

@@ -1,4 +1,4 @@
-type ValidAttributeTypes = string | number | boolean | UDim | UDim2 | BrickColor | Color3 | Vector3 | Vector2 | NumberSequence | ColorSequence | NumberRange
+export type ValidAttributeTypes = string | number | boolean | UDim | UDim2 | BrickColor | Color3 | Vector3 | Vector2 | NumberSequence | ColorSequence | NumberRange
 
 // not a class but Close enough that i dont care.
 export function Attributes<T extends {[Index:string]: ValidAttributeTypes}>(Object: Instance) {
@@ -17,4 +17,12 @@ export function Attributes<T extends {[Index:string]: ValidAttributeTypes}>(Obje
             return Object.GetAttributeChangedSignal(AttributeChanged as unknown as string)
         }
     })
+}
+
+export function GetAttribute<T extends ValidAttributeTypes>(Instance: Instance, Attribute:string, Value?:T): T extends undefined ? unknown|undefined : T {
+    if (Value && !Instance.GetAttribute(Attribute)) { Instance.SetAttribute(Attribute, Value) }
+
+    const ToReturn = Instance.GetAttribute(Attribute)
+
+    return ToReturn as T extends undefined ? unknown | undefined : T
 }
