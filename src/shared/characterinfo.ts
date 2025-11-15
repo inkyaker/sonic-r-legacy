@@ -1,7 +1,5 @@
-// TODO: completely remake this system
-
-export type AnimationList = typeof CharacterInfo.Animations
-export type InferredAnimation = {
+export type ValidAnimation = keyof typeof CharacterInfo["Animations"]
+export interface InferredAnimation {
 	[Index: number]: {
 		AnimationID: string,
 		Asset: AnimationTrack,
@@ -12,30 +10,23 @@ export type InferredAnimation = {
 			Increment: number,
 			Absolute: boolean
 		}
-	};	
+	}
 }
 
-export type AnimationData = {
-    EndAnimation?: keyof AnimationList,
-    Transitions?: {
-        [Index: string]: {
-            From?: number,
-            To?: number
-        }
-    }
+export interface AnimationData {
+	EndAnimation?: keyof typeof CharacterInfo["Animations"],
+	Transitions?: {
+		[Index: string]: {
+			From?: number,
+			To?: number
+		}
+	}
 }
-
-let BaseAnimation: AnimationTrack = (undefined as unknown as AnimationTrack)
 
 export type SetAnimation = InferredAnimation & AnimationData
 
-export interface CharacterInfo {
-	Physics: typeof CharacterInfo.Physics,
-	Animations: {[Index:string]: SetAnimation}
-}
-
-class Info {
-	public Physics = {
+export const CharacterInfo = {
+	Physics: {
 		// Collision
 		Height: 5,
 		Scale: .6,
@@ -45,7 +36,6 @@ class Info {
 		// Physics
 		Weight: .08,
 
-		// TODO: fix
 		JogSpeed: .46,
 		RunSpeed: 1.39,
 		RollGetup: 1.39, // Point at which the roll state should uncurl you
@@ -53,12 +43,15 @@ class Info {
 		DashSpeed: 5.09,
 		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
 
+		AirAcceleration: .031,
 		RunAcceleration: .05,
 		MaxXSpeed: 3,
 
 		JumpInitalForce: 1.66,
 		JumpHoldForce: .076,
 		JumpTicks: 60,
+
+		AirDeceleration: -0.17,
 
 		StandardDeceleration: -.06,
 
@@ -71,53 +64,47 @@ class Info {
 
 		// Moves
 		HomingForce: { AirDash: 5, HomingAttack: 5 }
-	}
+	},
 
-	public Animations:CharacterInfo["Animations"] = {
+	Animations: {
+		Land: {
+			[0]: { AnimationID: "84985275274473", Looped: true },
+		},
 		Idle: {
-			[0]: { AnimationID: "120676159453993", Asset: BaseAnimation, Looped: true },
+			[0]: { AnimationID: "120676159453993", Looped: true },
 		},
 		Roll: {
-			[0]: { AnimationID: "89521650226043", Asset: BaseAnimation, Looped: true, Speed: {Base: 1.5, Increment: .65, Absolute: true} },
+			[0]: { AnimationID: "89521650226043", Looped: true, Speed: { Base: .25, Increment: 1/8, Absolute: true } },
 		},
 		Spindash: {
-			[0]: { AnimationID: "89521650226043", Asset: BaseAnimation, Looped: true },
+			[0]: { AnimationID: "89521650226043", Looped: true },
 		},
 		Fall: {
-			[0]: { AnimationID: "106824283599126", Asset: BaseAnimation, Looped: true }
+			[0]: { AnimationID: "106824283599126", Looped: true }
 		},
 		Skid: {
-			[0]: { AnimationID: "99388608469800", Asset: BaseAnimation, Looped: true },
+			[0]: { AnimationID: "99388608469800", Looped: true },
 			EndAnimation: "Idle",
 		},
 		SpringStart: {
-			[0]: { AnimationID: "105125944783334", Asset: BaseAnimation, Looped: false},
+			[0]: { AnimationID: "105125944783334", Looped: false },
 			EndAnimation: "Spring",
 			Transitions: {
 				All: {
 					To: 0
-				}//,
-			//	Spring: {
-			//		To: 0
-			//	}
+				}
 			}
 		},
 		Spring: {
-			[0]: { AnimationID: "139915985594263", Asset: BaseAnimation, Looped: true},
-			//Transitions: {
-			//	SpringStart: {
-			//		From: 0
-			//	}
-			//}
+			[0]: { AnimationID: "139915985594263", Looped: true },
 		},
 		SpringEnd: {
-			[0]: { AnimationID: "138856667761535", Asset:BaseAnimation, Looped: false},
+			[0]: { AnimationID: "138856667761535", Looped: false },
 			EndAnimation: "Fall"
 		},
 		Run: {
 			[0]: {
 				AnimationID: "87236465713680",
-				Asset: BaseAnimation,
 				Position: 0,
 				Speed: {
 					Base: .2,
@@ -128,7 +115,6 @@ class Info {
 			},
 			[1]: {
 				AnimationID: "117668028319772",
-				Asset: BaseAnimation,
 				Position: 4,
 				Speed: {
 					Base: .2,
@@ -139,7 +125,6 @@ class Info {
 			},
 			[2]: {
 				AnimationID: "86037390555153",
-				Asset: BaseAnimation,
 				Position: 6,
 				Speed: {
 					Base: .3,
@@ -150,33 +135,50 @@ class Info {
 			},
 		},
 		Rail: {
-			[0]: { AnimationID: "103281797241307", Asset: BaseAnimation, Looped: true }
+			[0]: { AnimationID: "103281797241307", Looped: true }
 		},
 		RailCrouch: {
-			[0]: { AnimationID: "0", Asset: BaseAnimation, Looped: true }
+			[0]: { AnimationID: "0", Looped: true }
 		},
 		RailLand: {
-			[0]: { AnimationID: "0", Asset: BaseAnimation, Looped: false }
+			[0]: { AnimationID: "0", Looped: false }
 		},
 		RailBalance: {
-			[0]: { AnimationID: "0", Asset: BaseAnimation, Looped: true }
+			[0]: { AnimationID: "0", Looped: true }
 		},
 		RailSwitchLeft: {
-			[0]: { AnimationID: "0", Asset: BaseAnimation, Looped: false }
+			[0]: { AnimationID: "0", Looped: false }
 		},
 		RailSwitchRight: {
-			[0]: { AnimationID: "0", Asset: BaseAnimation, Looped: false }
+			[0]: { AnimationID: "0", Looped: false }
 		},
 		AirKick: {
-			[0]: { AnimationID: "0", Asset: BaseAnimation, Looped: true }
+			[0]: { AnimationID: "0", Looped: true }
 		},
 		AirKickUp: {
-			[0]: { AnimationID: "0", Asset: BaseAnimation, Looped: true }
-		},
+			[0]: { AnimationID: "0", Looped: true }
+		}
+	} as const satisfies { [Index:string]: {
+		[Index: number]: {
+		AnimationID: string,
+		Position?: number,
+		Looped: boolean,
+		Speed?: {
+			Base: number,
+			Increment: number,
+			Absolute: boolean
+		}
 	}
+	} & {
+		EndAnimation?: string,
+		Transitions?: {
+			[Index: string]: {
+				From?: number,
+				To?: number
+			}
+		}
+	}}
 }
-
-export let CharacterInfo = new Info
 
 
 /*

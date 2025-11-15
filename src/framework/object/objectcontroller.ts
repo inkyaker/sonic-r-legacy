@@ -9,10 +9,7 @@ const ObjectClasses = new Map<string, typeof SrcObject>()
 for (const [_, Module] of pairs((script.Parent as Folder & { objects: Folder }).objects.GetDescendants())) {
     if (!Module.IsA("ModuleScript")) { continue }
     const Class = require(Module) as typeof SrcObject
-    const Name = tostring(Class)
-    print(Class)
-
-    ObjectClasses.set(Name, Class)
+    ObjectClasses.set(tostring(Class), Class)
 }
 
 export class ObjectController {
@@ -62,6 +59,10 @@ export class ObjectController {
     }
 
     public TickObjects() {
-
+        for (const [_, Object] of pairs(this.Objects)) {
+            Object.Tick(() => {
+                return this.Client
+            })
+        }
     }
 }

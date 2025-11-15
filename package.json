@@ -12,15 +12,15 @@
   "description": "",
   "devDependencies": {
     "@rbxts/compiler-types": "^3.0.0-types.0",
-    "@rbxts/types": "^1.0.860",
-    "@typescript-eslint/eslint-plugin": "^8.29.1-alpha.2",
-    "@typescript-eslint/parser": "^8.29.1-alpha.2",
-    "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
-    "eslint-plugin-prettier": "^5.5.1",
+    "@rbxts/types": "^1.0.876",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-roblox-ts": "^0.0.36",
-    "prettier": "^3.6.1",
-    "roblox-ts": "^3.0.0",
+    "prettier": "^3.6.2",
+    "roblox-ts": "^3.0.0-dev-9165cde",
     "typescript": "^5.5.3"
   },
   "dependencies": {
@@ -28,11 +28,11 @@
     "@rbxts/pretty-react-hooks": "^0.6.4",
     "@rbxts/react": "^17.2.3",
     "@rbxts/react-roblox": "^17.2.3",
-    "@rbxts/ripple": "^0.9.3",
+    "@rbxts/ripple": "^0.10.0-alpha.3",
     "@rbxts/services": "^1.5.5",
     "@rbxts/t": "^3.2.1",
-    "@rbxts/ui-labs": "^2.3.8",
+    "@rbxts/ui-labs": "^2.4.1",
     "@rbxts/yetanothernet": "^0.10.0-alpha.5",
-    "@runicly/rbxts-transformer-flamework": "^1.3.2"
+    "@runicly/rbxts-transformer-flamework": "^1.3.3"
   }
 }

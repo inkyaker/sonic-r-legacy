@@ -121,6 +121,10 @@ export class Input {
         }
     }
 
+    public InputLocked() {
+        return this.Client.Flags.DirectVelocity && this.Client.Flags.LockTimer > 0
+    }
+
     /**
      * Convert input angle to turn value
      * @returns Current turn value
@@ -174,6 +178,6 @@ export class Input {
     public Get() {
         // has_control, last_turn, stick_mag
         // TODO: has_control
-        return $tuple(true && this.Stick.Magnitude !== 0, this.GetTurn(), this.Stick.Magnitude)
+        return $tuple(!this.InputLocked() && this.Stick.Magnitude !== 0, this.GetTurn(), this.Stick.Magnitude)
     }
 }

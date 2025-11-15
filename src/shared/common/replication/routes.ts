@@ -1,5 +1,12 @@
-import { Route } from "@rbxts/yetanothernet"
+import Net, { Route } from "@rbxts/yetanothernet"
 import { t } from "@rbxts/t"
+import { RunService } from "@rbxts/services"
+
+//RESPAWN
+export const RespawnRoute:Route<[]> = new Route({
+    Channel: "Reliable",
+    Event: undefined,
+})
 
 // UPDATE
 export type UpdateData = {
@@ -14,9 +21,7 @@ export type UpdatePacket = {
     Data:UpdateData
 }
 
-export type UpdateRoute = [UpdatePacket]
-
-export const UpdateRoute:Route<UpdateRoute> = new Route({
+export const UpdateRoute:Route<[UpdatePacket]> = new Route({
     Channel: "Reliable",
     Event: undefined,
 })
@@ -26,11 +31,16 @@ export type ConnectDisconnectPacket = {
     Peer:string,
 }
 
-export type ConnectDisconnectRoute = [ConnectDisconnectPacket]
-
-export const ConnectDisconnectRoute:Route<ConnectDisconnectRoute> = new Route({
+export const ConnectDisconnectRoute:Route<[ConnectDisconnectPacket]> = new Route({
     Channel: "Reliable",
     Event: undefined,
 })
 
 //TODO: add incoming middleware to all packets via t
+
+const [Start,End] = Net.createHook({ RespawnRoute, UpdateRoute, ConnectDisconnectRoute})
+
+RunService.Heartbeat.Connect(() => {
+    Start()
+    End()
+})

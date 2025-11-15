@@ -7,9 +7,13 @@ import { Input } from "./control/input"
 import { CharacterInfo } from "shared/characterinfo"
 import { UIMain } from "./ui"
 import { Animation } from "./draw/animation"
-import { FrameworkState } from "shared/common/frameworkstate"
 import { ObjectController } from "./object/objectcontroller"
 import { Rail, SetRail } from "./modules/rail"
+import { SoundController } from "./draw/sound"
+import { PlaneProject } from "shared/common/utility/vutil"
+import { FromToRotation } from "shared/common/utility/cfutil"
+import { Constants } from "shared/common/constants"
+import * as Routes from "shared/common/replication/routes"
 
 /**
  * Flags list
@@ -19,11 +23,14 @@ class Flags {
     public LastUp = Vector3.yAxis
 
     /**
-     * Does not control the `JumpBall` or `Roll`, view `Client.EnterBall` for more info
+     * Does not control the `JumpBall` or `Roll`, view {@link EnterBall} for more info
      */
     public BallEnabled = false
     public TrailEnabled = false
 
+    // Damage
+    public HurtTime = 0
+    public Invulnerability = 0
 
     public Gravity = new Vector3(0, -1, 0)
 
@@ -40,12 +47,13 @@ class Flags {
     /**
      * Amount of updates joystick input should be locked for
      */
-    public LockTimer = 0 // TODO: implement
+    public LockTimer = 0
     /**
      * Flag that cancels out gravity while `Client.LockTimer > 0`
      */
-    public DirectVelocity = false // TODO: implement
-    public InWater = false
+    public DirectVelocity = false
+    public ForceKeepTime = 0
+    public InWater = false // TODO: implement water
 }
 
 /**
@@ -54,8 +62,8 @@ class Flags {
  * @ClientComponent
  */
 class CollectState {
-    public Shield: string | undefined
-    public Power: string | undefined
+    public Shield: string = ""
+    public Power: string = ""
     public Rings: number = 0
     public Score: number = 0
 
@@ -95,6 +103,7 @@ class Ground {
 export class Client {
     // Main
     public readonly Character: Model
+    public readonly Humanoid: Humanoid
     public Position: Vector3
     public Speed: Vector3
     public Angle: CFrame
@@ -120,12 +129,14 @@ export class Client {
     public readonly UI: UIMain
     public readonly Object: ObjectController
     public readonly Rail: Rail
+    public readonly Sound: SoundController
 
     // Components
     public Ground
 
     constructor(Character: Model) {
         this.Character = Character
+        this.Humanoid = this.Character.WaitForChild("Humanoid") as Humanoid
         this.Position = Character.GetPivot().Position
         this.Angle = Character.GetPivot().Rotation
         this.Speed = Vector3.zero
@@ -145,6 +156,7 @@ export class Client {
         this.UI = new UIMain()
         this.Object = new ObjectController(this)
         this.Rail = new Rail()
+        this.Sound = new SoundController()
 
         this.Ground = new Ground()
 
@@ -163,6 +175,7 @@ export class Client {
      */
     public Destroy() {
         //TODO
+        this.Sound.Destroy()
     }
 
     /**
@@ -183,6 +196,8 @@ export class Client {
 
         this.Renderer.Draw(DeltaTime)
         this.Camera.Update(DeltaTime)
+
+        this.Sound.Update(this.State.GetStateName(this.State.Current))
     }
 
     // Utility functions
@@ -237,11 +252,7 @@ export class Client {
     /**
      * Forces Client into ball
      * 
-     * This does **NOT** control the `Roll` **OR** the `JumpBall`:
-     * 
-     * `Client.Animation.Current = "Roll"` will set you to `Roll`
-     * 
-     * `JumpBall` will be automatically triggered if Animation is `Roll` `and Client.Flags.TrailEnabled === true`
+     * `JumpBall` will be automatically triggered if Animation is `Roll` `and Client.Flags.BallEnabled === true`
      */
     public EnterBall() {
         this.Flags.TrailEnabled = false
@@ -249,9 +260,11 @@ export class Client {
     }
 
     /**
-     * Exits the Clients current ball, check Client.EnterBall for `Roll`/`JumpBall` rules
+     * Exits the Clients current ball, check {@link EnterBall} for `Roll`/`JumpBall` rules
      */
     public ExitBall() {
+        this.Sound.Stop("Character/SpindashCharge")
+
         this.Flags.TrailEnabled = false
         this.Flags.BallEnabled = false
     }
@@ -311,17 +324,41 @@ export class Client {
      * @param Source Origin Position
      */
     public Damage(Source: Vector3) {
-        if (Source.mul(new Vector3(1, 0, 1)) !== this.Position.mul(new Vector3(1, 0, 1))) {
-            const TargetCFrame = CFrame.lookAt(this.Position.mul(new Vector3(1, 0, 1)), Source.mul(new Vector3(1, 0, 1)))
-
-            this.Angle = TargetCFrame.Rotation
-        }
+        // TODO: invincibility
+        if (this.Flags.Invulnerability > 0) { return }
 
         // TODO
-        // iframes
         // spilled ring
-        // death
 
-        this.Speed = new Vector3(-2, 3, 0) // TODO: mirror https://github.com/SonicOnset/DigitalSwirl-Client/blob/1e01658bab4e8b664abe865634c60ec71bc4b114/ControlScript/Client/init.lua#L388C2-L397C5
+        this.ResetObjectState()
+        this.ExitBall()
+        this.Flags.HurtTime = math.floor(1.5 * Constants.Tickrate)
+        this.Flags.Invulnerability = math.floor(2.75 * Constants.Tickrate)
+        this.State.Current = this.State.States.Hurt
+
+        const [AngleDiff] = PlaneProject(Source ? (Source.sub(this.GetMiddle())) : (this.Angle.LookVector), this.Flags.Gravity.Unit.mul(-1))
+
+        if (AngleDiff.Magnitude !== 0) {
+            const Factor = math.abs(this.ToGlobal(this.Speed).Dot(AngleDiff.Unit)) / 5
+            this.Angle = FromToRotation(this.Angle.LookVector, AngleDiff.Unit)
+            this.Speed = this.ToLocal(AngleDiff.Unit.mul(-1.125 * (1 - Factor)).add(this.Flags.Gravity.Unit.mul(-1.675 * (1 - Factor / 4))))
+        } else {
+            this.Speed = this.ToLocal(this.Flags.Gravity.Unit.mul(-2.125))
+        }
+
+        if (this.CollectState.Shield === "") {
+            if (this.CollectState.Rings > 0) {
+                //TODO: spilled rings
+                this.CollectState.Rings = 0
+            } else {
+                //TODO: die
+                this.State.Current = this.State.States.None
+                Routes.RespawnRoute.send()
+            }
+        } else {
+            this.CollectState.Shield = ""
+        }
+
+        return true
     }
 }

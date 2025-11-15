@@ -2,6 +2,7 @@ import { Client } from "framework"
 import { PhysicsHandler } from "framework/physics/physics"
 import { SrcState } from "./state"
 import { CheckJump } from "./jump"
+import { CheckRail } from "./rail"
 
 /**
  * Function ran in `State.CheckInput`
@@ -14,6 +15,8 @@ export function CheckSpindash(Client: Client) {
         Client.State.Current = Client.State.States.Spindash
         Client.Flags.SpindashSpeed = math.max(Client.Speed.X, 2)
         Client.EnterBall()
+
+        Client.Sound.Play("Character/SpindashCharge")
 
         return true
     }
@@ -36,10 +39,15 @@ export class StateSpindash extends SrcState {
             }
         } else {
             // Release
+            Client.Sound.Stop("Character/SpindashCharge")
+            Client.Sound.Play("Character/SpindashRelease")
+
             Client.Speed = Client.Speed.mul(new Vector3(0, 1, 1)).add(new Vector3(Client.Flags.SpindashSpeed, 0, 0))
             Client.EnterBall()
             Client.State.Current = Client.State.States.Roll
         }
+
+        return CheckRail(Client)
     }
 
     protected AfterUpdateHook(Client: Client) {
@@ -76,15 +84,16 @@ export class StateRoll extends SrcState {
             return true
         }
 
-        return CheckJump(Client)
+        return CheckJump(Client) || CheckRail(Client)
     }
 
     protected AfterUpdateHook(Client: Client) {
-        PhysicsHandler.RollInertia(Client)
+        PhysicsHandler.ApplyInertia(Client)
         PhysicsHandler.Turn(Client, Client.Input.GetTurn(), undefined)
 
         if (Client.Ground.Grounded) {
             Client.Animation.Current = "Roll"
+            Client.Animation.Speed = Client.Speed.X
         } else {
             Client.State.Current = Client.State.States.Airborne
         }

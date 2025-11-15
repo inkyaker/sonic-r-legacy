@@ -26,6 +26,8 @@ class DashRamp extends SrcObject {
     protected OnTouch(Client: Client) {
         Client.ResetObjectState()
         
+        Client.Sound.Play("Object/DashRamp/Activate")
+
         Client.Flags.DirectVelocity = false
         Client.Flags.LockTimer = math.ceil(this.LockTime * 60)
         Client.Ground.Grounded = false

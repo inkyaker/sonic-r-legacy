@@ -19,6 +19,8 @@ class Ring extends SrcObject {
         if (this.Triggered) { return }
         this.Triggered = true
 
+        Client.Sound.Play("Object/Ring/Activate")
+
         Client.CollectState.AddRings(1)
         Client.CollectState.AddScore(10)
 

@@ -27,6 +27,8 @@ class DashPanel extends SrcObject {
     protected OnTouch(Client: Client) {
         Client.ResetObjectState()
         
+        Client.Sound.Play("Object/DashPanel/Activate")
+
         Client.Angle = this.Root.GetPivot().Rotation
 
         const LookVector = Client.ToLocal(this.Root.GetPivot().LookVector)

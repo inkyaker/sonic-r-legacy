@@ -21,6 +21,16 @@ export class StateMachine {
         this.Current = this.States.Airborne
     }
 
+    public GetStateName(State: SrcState) {
+        for (const [Name, Target] of pairs(this.States)) {
+            if (Target === State) {
+                return Name
+            }
+        }
+
+        return ""
+    }
+
     /**
      * Internal method for ticking the current state
      */
@@ -37,27 +47,34 @@ export class StateMachine {
         if (FrameworkState.GameSpeed === 0) {
             this.Client.Input.PrepareReset()
             this.Client.Input.Update()
-            
+
             return
         }
-        
+
         // Internal fixed update loop
         this.TickTimer = math.min(this.TickTimer + DeltaTime * (60 * FrameworkState.GameSpeed), 10)
         while (this.TickTimer > 1) {
-            // Change input locks
+            // Timers
             if (this.Client.Flags.LockTimer > 0) {
-                this.Client.Flags.LockTimer -= 1
+                this.Client.Flags.LockTimer--
             }
 
+            if (this.Client.Flags.Invulnerability > 0) {
+                this.Client.Flags.Invulnerability--
+            }
+
+            // Main update
             this.Client.Input.Update()
             this.Client.Input.PrepareReset()
 
+            this.Client.Object.TickObjects()
             this.TickState()
+
             for (const [_, State] of pairs(this.States)) {
                 State.Step(this.Client)
             }
 
-            this.TickTimer -= 1
+            this.TickTimer--
 
             this.Client.LastCFrame = this.Client.CurrentCFrame
             this.Client.CurrentCFrame = this.Client.Angle.add(this.Client.Position)

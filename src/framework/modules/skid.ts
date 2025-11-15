@@ -9,11 +9,15 @@ import { SrcState } from "./state"
  * @returns Move successful
  */
 export function CheckSkid(Client: Client) {
+    if (Client.Speed.X < Client.Physics.JogSpeed) { return }
+
     const [HasControl, Turn] = Client.Input.Get()
 
     const Skid = HasControl && (math.abs(Turn) > math.rad(135)) || false
 
     if (Skid) {
+        Client.Sound.Play("Character/Skid")
+
         Client.Animation.Current = "Skid"
         Client.State.Current = Client.State.States.Skid
     }

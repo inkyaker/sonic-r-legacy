@@ -22,9 +22,9 @@ class SrcObject {
         this.Root = Object.PrimaryPart
     }
 
-    protected OnTick() {
+    protected OnTick(GetClient: () => Client) {
         if (this.Debounce > 0) {
-            this.Debounce -= 1
+            this.Debounce--
         }
     }
 
@@ -42,11 +42,13 @@ class SrcObject {
 
     protected OnRespawn() { }
 
-    public Tick() {
-        this.OnTick()
+    public Tick(GetClient: () => Client) {
+        this.OnTick(GetClient)
     }
 
     public TouchClient(Client: Client) {
+        if (this.Debounce > 0) { return }
+        
         this.OnTouch(Client)
     }
 

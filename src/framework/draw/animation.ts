@@ -1,18 +1,18 @@
 import { deepCopy as DeepCopy } from "@rbxts/deepcopy";
 import { Client } from "..";
-import { AnimationData, AnimationList, InferredAnimation, SetAnimation } from "shared/characterinfo";
+import { InferredAnimation, SetAnimation, ValidAnimation } from "shared/characterinfo";
 
 /**
  * @class
  */
 export class Animation {
     public Animations
-    public Current: keyof AnimationList
+    public Current: ValidAnimation
     public Speed: number = 0
-    private Last: keyof AnimationList
+    private Last: ValidAnimation
 
     constructor(Client: Client) {
-        this.Animations = DeepCopy(Client.Animations)
+        this.Animations = DeepCopy(Client.Animations) as unknown as { [Index in keyof typeof Client.Animations]: SetAnimation }
         this.Last = "Idle"
         this.Current = "Fall"
 
@@ -85,7 +85,7 @@ export class Animation {
                     Triggered = Client.Speed.X >= Value.Position
                 }
 
-                if (Triggered) { 
+                if (Triggered) {
                     Track = Value.Asset
                     break
                 }
@@ -99,6 +99,17 @@ export class Animation {
         return Track
     }
 
+    private UpdateSpeed(Value: InferredAnimation[0]) {
+        if (!Value.Speed) { return }
+
+        let Speed = Value.Speed.Base + (Value.Speed.Increment * this.Speed)
+        if (Value.Speed.Absolute) {
+            Speed = math.abs(Speed)
+        }
+
+        Value.Asset.AdjustSpeed(Speed)
+    }
+
     /**
      * Do not run
      * @param Client
@@ -109,18 +120,10 @@ export class Animation {
             if (typeOf(Key) !== "number") { continue }
 
             if (Value.Position !== undefined) {
-                const Triggered = this.GetCurrentTrack(Client, Animation) === Value.Asset
-
-                if (Value.Speed) {
-                    let Speed = Value.Speed.Base + (Value.Speed.Increment * this.Speed)
-                    if (Value.Speed.Absolute) {
-                        Speed = math.abs(Speed)
-                    }
-
-                    Value.Asset.AdjustSpeed(Speed)
-                }
-                Value.Asset.AdjustWeight(Triggered ? 1 : .01)
+                Value.Asset.AdjustWeight(this.GetCurrentTrack(Client, Animation) === Value.Asset ? 1 : .01)
             }
+
+            this.UpdateSpeed(Value)
         }
     }
 
@@ -137,7 +140,7 @@ export class Animation {
             if (!Track.IsPlaying || Track.TimePosition >= Track.Length) {
                 Track.Play(0, undefined, 1)
                 Track.TimePosition = Track.Length - .001
-                
+
                 this.Current = Next.EndAnimation
             }
         }
@@ -157,7 +160,7 @@ export class Animation {
 
                 for (const [Target, Transition] of pairs(Previous.Transitions)) {
                     if (Target === "All") { continue }
-                    
+
                     if (this.Current === Target && Transition.From !== undefined) {
                         TransitionFrom = Transition.From
                     }
@@ -188,5 +191,11 @@ export class Animation {
         }
 
         this.UpdateCurrent(Client, Next)
+    }
+
+    public GetRate(Client: Client) {
+        const Track = this.GetCurrentTrack(Client, this.Animations[this.Current])
+
+        return Track && Track.Length > 0 ? Track.Speed / Track.Length : 0
     }
 }

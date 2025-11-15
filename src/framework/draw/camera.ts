@@ -14,7 +14,6 @@ export class Camera {
     public Zoom: number
     public Rotation: { X: number, Y: number, Z: number }
     public InputVector: Vector3
-    public Humanoid: Humanoid
 
     constructor(Client: Client) {
         //Render.RegisterStepped("Camera", Enum.RenderPriority.Camera.Value + 1, (Delta:number) => this.Update(Delta))
@@ -31,8 +30,7 @@ export class Camera {
             }
         })
 
-        this.Humanoid = Client.Character.WaitForChild("Humanoid") as Humanoid
-        this.Humanoid.CameraOffset = Client.Physics.CameraOffset
+        this.Client.Humanoid.CameraOffset = Client.Physics.CameraOffset
     }
 
     /**
@@ -83,7 +81,7 @@ export class Camera {
         const Rotation = CFrame.Angles(0, this.Rotation.Y, 0).mul(CFrame.Angles(this.Rotation.X, 0, 0))
 
         // TODO: abstract & implement popper
-        const FinalCFrame = new CFrame(this.Client.RenderCFrame.Position).mul(Rotation).mul(new CFrame(this.Humanoid.CameraOffset)).add(new Vector3(0, this.Humanoid.HipHeight, 0)).add(Rotation.LookVector.mul(-this.Zoom))
+        const FinalCFrame = new CFrame(this.Client.RenderCFrame.Position).mul(Rotation).mul(new CFrame(this.Client.Humanoid.CameraOffset)).add(new Vector3(0, this.Client.Humanoid.HipHeight, 0)).add(Rotation.LookVector.mul(-this.Zoom))
 
         if (!Workspace.CurrentCamera) { return }
         Workspace.CurrentCamera.CFrame = FinalCFrame

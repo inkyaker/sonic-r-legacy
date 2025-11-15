@@ -35,11 +35,13 @@ class Spring extends SrcObject {
         Client.ResetObjectState()
 
         Client.Speed = new Vector3(0, this.Force, 0)
-        
+
+        Client.Sound.Play("Object/Spring/Activate")
+
         if (this.Wide) {
             const Offset = this.Root.CFrame.PointToObjectSpace(Client.Position)
 
-            Client.Position = this.Root.CFrame.PointToWorldSpace(new Vector3(math.clamp(Offset.X, -this.Root.Size.X/2, this.Root.Size.X/2), 0, 0))
+            Client.Position = this.Root.CFrame.PointToWorldSpace(new Vector3(math.clamp(Offset.X, -this.Root.Size.X / 2, this.Root.Size.X / 2), 0, 0))
         } else {
             Client.Position = this.Root.Position
         }

@@ -14,7 +14,7 @@ export const PhysicsHandler = {
      * @param Client 
      */
     AccelerateGrounded: (Client: Client) => {
-        const MaxXSoeed = Client.Physics.MaxXSpeed
+        const MaxXSpeed = Client.Physics.MaxXSpeed
         const RunAcceleration = Client.GetRunAcceleration()
         const Friction = /*self.flag.grounded and self.frict_mult*/ 1 || 1
 
@@ -26,20 +26,20 @@ export const PhysicsHandler = {
         //X air drag
         // TODO: see if i can improve
         if (HasControl) {
-            if (Client.Speed.X <= MaxXSoeed || Client.Ground.DotProduct <= 0.96) {
-                if (Client.Speed.X > MaxXSoeed) {
-                    Acceleration = Acceleration.add(new Vector3((Client.Speed.X - MaxXSoeed) * Client.Physics.AirResist.X, 0, 0))
+            if (Client.Speed.X <= MaxXSpeed || Client.Ground.DotProduct <= 0.96) {
+                if (Client.Speed.X > MaxXSpeed) {
+                    Acceleration = Acceleration.add(new Vector3((Client.Speed.X - MaxXSpeed) * Client.Physics.AirResist.X, 0, 0))
                 } else if (Client.Speed.X < 0) {
                     Acceleration = Acceleration.add(new Vector3(Client.Speed.X * Client.Physics.AirResist.X, 0, 0))
                 }
             } else {
-                Acceleration = Acceleration.add(new Vector3((Client.Speed.X - MaxXSoeed) * (Client.Physics.AirResist.X * 1.7), 0, 0))
+                Acceleration = Acceleration.add(new Vector3((Client.Speed.X - MaxXSpeed) * (Client.Physics.AirResist.X * 1.7), 0, 0))
             }
         } else {
             if (Client.Speed.X > Client.Physics.RunSpeed) {
                 Acceleration = Acceleration.add(new Vector3(Client.Speed.X * Client.Physics.AirResist.X))
-            } else if (Client.Speed.X > MaxXSoeed) {
-                Acceleration = Acceleration.add(new Vector3((Client.Speed.X - MaxXSoeed) * Client.Physics.AirResist.X))
+            } else if (Client.Speed.X > MaxXSpeed) {
+                Acceleration = Acceleration.add(new Vector3((Client.Speed.X - MaxXSpeed) * Client.Physics.AirResist.X))
             } else if (Client.Speed.X < 0) {
                 Acceleration = Acceleration.add(new Vector3(Client.Speed.X * Client.Physics.AirResist.X))
             }
@@ -51,9 +51,9 @@ export const PhysicsHandler = {
         //Movement
         if (HasControl) {
             //Get acceleration
-            if (Client.Speed.X >= MaxXSoeed) {
+            if (Client.Speed.X >= MaxXSpeed) {
                 //Use lower acceleration if above max speed
-                if (Client.Speed.X < MaxXSoeed || Client.Ground.DotProduct >= 0) {
+                if (Client.Speed.X < MaxXSpeed || Client.Ground.DotProduct >= 0) {
                     MovementAcceleration = RunAcceleration * Magnitude * 0.4
                 } else {
                     MovementAcceleration = RunAcceleration * Magnitude
@@ -126,17 +126,45 @@ export const PhysicsHandler = {
      * @param Client 
      */
     AccelerateAirborne: (Client: Client) => {
-        // TODO: air acceleration
-        PhysicsHandler.AccelerateGrounded(Client)
+        //Get analogue state
+        const [HasControl, Turn, Magnitude] = Client.Input.Get()
 
+        //Air drag
+        Client.Speed = Client.Speed.add(Client.Speed.mul(Client.GetAirResist()).div((1 + Client.Rail.RailTrick)))
+
+        //Use lighter gravity if A is held or doing a rail trick
         if ((Client.Rail.RailTrick > 0) || (Client.Flags.JumpTimer > 0 && Client.Flags.BallEnabled && Client.Input.Button.Jump.Activated)) {
-            Client.Flags.JumpTimer -= 1
+            Client.Flags.JumpTimer--
             Client.Speed = Client.Speed.add(new Vector3(0, Client.Physics.JumpHoldForce * 0.8 * (1 + Client.Rail.RailTrick / 2), 0))
         }
+
+        //Get our acceleration
+        const DoSkid = (Client.Speed.X <= Client.Physics.RunSpeed || math.abs(Turn) <= math.rad(135))
+        if (DoSkid) {
+            PhysicsHandler.Turn(Client, Turn)
+        }
+        const Acceleration =
+            Client.Rail.RailTrick > 0 ?
+                Client.Physics.AirAcceleration * (1 + Client.Rail.RailTrick / 2.5) :
+                !HasControl ?
+                    0 :
+                    // Check for skid
+                    DoSkid ?
+                        math.abs(Turn) <= math.rad(22.5) ?
+                            (
+                                Client.Physics.AirAcceleration * Magnitude * (Client.Speed.Y >= 0 && 2 || 1)
+                            ) :  0
+                        // Air brake
+                        : Client.Physics.AirDeceleration * Magnitude
+
+        //Accelerate
+        Client.Speed = Client.Speed.add(Vector3.xAxis.mul(Acceleration))
     },
 
     // Gravity
     ApplyGravity: (Client: Client) => {
+        if (Client.IsScripted()) { return }
+
         const weight = Client.GetWeight()
 
         //Get cross product between our moving velocity and floor normal
@@ -176,7 +204,9 @@ export const PhysicsHandler = {
     // Movement
     // TOOD: port https://github.com/SonicOnset/DigitalSwirl-Client/blob/master/ControlScript/Client/Movement.lua
     AlignToGravity: (Client: Client) => {
-        if (/*Client.Speed.magnitude < Client.p.dash_speed*/ true /*TODO: this*/) {
+        if (Client.IsScripted()) { return }
+
+        if (Client.Speed.Magnitude < Client.Physics.DashSpeed) {
             //Remember previous speed
             const prev_spd = Client.ToGlobal(Client.Speed)
 
@@ -207,8 +237,6 @@ export const PhysicsHandler = {
     Skid: (Client: Client) => {
         const FrictionMultiplier = 1 // TODO: fricton mult
 
-
-        // TODO: see if sm is required here
         const XFriction = Client.Physics.SkidFriction * FrictionMultiplier
         const ZFriction = Client.Physics.GroundFriction.Z * FrictionMultiplier
 
@@ -219,7 +247,7 @@ export const PhysicsHandler = {
      * Replacement function for `AccelerateGrounded` and `AccelerateAirborne` for the `Roll` state, disables acceleration and keeps speed
      * @param Client 
      */
-    RollInertia: (Client: Client) => {
+    ApplyInertia: (Client: Client) => {
         // TODO: see if i can seperate the gravity from this
         const Weight = Client.GetWeight()
         let Acceleration = Client.ToLocal(Client.Flags.Gravity.mul(Weight))
@@ -244,7 +272,7 @@ export const PhysicsHandler = {
     /**
      * Raw turning function used in the main Client.Turn function, will directly rotate the Clients Y axis
      * 
-     * Do not use over Client.Turn unless you want a snap turn!
+     * Do not use over Client.Turn unless you want to snap the angle!
      * @param Client 
      * @param Turn Amount in radians to turn
      */
@@ -265,7 +293,7 @@ export const PhysicsHandler = {
      * @param Turn Amount in radians to turn
      * @param IState Inertia configs to match Digital Swirl
      */
-    Turn: (Client: Client, Turn: number, IState: IntertiaState | undefined) => {
+    Turn: (Client: Client, Turn: number, IState?: IntertiaState) => {
         let MaxTurn = math.abs(Turn)
         const [HasControl] = Client.Input.Get()
         const PreviousSpeed = Client.ToGlobal(Client.Speed)

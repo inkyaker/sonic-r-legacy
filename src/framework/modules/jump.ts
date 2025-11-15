@@ -16,6 +16,9 @@ export function CheckJump(Client: Client) {
 
         Client.EnterBall()
         Client.Animation.Current = "Roll"
+        Client.Animation.Speed = Client.Speed.X
+
+        Client.Sound.Play("Character/Jump")
 
         return true
     }

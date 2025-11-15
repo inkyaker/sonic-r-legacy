@@ -33,7 +33,7 @@ export class Peer {
  * @class
  */
 export class PlayerReplicator {
-    public ReplicationRemote:Route<Routes.UpdateRoute>
+    public ReplicationRemote:Route<[Routes.UpdatePacket]>
     public Peers:Map<string,Peer>//Array<Peer>
 
     constructor() {

@@ -46,7 +46,7 @@ export class AirKick extends SrcState {
     }
 
     protected BeforeUpdateHook(Client: Client) {
-        const [Control, Turn, Magnitude] = Client.Input.Get()
+        const [_, Turn, Magnitude] = Client.Input.Get()
         Client.Speed = Client.Speed.add(Client.Speed.mul(new Vector3(
             Client.Physics.AirResist.X * (.285 - Magnitude * .1),
             Client.GetAirResist().Y,
@@ -66,7 +66,7 @@ export class AirKick extends SrcState {
             Client.Land()
 
             if (FallSpeed > 0) {
-                // TODO: land sound
+                Client.Sound.Play("Character/Land")
             }
         } else {
             if (this.Timer <= 0 || Client.Speed.Magnitude < .35) {
@@ -75,13 +75,15 @@ export class AirKick extends SrcState {
             }
         }
 
+        Client.Animation.Current = "Spindash"
+
         return true // Do not process after hook
     }
 
     protected OnStep(Client: Client) {
         if (this.Timer > 0) {
             if (Client.State.Current === Client.State.States.AirKick) {
-                this.Timer -= 1
+                this.Timer--
             } else {
                 this.Timer = 0
             }

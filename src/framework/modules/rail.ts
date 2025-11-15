@@ -24,7 +24,6 @@ export class Rail {
     public BalanceFail: number = 0
 
     public Connections: RBXScriptConnection[] = []
-    public SpatialMap: undefined // TODO
 }
 
 export function RailActive(Client: Client) {
@@ -69,8 +68,7 @@ export function SetRail(Client: Client, Part?: Part) {
 
 
         if (!Rail.Current) {
-            //TODO: reset object state
-            //Client.ResetObjectState()
+            Client.ResetObjectState()
             Client.Land()
             Client.State.Current = Client.State.States.Rail
 
@@ -87,7 +85,7 @@ export function SetRail(Client: Client, Part?: Part) {
 
             const PreviousSpeed = Client.ToGlobal(Client.Speed)
             Client.Angle = GetRailAngle(Client)
-            Client.Speed = Vector3.xAxis.mul(Client.ToLocal(PreviousSpeed).X)
+            Client.Speed = new Vector3(Client.ToLocal(PreviousSpeed).X, 0, 0)
 
             if (math.abs(Client.Speed.X) < Client.Physics.JogSpeed && Client.ToLocal(PreviousSpeed).Y < -2) {
                 Client.Animation.Current = "RailLand"
@@ -115,9 +113,8 @@ export function SetRail(Client: Client, Part?: Part) {
     } else if (Client.Rail.Current !== undefined) {
         Rail.Current = undefined
         Rail.RailDebounce = 25
-
-        // TODO: stop sound
-        // Grind
+        Rail.RailBalance = 0
+        Rail.RailOffset = Vector3.zero
     }
 }
 
@@ -211,7 +208,7 @@ export class StateRail extends SrcState {
 
         //Give rail bonus at high speed
         if (math.abs(Client.Speed.X) >= 8) {
-            Rail.RailBonusTime += 1
+            Rail.RailBonusTime++
             if (Rail.RailBonusTime >= 60) {
                 Client.CollectState.AddScore(Client.Speed.X < 0 && 1000 || 700)
                 Rail.RailBonusTime = 0
@@ -240,9 +237,14 @@ export class StateRail extends SrcState {
             //Balancing disabled
             Rail.RailBalance *= 0.825
         }
-
+    }
+    
+    protected AfterUpdateHook(Client: Client) {
+        const Rail = Client.Rail
+        const Crouching = Client.Input.Button.Roll.Pressed
+        assert(Rail.Current)
+        
         //Move
-        Client.Position = Client.Position.add(Client.ToGlobal(Client.Speed).mul(Client.Physics.Scale))
         Rail.RailOffset = Rail.RailOffset.mul(0.8)
 
         //Balance failing
@@ -252,28 +254,26 @@ export class StateRail extends SrcState {
             Rail.BalanceFail = math.min(Rail.BalanceFail - 0.04, 1)
         }
 
-        //Run sound
-        /*
-        let Sound = RailActive(Client)
-        if (Sound) {
+        //Run sound 
+        const Active = RailActive(Client)
+        if (Active) {
             if (!Rail.RailSound) {
                 // Play sounds
-                // Grind Contact
-                // Grind
+                Client.Sound.Play("Character/GrindContact")
+                Rail.RailSound = Client.Sound.Play("Character/Grind", { BoundState: "Rail" })
             }
 
             // Set sound volume
-            // Grind
-            // math.sqrt(math.abs(Client.Speed.X)/8)
+            if (Rail.RailSound) {
+                Rail.RailSound.Volume = math.sqrt(math.abs(Client.Speed.X) / 8)
+            }
         } else {
             if (Rail.RailSound) {
-                // Stop sounds
-                // Grind Contact
-                // Grind
+                Client.Sound.Stop("Character/GrindContact")
+                Client.Sound.Stop("Character/Grind")
             }
         }
-        Rail.RailSound = Sound
-        */
+
 
         //Set animation
         if (RailActive(Client)) {
@@ -292,7 +292,7 @@ export class StateRail extends SrcState {
         }
 
         if (Rail.RailGrace > 0) {
-            Rail.RailGrace -= 1
+            Rail.RailGrace--
 
             if (Rail.RailGrace <= 0) {
                 SetRail(Client)
@@ -320,10 +320,6 @@ export class StateRail extends SrcState {
             }
         }
 
-        return
-    }
-
-    protected AfterUpdateHook(Client: Client) {
         if (!Client.Rail.Current && Client.State.Current === Client.State.States.Rail) {
             Client.State.Current = Client.State.States.Airborne
         }
@@ -331,8 +327,7 @@ export class StateRail extends SrcState {
 
     protected OnStep(Client: Client) {
         if (Client.Rail.RailDebounce > 0) {
-            Client.Rail.RailDebounce -= 1
-            print(Client.Rail.RailDebounce)
+            Client.Rail.RailDebounce--
         }
     }
 }
