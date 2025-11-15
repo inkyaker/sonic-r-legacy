@@ -328,7 +328,7 @@ export const PhysicsHandler = {
         PhysicsHandler.TurnRaw(Client, math.clamp(Turn, -MaxTurn, MaxTurn))
 
         if (IState === undefined) {
-            if (Client.Ground.Grounded) {
+            if (!Client.Ground.Grounded) {
                 Client.Speed = Client.Speed.mul(.1).add(Client.ToLocal(PreviousSpeed).mul(.9))
             } else {
                 let Inertia
