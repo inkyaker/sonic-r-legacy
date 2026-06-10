@@ -303,7 +303,6 @@ export function RunCollision(Client: Client) {
 			const [Hit, Position, Normal] = Raycast(CollisionWhitelist, PreviousMiddle, NewEnd.sub(PreviousMiddle));
 			if (Hit && Position && Normal) {
 				//Clip us out
-				print("clip");
 				Client.Position = Client.Position.add(Position.sub(NewAdd).sub(NewMiddle));
 				Client.Speed = LocalVelCancel(Client, Client.Speed.mul(0.8), Normal); // TODO: see if you can do without?
 			} else {

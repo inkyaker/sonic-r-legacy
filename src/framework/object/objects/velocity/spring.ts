@@ -1,27 +1,31 @@
+import { Component } from "@flamework/components";
 import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import BaseObject from "../baseobj";
+
+type Data = { Force: number; LockTime: number; DirectVelocity: boolean; Wide: boolean };
 
 /**
  * @class
  * @object
  * @augments BaseObject
  */
-class Spring extends BaseObject {
+@Component({ tag: "Spring" })
+class Spring extends BaseObject<Model> {
 	public Force = 0;
 	public LockTime = 0;
 	public DirectVelocity = false;
 	public Wide = false;
-	public Data;
+	public Data!: Attributes<Data>;
 
 	public HomingTarget = true;
 	public HomingWeight = 2;
 
-	constructor(Object: Model) {
-		super(Object);
+	public onStart() {
+		this.SetupModel();
 
-		this.Data = Attributes<{ Force: number; LockTime: number; DirectVelocity: boolean; Wide: boolean }>(Object);
+		this.Data = Attributes<Data>(this.Object);
 
 		this.Force = this.Data.Force;
 		this.LockTime = this.Data.LockTime;
@@ -34,7 +38,7 @@ class Spring extends BaseObject {
 		this.Connections.Add(this.Data("Wide").Connect(() => (this.Wide = this.Data.Wide)));
 	}
 
-	protected OnTouch(Client: Client) {
+	public OnTouch(Client: Client) {
 		Client.ResetObjectState();
 
 		Client.Speed = new Vector3(0, this.Force, 0);

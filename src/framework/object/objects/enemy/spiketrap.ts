@@ -1,6 +1,12 @@
+import { Component } from "@flamework/components";
 import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
 import BaseObject from "../baseobj";
+
+type Data = {
+	CycleLength: number;
+	Permanant: boolean;
+};
 
 /**
  * @class
@@ -8,18 +14,19 @@ import BaseObject from "../baseobj";
  * @augments DamageBox
  * @augments BaseObj
  */
-class SpikeTrap extends BaseObject {
-	public Data;
+@Component({ tag: "SpikeTrap" })
+class SpikeTrap extends BaseObject<Model> {
+	public Data!: Attributes<Data>;
 	public State: boolean = false;
 	public TickProgress: number = 0;
 	public CycleLength: number = 0;
 	public Permanant: boolean = false;
 	public Enabled: boolean = false;
 
-	constructor(Object: Model) {
-		super(Object);
+	public onStart() {
+		this.SetupModel()
 
-		this.Data = Attributes<{ CycleLength: number; Permanant: boolean }>(Object);
+		this.Data = Attributes<Data>(this.Object);
 		this.CycleLength = this.Data.CycleLength;
 		this.Permanant = this.Data.Permanant;
 
@@ -42,7 +49,7 @@ class SpikeTrap extends BaseObject {
 		this.UpdateState();
 	}
 
-	protected OnTick(GetClient: () => Client) {
+	public OnTick(GetClient: () => Client) {
 		if (this.Debounce > 0) {
 			this.Debounce--;
 		}
@@ -80,7 +87,7 @@ class SpikeTrap extends BaseObject {
 		(this.Object.WaitForChild("Spikes") as Part).Transparency = this.Enabled ? 0 : 1;
 	}
 
-	protected OnTouch(Client: Client) {
+	public OnTouch(Client: Client) {
 		if (!this.Enabled) {
 			return;
 		}
@@ -90,7 +97,7 @@ class SpikeTrap extends BaseObject {
 		Client.Sound.Play("Object/SpikeTrap/Hurt");
 	}
 
-	protected OnRespawn() {
+	public OnRespawn() {
 		this.State = (this.Permanant && true) || false;
 		this.TickProgress = 0;
 		this.UpdateState();

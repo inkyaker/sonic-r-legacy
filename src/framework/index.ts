@@ -1,3 +1,4 @@
+import { Dependency } from "@flamework/core";
 import { CharacterInfo } from "shared/characterinfo";
 import { Constants } from "shared/common/constants";
 import * as Routes from "shared/common/replication/routes";
@@ -11,7 +12,7 @@ import { Camera } from "./draw/camera";
 import { Renderer } from "./draw/renderer";
 import { SoundController } from "./draw/sound";
 import { Rail, SetRail } from "./modules/rail";
-import { ObjectController } from "./object/objectcontroller";
+import type { ObjectController } from "./object/object_controller";
 import type BaseObject from "./object/objects/baseobj";
 import { StateMachine } from "./statemachine";
 import { UIMain } from "./ui";
@@ -102,7 +103,7 @@ class Ground {
  * @ClientComponent
  */
 class HomingAttack {
-	public Target: BaseObject | undefined;
+	public Target: BaseObject<Model> | undefined;
 	public Timer: number = 0;
 	public Speed: number = 0;
 }
@@ -166,7 +167,7 @@ export class Client {
 		this.Renderer = new Renderer(this);
 		this.Input = new Input(this);
 		this.UI = new UIMain();
-		this.Object = new ObjectController(this);
+		this.Object = Dependency<ObjectController>();
 		this.Rail = new Rail();
 		this.Sound = new SoundController();
 
@@ -181,12 +182,16 @@ export class Client {
 		this.PreviousAngle = CFrame.identity;
 
 		AddLog(`Loaded new Client ${Character}`);
+
+		this.Object.ActiveClient = this;
 	}
 
 	/**
 	 * Destroys the Client
 	 */
 	public Destroy() {
+		this.Object.ActiveClient = undefined;
+
 		//TODO
 		this.Sound.Destroy();
 	}

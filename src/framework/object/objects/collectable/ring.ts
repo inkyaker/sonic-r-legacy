@@ -1,3 +1,4 @@
+import { Component } from "@flamework/components";
 import { TweenService } from "@rbxts/services";
 import type { Client } from "framework";
 import { GetAttribute } from "shared/common/class/attributes";
@@ -8,10 +9,11 @@ import BaseObject from "../baseobj";
  * @object
  * @augments BaseObject
  */
-class Ring extends BaseObject {
+@Component({ tag: "Ring" })
+class Ring extends BaseObject<Model> {
 	public Triggered: boolean = false;
 
-	protected OnTouch(Client: Client) {
+	public OnTouch(Client: Client) {
 		if (this.Triggered) {
 			return;
 		}
@@ -25,7 +27,7 @@ class Ring extends BaseObject {
 		this.SetTransparency(1);
 	}
 
-	protected OnRespawn() {
+	public OnRespawn() {
 		this.Triggered = false;
 		this.SetTransparency(1);
 	}

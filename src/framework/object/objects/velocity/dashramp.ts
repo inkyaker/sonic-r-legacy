@@ -1,20 +1,28 @@
+import { Component } from "@flamework/components";
 import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
 import BaseObject from "../baseobj";
+
+type Data = {
+	Speed: number;
+	LockTime: number;
+};
 
 /**
  * @class
  * @object
  * @augments BaseObject
  */
-class DashRamp extends BaseObject {
+@Component({ tag: "DashRamp" })
+class DashRamp extends BaseObject<Model> {
 	public Speed = 0;
 	public LockTime = 0;
-	public Data;
+	public Data!: Attributes<Data>;
 
-	constructor(Object: Model) {
-		super(Object);
-		this.Data = Attributes<{ Speed: number; LockTime: number }>(Object);
+	public onStart() {
+		this.SetupModel()
+		
+		this.Data = Attributes<Data>(this.Object);
 
 		this.Speed = this.Data.Speed;
 		this.LockTime = this.Data.LockTime;
@@ -23,7 +31,7 @@ class DashRamp extends BaseObject {
 		this.Connections.Add(this.Data("LockTime").Connect(() => (this.LockTime = this.Data.LockTime)));
 	}
 
-	protected OnTouch(Client: Client) {
+	public OnTouch(Client: Client) {
 		Client.ResetObjectState();
 
 		Client.Sound.Play("Object/DashRamp/Activate");

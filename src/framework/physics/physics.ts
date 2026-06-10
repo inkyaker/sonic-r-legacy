@@ -408,7 +408,7 @@ export const PhysicsHandler = {
 	/**
 	 * Get targeted object for homing attack
 	 */
-	GetHomingObject(Client: Client): BaseObject | undefined {
+	GetHomingObject(Client: Client): BaseObject<Model> | undefined {
 		const Look = Client.Angle.LookVector;
 		const Colliders = Workspace.GetPartBoundsInRadius(Client.Position, 100 * Client.Config.Scale, PhysicsHandler.ObjectParams);
 		const Objects = [];

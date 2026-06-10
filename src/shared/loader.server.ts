@@ -13,19 +13,24 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import { Flamework } from "@flamework/core";
 import { Players } from "@rbxts/services";
 import { Client } from "framework";
 
+// TODO: loading screen
 if (!game.IsLoaded()) {
 	game.Loaded.Wait();
 }
+
+Flamework.addPathsGlob("src/shared/**.ts");
+Flamework.addPathsGlob("src/framework/**.ts");
+Flamework.ignite();
 
 const LocalPlayer = Players.LocalPlayer;
 let _RunningClient: Client | undefined;
 
 function CharacterAdded() {
 	const Character = LocalPlayer.Character;
-
 	assert(Character, "Character not found!");
 
 	_RunningClient = new Client(Character);

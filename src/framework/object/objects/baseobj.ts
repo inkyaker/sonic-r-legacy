@@ -1,31 +1,45 @@
+import { BaseComponent, Component } from "@flamework/components";
+import type { OnStart } from "@flamework/core";
 import type { Client } from "framework";
 import { Connector } from "shared/common/class/connector";
 import { AddLog } from "shared/common/utility/logger";
+import type { OnDraw, OnRespawn, OnTick, OnTouch } from "./object_implementables";
 
 /**
  * @class
  * @object
  */
-class BaseObject {
+@Component({
+	refreshAttributes: false,
+})
+class BaseObject<T extends Model> extends BaseComponent<{}, T> implements OnStart, OnTick, OnDraw, OnTouch, OnRespawn {
 	public HomingTarget = false;
 	public HomingWeight = 1;
 
-	public readonly Object: Model;
-	public readonly Root: BasePart;
+	public Object!: Model;
+	public Root!: BasePart;
 	public Debounce = 0;
 	protected Connections = new Connector();
 
-	constructor(Object: Model) {
+	public SetupModel() {
+		const Object = this.instance;
+
 		if (!Object.PrimaryPart) {
-			AddLog(`Failed to load object ${script.Name}! No PrimaryPart set!`);
-			error();
+			AddLog(`Failed to load object ${script.Name}! No PrimaryPart set!`, { Error: true });
 		}
 
 		this.Object = Object;
-		this.Root = Object.PrimaryPart;
+		this.Root = Object.PrimaryPart!;
 	}
 
-	protected OnTick(_GetClient: () => Client) {
+	/**
+	 * You **MUST** call {@link BaseObject.SetupModel} if overriding.
+	 */
+	public onStart() {
+		this.SetupModel();
+	}
+
+	public OnTick(_GetClient: () => Client) {
 		if (this.Debounce > 0) {
 			this.Debounce--;
 		}
@@ -35,15 +49,15 @@ class BaseObject {
 	 * Client touched callback
 	 * @param Client
 	 */
-	protected OnTouch(_Client: Client) {}
+	public OnTouch(_Client: Client) {}
 
 	/**
 	 * .RenderStepped callback
 	 * @param DeltaTime
 	 */
-	protected PreRender(_DeltaTime: number) {}
+	public OnDraw(_DeltaTime: number) {}
 
-	protected OnRespawn() {}
+	public OnRespawn() {}
 
 	public Tick(GetClient: () => Client) {
 		this.OnTick(GetClient);
@@ -58,12 +72,14 @@ class BaseObject {
 	}
 
 	public Draw(DeltaTime: number) {
-		this.PreRender(DeltaTime);
+		this.OnDraw(DeltaTime);
 	}
 
 	public Respawn() {
 		this.OnRespawn();
 	}
+
+	public Destroy() {}
 }
 
 export = BaseObject;

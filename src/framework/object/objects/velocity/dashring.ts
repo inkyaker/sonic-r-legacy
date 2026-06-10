@@ -1,21 +1,30 @@
+import { Component } from "@flamework/components";
 import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
 import BaseObject from "../baseobj";
+
+type Data = {
+	Speed: number;
+	LockTime: number;
+	Rainbow: boolean;
+};
 
 /**
  * @class
  * @object
  * @augments BaseObject
  */
-class DashRing extends BaseObject {
+@Component({ tag: "DashRing" })
+class DashRing extends BaseObject<Model> {
 	public Speed = 0;
 	public LockTime = 0;
 	public Rainbow = false;
-	public Data;
+	public Data!: Attributes<Data>;
 
-	constructor(Object: Model) {
-		super(Object);
-		this.Data = Attributes<{ Speed: number; LockTime: number; Rainbow: boolean }>(Object);
+	public onStart() {
+		this.SetupModel()
+		
+		this.Data = Attributes<Data>(this.Object);
 
 		this.Speed = this.Data.Speed;
 		this.LockTime = this.Data.LockTime;
@@ -24,11 +33,9 @@ class DashRing extends BaseObject {
 		this.Connections.Add(this.Data("Speed").Connect(() => (this.Speed = this.Data.Speed)));
 		this.Connections.Add(this.Data("LockTime").Connect(() => (this.LockTime = this.Data.LockTime)));
 		this.Connections.Add(this.Data("Rainbow").Connect(() => (this.Rainbow = this.Data.Rainbow)));
-
-		//TODO: animation
 	}
 
-	protected OnTouch(Client: Client) {
+	public OnTouch(Client: Client) {
 		Client.ResetObjectState();
 
 		Client.Sound.Play(`Object/${this.Rainbow ? "Rainbow" : "Dash"}Ring/Activate`);

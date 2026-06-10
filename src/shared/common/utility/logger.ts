@@ -3,19 +3,15 @@ type Log = Array<string>;
 const Verbose = false;
 const LogTable: Map<number, Log> = new Map();
 
-export function AddLog(Value: unknown) {
+export function AddLog(Value: unknown, Context?: { Error?: boolean }) {
 	let Export = tostring(Value);
 
-	if (typeOf(Export) !== "string") {
-		return;
-	}
+	if (typeOf(Export) !== "string") return;
 
 	const Tick = os.clock();
 	const Original: Log | undefined = LogTable.get(Tick);
 
-	if (Verbose) {
-		print(Value);
-	}
+	if (Verbose) print(Value);
 
 	if (Original !== undefined) {
 		// Insert new log for current registered tick
@@ -29,6 +25,8 @@ export function AddLog(Value: unknown) {
 
 		LogTable.set(Tick, NewValue);
 	}
+
+	if (Context?.Error) error(Context.Error);
 }
 
 export function WipeLog() {

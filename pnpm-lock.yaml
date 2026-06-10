@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@biomejs/biome':
-        specifier: ^2.4.16
-        version: 2.4.16
       '@flamework/components':
         specifier: ^1.3.2
         version: 1.3.2(@flamework/core@1.3.2)
@@ -47,16 +44,19 @@ importers:
       '@rbxts/yetanothernet':
         specifier: ^0.10.0-alpha.5
         version: 0.10.0-alpha.5
-      '@runicly/rbxts-transformer-flamework':
-        specifier: ^1.3.3
-        version: 1.3.3(typescript@5.5.3)
     devDependencies:
+      '@biomejs/biome':
+        specifier: 2.4.16
+        version: 2.4.16
       '@rbxts/compiler-types':
         specifier: ^3.0.0-types.0
         version: 3.0.0-types.0
       '@rbxts/types':
         specifier: ^1.0.925
         version: 1.0.925
+      '@runicly/rbxts-transformer-flamework':
+        specifier: 1.3.3
+        version: 1.3.3(typescript@5.5.3)
       roblox-ts:
         specifier: ^3.0.0-dev-9165cde
         version: 3.0.0

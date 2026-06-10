@@ -1,5 +1,10 @@
+import { Flamework } from "@flamework/core";
 import { Players, RunService } from "@rbxts/services";
 import * as Routes from "shared/common/replication/routes";
+
+Flamework.addPathsGlob("src/shared/**.ts");
+Flamework.addPathsGlob("src/server/**.ts");
+Flamework.ignite();
 
 RunService.Heartbeat.Connect(() => {
 	/*

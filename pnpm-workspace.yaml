@@ -1,2 +1,5 @@
+autoInstallPeers: true
 minimumReleaseAgeExclude:
-- "@rbxts/types"
+  - "@rbxts/types"
+publicHoistPattern:
+  - '*@rbxts*'
