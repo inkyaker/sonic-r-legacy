@@ -1,6 +1,6 @@
 import { FrameworkState } from "shared/common/frameworkstate";
-import type { DSClient } from ".";
-import type { SrcState } from "./modules/state";
+import type { Client } from ".";
+import type { BaseState } from "./modules/state";
 import { StateList } from "./states";
 
 /**
@@ -8,12 +8,12 @@ import { StateList } from "./states";
  * @class
  */
 export class StateMachine {
-	private Client: DSClient;
+	private Client: Client;
 	public TickTimer: number;
 	public States: StateList;
-	public Current: SrcState;
+	public Current: BaseState;
 
-	constructor(Client: DSClient) {
+	constructor(Client: Client) {
 		this.States = new StateList();
 
 		this.TickTimer = os.clock();
@@ -21,7 +21,7 @@ export class StateMachine {
 		this.Current = this.States.Airborne;
 	}
 
-	public GetStateName(State: SrcState) {
+	public GetStateName(State: BaseState) {
 		for (const [Name, Target] of pairs(this.States)) {
 			if (Target === State) {
 				return Name;

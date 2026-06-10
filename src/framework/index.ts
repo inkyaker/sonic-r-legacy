@@ -12,7 +12,7 @@ import { Renderer } from "./draw/renderer";
 import { SoundController } from "./draw/sound";
 import { Rail, SetRail } from "./modules/rail";
 import { ObjectController } from "./object/objectcontroller";
-import type SrcObject from "./object/objects/baseobj";
+import type BaseObject from "./object/objects/baseobj";
 import { StateMachine } from "./statemachine";
 import { UIMain } from "./ui";
 
@@ -102,7 +102,7 @@ class Ground {
  * @ClientComponent
  */
 class HomingAttack {
-	public Target: SrcObject | undefined;
+	public Target: BaseObject | undefined;
 	public Timer: number = 0;
 	public Speed: number = 0;
 }
@@ -111,7 +111,7 @@ class HomingAttack {
  * Client
  * @class
  */
-export class DSClient {
+export class Client {
 	// Main
 	public readonly Character: Model;
 	public readonly Humanoid: Humanoid;
@@ -125,11 +125,11 @@ export class DSClient {
 
 	// Flags
 	public Flags: Flags;
-	
+
 	// Character info
 	public readonly Config;
 	public readonly Animations;
-	
+
 	// Modules
 	public readonly State: StateMachine;
 	public readonly Camera: Camera;
@@ -140,23 +140,23 @@ export class DSClient {
 	public readonly Object: ObjectController;
 	public readonly Rail: Rail;
 	public readonly Sound: SoundController;
-	
+
 	// Components
 	public Ground: Ground;
 	public GameState: GameState;
 	public HomingAttack: HomingAttack;
-	
+
 	constructor(Character: Model) {
 		this.Character = Character;
 		this.Humanoid = this.Character.WaitForChild("Humanoid") as Humanoid;
 		this.Position = Character.GetPivot().Position;
 		this.Angle = Character.GetPivot().Rotation;
 		this.Speed = Vector3.zero;
-		
+
 		this.LastCFrame = this.Angle.add(this.Position);
 		this.CurrentCFrame = this.LastCFrame;
 		this.RenderCFrame = this.CurrentCFrame;
-		
+
 		this.Config = CharacterInfo.Physics;
 		this.Animations = CharacterInfo.Animations;
 
@@ -247,7 +247,7 @@ export class DSClient {
 			.mul(CFrame.Angles(0, math.rad(90), 0))
 			.VectorToWorldSpace(Vector);
 	}
-	
+
 	/**
 	 * Sets client angle
 	 * @param Angle Target angle
@@ -261,7 +261,7 @@ export class DSClient {
 			this.Position = this.Position.sub(this.GetCFrame().UpVector.mul(this.Config.Height * this.Config.Scale));
 		}
 
-		this.Ground.DotProduct = this.GetCFrame().UpVector.mul(-1).Dot(this.Flags.Gravity)
+		this.Ground.DotProduct = this.GetCFrame().UpVector.mul(-1).Dot(this.Flags.Gravity);
 	}
 
 	/**

@@ -1,6 +1,6 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
-import SrcObject from "../baseobj";
+import BaseObject from "../baseobj";
 
 /**
  * @class
@@ -8,7 +8,7 @@ import SrcObject from "../baseobj";
  * @augments DamageBox
  * @augments BaseObj
  */
-class SpikeTrap extends SrcObject {
+class SpikeTrap extends BaseObject {
 	public Data;
 	public State: boolean = false;
 	public TickProgress: number = 0;
@@ -42,7 +42,7 @@ class SpikeTrap extends SrcObject {
 		this.UpdateState();
 	}
 
-	protected OnTick(GetClient: () => DSClient) {
+	protected OnTick(GetClient: () => Client) {
 		if (this.Debounce > 0) {
 			this.Debounce--;
 		}
@@ -80,7 +80,7 @@ class SpikeTrap extends SrcObject {
 		(this.Object.WaitForChild("Spikes") as Part).Transparency = this.Enabled ? 0 : 1;
 	}
 
-	protected OnTouch(Client: DSClient) {
+	protected OnTouch(Client: Client) {
 		if (!this.Enabled) {
 			return;
 		}

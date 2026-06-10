@@ -1,7 +1,7 @@
 import { UserInputService } from "@rbxts/services";
 import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
-import type { DSClient } from "..";
+import type { Client } from "..";
 import { ButtonState } from "./buttonstate";
 
 type ButtonUnion = ExtractKeys<Input["Button"], ButtonState>;
@@ -14,9 +14,9 @@ export class Input {
 	public PlatformContext: string;
 	public ControllerContext: String;
 	public Stick;
-	private Client: DSClient;
+	private Client: Client;
 
-	constructor(Client: DSClient) {
+	constructor(Client: Client) {
 		this.Client = Client;
 		this.Button = {
 			Jump: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA]),

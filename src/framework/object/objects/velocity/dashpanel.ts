@@ -1,13 +1,13 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
-import SrcObject from "../baseobj";
+import BaseObject from "../baseobj";
 
 /**
  * @class
  * @object
- * @augments SrcObject
+ * @augments BaseObject
  */
-class DashPanel extends SrcObject {
+class DashPanel extends BaseObject {
 	public Speed = 0;
 	public LockTime = 0;
 	public Data;
@@ -27,7 +27,7 @@ class DashPanel extends SrcObject {
 		this.Connections.Add(this.Data("LockTime").Connect(() => (this.LockTime = this.Data.LockTime)));
 	}
 
-	protected OnTouch(Client: DSClient) {
+	protected OnTouch(Client: Client) {
 		Client.ResetObjectState();
 
 		Client.Sound.Play("Object/DashPanel/Activate");

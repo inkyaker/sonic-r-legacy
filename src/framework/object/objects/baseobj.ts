@@ -1,4 +1,4 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { Connector } from "shared/common/class/connector";
 import { AddLog } from "shared/common/utility/logger";
 
@@ -6,7 +6,7 @@ import { AddLog } from "shared/common/utility/logger";
  * @class
  * @object
  */
-class SrcObject {
+class BaseObject {
 	public HomingTarget = false;
 	public HomingWeight = 1;
 
@@ -25,7 +25,7 @@ class SrcObject {
 		this.Root = Object.PrimaryPart;
 	}
 
-	protected OnTick(_GetClient: () => DSClient) {
+	protected OnTick(_GetClient: () => Client) {
 		if (this.Debounce > 0) {
 			this.Debounce--;
 		}
@@ -35,7 +35,7 @@ class SrcObject {
 	 * Client touched callback
 	 * @param Client
 	 */
-	protected OnTouch(_Client: DSClient) {}
+	protected OnTouch(_Client: Client) {}
 
 	/**
 	 * .RenderStepped callback
@@ -45,11 +45,11 @@ class SrcObject {
 
 	protected OnRespawn() {}
 
-	public Tick(GetClient: () => DSClient) {
+	public Tick(GetClient: () => Client) {
 		this.OnTick(GetClient);
 	}
 
-	public TouchClient(Client: DSClient) {
+	public TouchClient(Client: Client) {
 		if (this.Debounce > 0) {
 			return;
 		}
@@ -66,4 +66,4 @@ class SrcObject {
 	}
 }
 
-export = SrcObject;
+export = BaseObject;

@@ -1,26 +1,26 @@
 import { Workspace } from "shared/common/globals";
 import { AddLog } from "shared/common/utility/logger";
-import type { DSClient } from "..";
-import type SrcObject from "./objects/baseobj";
+import type { Client } from "..";
+import type BaseObject from "./objects/baseobj";
 
 // TODO: see if theres a better way to do this
 // a dynamic list for all that extends SrcObject would be nice, and could also be implemented for states rather than a fixed registry
-const ObjectClasses = new Map<string, typeof SrcObject>();
+const ObjectClasses = new Map<string, typeof BaseObject>();
 for (const [_, Module] of pairs((script.Parent as Folder & { objects: Folder }).objects.GetDescendants())) {
 	if (!Module.IsA("ModuleScript")) {
 		continue;
 	}
-	const Class = require(Module) as typeof SrcObject;
+	const Class = require(Module) as typeof BaseObject;
 	ObjectClasses.set(tostring(Class), Class);
 }
 
 export class ObjectController {
 	public Params: RaycastParams;
-	public Objects: Map<Model, SrcObject>;
+	public Objects: Map<Model, BaseObject>;
 	public Skin: number = 1;
 	private Client;
 
-	constructor(Client: DSClient) {
+	constructor(Client: Client) {
 		this.Objects = new Map();
 		this.Client = Client;
 

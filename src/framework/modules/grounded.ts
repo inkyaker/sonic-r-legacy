@@ -1,23 +1,23 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
 import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
 import { CheckSkid } from "./skid";
 import { CheckSpindash } from "./spindash";
-import { SrcState } from "./state";
+import { BaseState } from "./state";
 
 /**
  * @class
- * @augments SrcState
+ * @augments BaseState
  */
-export class StateGrounded extends SrcState {
+export class StateGrounded extends BaseState {
 	private LockedAnimations = new Set(["LandMoving", "Land", "JogStart"]);
 
-	protected CheckInput(Client: DSClient) {
+	protected CheckInput(Client: Client) {
 		return CheckJump(Client) || CheckSpindash(Client) || CheckSkid(Client) || CheckRail(Client);
 	}
 
-	protected BeforeUpdateHook(Client: DSClient) {
+	protected BeforeUpdateHook(Client: Client) {
 		if (Client.Speed.X === 0) {
 			PhysicsHandler.RotateWithGravity(Client);
 		}
@@ -26,7 +26,7 @@ export class StateGrounded extends SrcState {
 		PhysicsHandler.AccelerateGrounded(Client);
 	}
 
-	protected AfterUpdateHook(Client: DSClient) {
+	protected AfterUpdateHook(Client: Client) {
 		if (Client.Ground.Grounded) {
 			const Slip = math.sqrt(1);
 			const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Config.CrashSpeed, 1);

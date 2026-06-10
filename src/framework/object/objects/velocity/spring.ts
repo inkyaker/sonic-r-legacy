@@ -1,14 +1,14 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
 import { FromToRotation } from "shared/common/utility/cfutil";
-import SrcObject from "../baseobj";
+import BaseObject from "../baseobj";
 
 /**
  * @class
  * @object
- * @augments SrcObject
+ * @augments BaseObject
  */
-class Spring extends SrcObject {
+class Spring extends BaseObject {
 	public Force = 0;
 	public LockTime = 0;
 	public DirectVelocity = false;
@@ -34,7 +34,7 @@ class Spring extends SrcObject {
 		this.Connections.Add(this.Data("Wide").Connect(() => (this.Wide = this.Data.Wide)));
 	}
 
-	protected OnTouch(Client: DSClient) {
+	protected OnTouch(Client: Client) {
 		Client.ResetObjectState();
 
 		Client.Speed = new Vector3(0, this.Force, 0);

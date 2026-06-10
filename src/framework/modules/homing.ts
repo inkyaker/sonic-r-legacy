@@ -1,8 +1,8 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
 import { SignedAngle } from "shared/common/utility/vutil";
 import { CheckBounce } from "./bounce";
-import { SrcState } from "./state";
+import { BaseState } from "./state";
 
 /**
  * Function ran in `State.CheckInput`
@@ -10,7 +10,7 @@ import { SrcState } from "./state";
  * @param Client
  * @returns Move successful
  */
-export function CheckHomingAttack(Client: DSClient) {
+export function CheckHomingAttack(Client: Client) {
 	if (Client.Input.Button.Jump.Pressed && Client.Flags.BallEnabled) {
 		const Object = PhysicsHandler.GetHomingObject(Client);
 		Client.Flags.TrailEnabled = true;
@@ -40,14 +40,14 @@ export function CheckHomingAttack(Client: DSClient) {
 
 /**
  * @class
- * @augments SrcState
+ * @augments BaseState
  */
-export class StateHoming extends SrcState {
-	protected CheckInput(Client: DSClient) {
+export class StateHoming extends BaseState {
+	protected CheckInput(Client: Client) {
 		return CheckBounce(Client);
 	}
 
-	protected BeforeUpdateHook(Client: DSClient) {
+	protected BeforeUpdateHook(Client: Client) {
 		Client.Angle = CFrame.fromRotationBetweenVectors(Client.Angle.UpVector, Vector3.yAxis).mul(Client.Angle);
 
 		const Collider = Client.HomingAttack.Target!.Root;
@@ -87,5 +87,5 @@ export class StateHoming extends SrcState {
 		}
 	}
 
-	protected AfterUpdateHook(_Client: DSClient) {}
+	protected AfterUpdateHook(_Client: Client) {}
 }

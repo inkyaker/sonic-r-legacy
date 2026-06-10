@@ -1,6 +1,6 @@
 import { Players, UserInputService, Workspace } from "@rbxts/services";
 import * as Render from "shared/common/utility/renderregistry";
-import type { DSClient } from "..";
+import type { Client } from "..";
 
 const MouseSensitivity = new Vector2(1, 0.77).mul(math.rad(0.5));
 const PitchMax = 85;
@@ -9,13 +9,13 @@ const PitchMax = 85;
  * @class
  */
 export class Camera {
-	private Client: DSClient;
+	private Client: Client;
 	public InputChanged: RBXScriptConnection;
 	public Zoom: number;
 	public Rotation: { X: number; Y: number; Z: number };
 	public InputVector: Vector3;
 
-	constructor(Client: DSClient) {
+	constructor(Client: Client) {
 		//Render.RegisterStepped("Camera", Enum.RenderPriority.Camera.Value + 1, (Delta:number) => this.Update(Delta))
 		this.Rotation = { X: 0, Y: 0, Z: 0 };
 		this.Zoom = 16;

@@ -1,8 +1,8 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
 import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
-import { SrcState } from "./state";
+import { BaseState } from "./state";
 
 /**
  * Function ran in `State.CheckInput`
@@ -10,7 +10,7 @@ import { SrcState } from "./state";
  * @param Client
  * @returns Move successful
  */
-export function CheckSpindash(Client: DSClient) {
+export function CheckSpindash(Client: Client) {
 	if (Client.Input.Button.Spindash.Pressed) {
 		Client.State.Current = Client.State.States.Spindash;
 		Client.Flags.SpindashSpeed = math.max(Client.Speed.X, 2);
@@ -25,10 +25,10 @@ export function CheckSpindash(Client: DSClient) {
 /**
  * @class
  * @state
- * @augments SrcState
+ * @augments BaseState
  */
-export class StateSpindash extends SrcState {
-	protected CheckInput(Client: DSClient) {
+export class StateSpindash extends BaseState {
+	protected CheckInput(Client: Client) {
 		if (Client.Input.Button.Spindash.Activated) {
 			if (Client.Flags.SpindashSpeed < 10) {
 				Client.Flags.SpindashSpeed += 0.4;
@@ -46,7 +46,7 @@ export class StateSpindash extends SrcState {
 		return CheckRail(Client);
 	}
 
-	protected AfterUpdateHook(Client: DSClient) {
+	protected AfterUpdateHook(Client: Client) {
 		PhysicsHandler.ApplyGravity(Client);
 		PhysicsHandler.Turn(Client, Client.Input.GetTurn(), undefined);
 		PhysicsHandler.Skid(Client);
@@ -64,10 +64,10 @@ export class StateSpindash extends SrcState {
 /**
  * @class
  * @state
- * @augments SrcState
+ * @augments BaseState
  */
-export class StateRoll extends SrcState {
-	protected CheckInput(Client: DSClient) {
+export class StateRoll extends BaseState {
+	protected CheckInput(Client: Client) {
 		if (Client.Input.Button.Roll.Pressed || Client.Speed.X < Client.Config.RollGetup) {
 			// TODO: ceil clip
 			Client.State.Current = Client.State.States.Grounded;
@@ -79,7 +79,7 @@ export class StateRoll extends SrcState {
 		return CheckJump(Client) || CheckRail(Client);
 	}
 
-	protected AfterUpdateHook(Client: DSClient) {
+	protected AfterUpdateHook(Client: Client) {
 		PhysicsHandler.ApplyInertia(Client);
 		PhysicsHandler.Turn(Client, Client.Input.GetTurn(), undefined);
 

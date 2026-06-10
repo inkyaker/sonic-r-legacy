@@ -1,8 +1,8 @@
-import type SrcObject from "framework/object/objects/baseobj";
+import type BaseObject from "framework/object/objects/baseobj";
 import { Workspace } from "shared/common/globals";
 import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
-import type { DSClient } from "..";
+import type { Client } from "..";
 
 export enum IntertiaState {
 	FULL_INERTIA,
@@ -15,7 +15,7 @@ export const PhysicsHandler = {
 	 * Apply grounded acceleration, gravity calculations are separate
 	 * @param Client
 	 */
-	AccelerateGrounded: (Client: DSClient) => {
+	AccelerateGrounded: (Client: Client) => {
 		const MaxXSpeed = Client.Config.MaxXSpeed;
 		const RunAcceleration = Client.GetRunAcceleration();
 		const Friction = /*self.flag.grounded and self.frict_mult*/ 1 || 1;
@@ -127,7 +127,7 @@ export const PhysicsHandler = {
 	 * Apply airborne acceleration, gravity calculations are separate
 	 * @param Client
 	 */
-	AccelerateAirborne: (Client: DSClient) => {
+	AccelerateAirborne: (Client: Client) => {
 		//Get analogue state
 		const [HasControl, Turn, Magnitude] = Client.Input.Get();
 
@@ -163,7 +163,7 @@ export const PhysicsHandler = {
 	},
 
 	// Gravity
-	ApplyGravity: (Client: DSClient) => {
+	ApplyGravity: (Client: Client) => {
 		if (Client.IsScripted()) {
 			return;
 		}
@@ -201,7 +201,7 @@ export const PhysicsHandler = {
 	},
 
 	// Movementa
-	AlignToGravity: (Client: DSClient) => {
+	AlignToGravity: (Client: Client) => {
 		if (Client.IsScripted()) {
 			return;
 		}
@@ -229,7 +229,7 @@ export const PhysicsHandler = {
 		}
 	},
 
-	RotateWithGravity: (Client: DSClient) => {
+	RotateWithGravity: (Client: Client) => {
 		const GlobalSpeed = Client.ToGlobal(Client.Speed);
 		const DotProduct = GlobalSpeed.Unit.Dot(Client.Flags.Gravity.Unit);
 
@@ -252,7 +252,7 @@ export const PhysicsHandler = {
 	 * Used in `Skid` and `Spindash`
 	 * @param Client
 	 */
-	Skid: (Client: DSClient) => {
+	Skid: (Client: Client) => {
 		const FrictionMultiplier = 1; // TODO: fricton mult
 
 		const XFriction = Client.Config.SkidFriction * FrictionMultiplier;
@@ -267,7 +267,7 @@ export const PhysicsHandler = {
 	 * Replacement function for `AccelerateGrounded` and `AccelerateAirborne` for the `Roll` state, disables acceleration and keeps speed
 	 * @param Client
 	 */
-	ApplyInertia: (Client: DSClient) => {
+	ApplyInertia: (Client: Client) => {
 		// TODO: see if i can seperate the gravity from this
 		const Weight = Client.GetWeight();
 		let Acceleration = Client.ToLocal(Client.Flags.Gravity.mul(Weight));
@@ -296,7 +296,7 @@ export const PhysicsHandler = {
 	 * @param Client
 	 * @param Turn Amount in radians to turn
 	 */
-	TurnRaw: (Client: DSClient, Turn: number) => {
+	TurnRaw: (Client: Client, Turn: number) => {
 		Client.Angle = Client.Angle.mul(CFrame.Angles(0, Turn, 0));
 	},
 
@@ -313,7 +313,7 @@ export const PhysicsHandler = {
 	 * @param Turn Amount in radians to turn
 	 * @param IState Inertia configs to match Digital Swirl
 	 */
-	Turn: (Client: DSClient, Turn: number, IState?: IntertiaState) => {
+	Turn: (Client: Client, Turn: number, IState?: IntertiaState) => {
 		let MaxTurn = math.abs(Turn);
 		const [HasControl] = Client.Input.Get();
 		const PreviousSpeed = Client.ToGlobal(Client.Speed);
@@ -408,7 +408,7 @@ export const PhysicsHandler = {
 	/**
 	 * Get targeted object for homing attack
 	 */
-	GetHomingObject(Client: DSClient): SrcObject | undefined {
+	GetHomingObject(Client: Client): BaseObject | undefined {
 		const Look = Client.Angle.LookVector;
 		const Colliders = Workspace.GetPartBoundsInRadius(Client.Position, 100 * Client.Config.Scale, PhysicsHandler.ObjectParams);
 		const Objects = [];
@@ -422,7 +422,7 @@ export const PhysicsHandler = {
 			const Center = Collider.Position;
 			const Offset = Center.sub(Client.Position);
 			const Dot = Offset.mul(new Vector3(1, 0, 1)).Unit.Dot(Look);
-			const Hit = Workspace.Raycast(Client.Position, Offset,  PhysicsHandler.MapCollision);
+			const Hit = Workspace.Raycast(Client.Position, Offset, PhysicsHandler.MapCollision);
 			const YOff = Collider.CFrame.PointToObjectSpace(Client.Position).Y;
 			const PosValid = -YOff <= 20 * Client.Config.Scale;
 

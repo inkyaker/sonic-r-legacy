@@ -1,5 +1,7 @@
-import Net, { Route } from "@rbxts/yetanothernet";
 import { RunService } from "@rbxts/services";
+import Net, { Route } from "@rbxts/yetanothernet";
+
+//TODO: migrate to flamework networking
 
 //RESPAWN
 export const RespawnRoute: Route<[]> = new Route({

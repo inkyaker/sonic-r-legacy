@@ -1,13 +1,13 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
-import SrcObject from "../baseobj";
+import BaseObject from "../baseobj";
 
 /**
  * @class
  * @object
- * @augments SrcObject
+ * @augments BaseObject
  */
-class DashRing extends SrcObject {
+class DashRing extends BaseObject {
 	public Speed = 0;
 	public LockTime = 0;
 	public Rainbow = false;
@@ -28,7 +28,7 @@ class DashRing extends SrcObject {
 		//TODO: animation
 	}
 
-	protected OnTouch(Client: DSClient) {
+	protected OnTouch(Client: Client) {
 		Client.ResetObjectState();
 
 		Client.Sound.Play(`Object/${this.Rainbow ? "Rainbow" : "Dash"}Ring/Activate`);

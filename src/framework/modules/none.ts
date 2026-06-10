@@ -1,18 +1,18 @@
-import type { DSClient } from "framework";
-import { SrcState } from "./state";
+import type { Client } from "framework";
+import { BaseState } from "./state";
 
 /**
  * State which does not apply any collision or physics objects
  *
  * @class
- * @augments SrcState
+ * @augments BaseState
  */
-export class StateNone extends SrcState {
-	protected CheckInput(_Client: DSClient) {
+export class StateNone extends BaseState {
+	protected CheckInput(_Client: Client) {
 		return true;
 	}
 
-	protected BeforeUpdateHook(_Client: DSClient) {
+	protected BeforeUpdateHook(_Client: Client) {
 		return true;
 	}
 }

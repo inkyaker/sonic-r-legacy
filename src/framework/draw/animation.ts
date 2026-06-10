@@ -1,6 +1,6 @@
 import { deepCopy as DeepCopy } from "@rbxts/deepcopy";
 import type { InferredAnimation, SetAnimation, ValidAnimation } from "shared/characterinfo";
-import type { DSClient } from "..";
+import type { Client } from "..";
 
 /**
  * @class
@@ -11,7 +11,7 @@ export class Animation {
 	public Speed: number = 0;
 	private Last: ValidAnimation;
 
-	constructor(Client: DSClient) {
+	constructor(Client: Client) {
 		this.Animations = DeepCopy(Client.Animations) as unknown as { [Index in keyof typeof Client.Animations]: SetAnimation };
 		this.Last = "Idle";
 		this.Current = "Fall";
@@ -23,7 +23,7 @@ export class Animation {
 	 * Load all animations from `Client.Animations` and load events
 	 * @param Client
 	 */
-	public LoadAnimations(Client: DSClient) {
+	public LoadAnimations(Client: Client) {
 		const AnimationController: Animator = Client.Character.WaitForChild("Humanoid").WaitForChild("Animator") as Animator; // TODO: make animationcontroller.animator
 		for (const [_, AnimationInfo] of pairs(this.Animations)) {
 			for (const [Key, Value] of pairs(AnimationInfo)) {
@@ -71,7 +71,7 @@ export class Animation {
 		}
 	}
 
-	private GetCurrentTrack(Client: DSClient, Animation: InferredAnimation) {
+	private GetCurrentTrack(Client: Client, Animation: InferredAnimation) {
 		let Track: AnimationTrack | undefined;
 
 		for (const [Key, Value] of pairs(Animation)) {
@@ -121,7 +121,7 @@ export class Animation {
 	 * @param Client
 	 * @param Animation
 	 */
-	private UpdateCurrent(Client: DSClient, Animation: InferredAnimation) {
+	private UpdateCurrent(Client: Client, Animation: InferredAnimation) {
 		for (const [Key, Value] of pairs(Animation)) {
 			if (typeOf(Key) !== "number") {
 				continue;
@@ -139,7 +139,7 @@ export class Animation {
 	 * Change current Clients animation and update
 	 * @param Client
 	 */
-	public Animate(Client: DSClient) {
+	public Animate(Client: Client) {
 		const Previous = this.Animations[this.Last];
 		const Next = this.Animations[this.Current];
 
@@ -205,7 +205,7 @@ export class Animation {
 		this.UpdateCurrent(Client, Next);
 	}
 
-	public GetRate(Client: DSClient) {
+	public GetRate(Client: Client) {
 		const Track = this.GetCurrentTrack(Client, this.Animations[this.Current]);
 
 		return Track && Track.Length > 0 ? Track.Speed / Track.Length : 0;

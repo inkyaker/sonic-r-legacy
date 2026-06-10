@@ -1,6 +1,6 @@
 import { ReplicatedStorage, Workspace } from "@rbxts/services";
 import { FromToRotation } from "shared/common/utility/cfutil";
-import type { DSClient } from "..";
+import type { Client } from "..";
 
 const pi = math.pi;
 const tau = pi * 2;
@@ -107,14 +107,14 @@ class BallTrail {
  * @class
  */
 export class Renderer {
-	private Client: DSClient;
+	private Client: Client;
 	public Angle: CFrame = CFrame.identity;
 	public Assets: AssetsDir;
 	public BallTrail;
 	public JumpBall;
 	public CharacterVisible: boolean = false;
 
-	constructor(Client: DSClient) {
+	constructor(Client: Client) {
 		this.Client = Client;
 
 		this.Assets = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Models").WaitForChild("Player") as AssetsDir;

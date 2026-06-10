@@ -14,21 +14,21 @@
     limitations under the License.
 */
 import { Players } from "@rbxts/services";
-import { DSClient } from "framework";
+import { Client } from "framework";
 
 if (!game.IsLoaded()) {
 	game.Loaded.Wait();
 }
 
 const LocalPlayer = Players.LocalPlayer;
-let _RunningClient: DSClient | undefined;
+let _RunningClient: Client | undefined;
 
 function CharacterAdded() {
 	const Character = LocalPlayer.Character;
 
 	assert(Character, "Character not found!");
 
-	_RunningClient = new DSClient(Character);
+	_RunningClient = new Client(Character);
 }
 
 function CharacterRemoving() {}

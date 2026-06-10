@@ -1,4 +1,4 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 
 /**
  * Function ran in `State.CheckInput`
@@ -6,7 +6,7 @@ import type { DSClient } from "framework";
  * @param Client
  * @returns Move successful
  */
-export function CheckJump(Client: DSClient) {
+export function CheckJump(Client: Client) {
 	if (Client.Input.Button.Jump.Pressed) {
 		Client.State.Current = Client.State.States.Airborne;
 		Client.Speed = Client.Speed.add(new Vector3(0, Client.Config.JumpInitalForce, 0));

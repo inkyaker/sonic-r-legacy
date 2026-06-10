@@ -2,9 +2,9 @@ import { Constants } from "shared/common/constants";
 import { Workspace } from "shared/common/globals";
 import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
-import type { DSClient } from "..";
+import type { Client } from "..";
 
-function GetAligned(Client: DSClient, Normal: Vector3) {
+function GetAligned(Client: Client, Normal: Vector3) {
 	if (Client.Angle.UpVector.Dot(Normal) < -0.999) {
 		return CFrame.Angles(math.pi, 0, 0).mul(Client.Angle);
 	}
@@ -12,7 +12,7 @@ function GetAligned(Client: DSClient, Normal: Vector3) {
 	return Diff.mul(Client.Angle);
 }
 
-function AlignNormal(Client: DSClient, Normal: Vector3) {
+function AlignNormal(Client: Client, Normal: Vector3) {
 	Client.Angle = GetAligned(Client, Normal);
 }
 
@@ -25,11 +25,11 @@ function VelCancel(Velocity: Vector3, Normal: Vector3) {
 	return Velocity;
 }
 
-function LocalVelCancel(Client: DSClient, vel: Vector3, normal: Vector3) {
+function LocalVelCancel(Client: Client, vel: Vector3, normal: Vector3) {
 	return Client.ToLocal(VelCancel(Client.ToGlobal(vel), normal.Unit));
 }
 
-function _LocalFlatten(Client: DSClient, vector: Vector3, normal: Vector3) {
+function _LocalFlatten(Client: Client, vector: Vector3, normal: Vector3) {
 	return Client.ToLocal(VUtil.Flatten(Client.ToGlobal(vector), normal.Unit));
 }
 
@@ -47,7 +47,7 @@ function Raycast(Whitelist: Instance[], From: Vector3, Direction: Vector3) {
 }
 
 //Wall collision
-function WallRay(Client: DSClient, Whitelist: Instance[], Y: number, Direction: Vector3, Velocity: number) {
+function WallRay(Client: Client, Whitelist: Instance[], Y: number, Direction: Vector3, Velocity: number) {
 	//Raycast
 	const ReverseDirection = Direction.mul(Client.Config.Radius * Client.Config.Scale);
 	const From = Client.Position.add(Client.Angle.UpVector.mul(Y));
@@ -62,14 +62,14 @@ function WallRay(Client: DSClient, Whitelist: Instance[], Y: number, Direction: 
 	return $tuple(undefined, undefined, undefined);
 }
 
-function CheckWallAttach(Client: DSClient, Direction: Vector3, Normal: Vector3) {
+function CheckWallAttach(Client: Client, Direction: Vector3, Normal: Vector3) {
 	const DirectionDot = Direction.Dot(Normal);
 	const SpeedDot = Client.ToGlobal(Client.Speed).Dot(Normal);
 	const UpDot = Client.Angle.UpVector.Dot(Normal);
 	return DirectionDot < -0.35 && SpeedDot < -1.16 && UpDot > 0.5;
 }
 
-function WallAttach(Client: DSClient, Whitelist: Instance[], InputNormal: Vector3) {
+function WallAttach(Client: Client, Whitelist: Instance[], InputNormal: Vector3) {
 	const FUp = Client.Config.Height * Client.Config.Scale;
 	const FDown = FUp + Client.Config.PositionError * Client.Config.Scale;
 	const [Hit, Position, Normal] = Raycast(Whitelist, Client.Position.add(Client.Angle.UpVector.mul(FUp)), InputNormal.mul(-FDown));
@@ -80,11 +80,11 @@ function WallAttach(Client: DSClient, Whitelist: Instance[], InputNormal: Vector
 	}
 }
 
-function WallHit(Client: DSClient, Normal: Vector3) {
+function WallHit(Client: Client, Normal: Vector3) {
 	Client.Speed = LocalVelCancel(Client, Client.Speed, Normal);
 }
 
-function WallCollide(Client: DSClient, Whitelist: Instance[], Y: number, Direction: Vector3, Velocity: number, ForwardAttach: boolean, BackAttach: boolean) {
+function WallCollide(Client: Client, Whitelist: Instance[], Y: number, Direction: Vector3, Velocity: number, ForwardAttach: boolean, BackAttach: boolean) {
 	//Positive and negative wall collision
 	let [ForwardPos, ForwardNormal] = WallRay(Client, Whitelist, Y, Direction, math.max(Velocity, 0));
 	let [BackwardPos, BackwardNormal] = WallRay(Client, Whitelist, Y, Direction.mul(-1), math.max(-Velocity, 0));
@@ -131,7 +131,7 @@ function WallCollide(Client: DSClient, Whitelist: Instance[], Y: number, Directi
  * Run global collision for `Client`
  * @param Client
  */
-export function RunCollision(Client: DSClient) {
+export function RunCollision(Client: Client) {
 	//Remember previous state
 	const _PreviousSpeed = Client.ToGlobal(Client.Speed);
 

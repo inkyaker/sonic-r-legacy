@@ -1,20 +1,20 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
 import { CheckBounce } from "./bounce";
 import { CheckHomingAttack } from "./homing";
 import { CheckRail } from "./rail";
-import { SrcState } from "./state";
+import { BaseState } from "./state";
 
 /**
  * @class
- * @augments SrcState
+ * @augments BaseState
  */
-export class StateAirborne extends SrcState {
-	protected CheckInput(Client: DSClient) {
+export class StateAirborne extends BaseState {
+	protected CheckInput(Client: Client) {
 		return CheckHomingAttack(Client) || CheckBounce(Client) || CheckRail(Client);
 	}
 
-	protected BeforeUpdateHook(Client: DSClient) {
+	protected BeforeUpdateHook(Client: Client) {
 		if (Client.Animation.Current === "Spring" && Client.Speed.Y <= 0.5) {
 			Client.Animation.Current = "SpringEnd";
 		}
@@ -27,7 +27,7 @@ export class StateAirborne extends SrcState {
 		PhysicsHandler.AccelerateAirborne(Client);
 	}
 
-	protected AfterUpdateHook(Client: DSClient) {
+	protected AfterUpdateHook(Client: Client) {
 		if (Client.Ground.Grounded) {
 			if (Client.Flags.InBounce) {
 				Client.Flags.JumpTimer = 0;

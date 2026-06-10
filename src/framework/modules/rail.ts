@@ -1,7 +1,7 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { Workspace } from "shared/common/globals";
 import { CheckJump } from "./jump";
-import { SrcState } from "./state";
+import { BaseState } from "./state";
 
 /**
  * Rail component interface
@@ -26,18 +26,18 @@ export class Rail {
 	public Connections: RBXScriptConnection[] = [];
 }
 
-export function RailActive(Client: DSClient) {
+export function RailActive(Client: Client) {
 	return Client.State.Current === Client.State.States.Rail && Client.Rail.RailOffset.Magnitude < 0.5;
 }
 
-export function GetRailPosition(Client: DSClient) {
+export function GetRailPosition(Client: Client) {
 	assert(Client.Rail.Current, "GetRailPosition() called without Client.Rail.Current being set, did you mean to call this function?");
 	const Offset = Client.Rail.Current.CFrame.Inverse().mul(Client.Position);
 
 	return Client.Rail.Current.CFrame.mul(new Vector3(0, Client.Rail.Current.Size.Y / 2, Offset.Z));
 }
 
-export function GetRailAngle(Client: DSClient) {
+export function GetRailAngle(Client: Client) {
 	if (Client.Rail.Current) {
 		let Angle: number;
 		if (Client.Rail.RailDirection >= 0) {
@@ -50,7 +50,7 @@ export function GetRailAngle(Client: DSClient) {
 	return Client.Angle;
 }
 
-export function SetRail(Client: DSClient, Part?: Part) {
+export function SetRail(Client: Client, Part?: Part) {
 	const Rail = Client.Rail;
 
 	if (Part) {
@@ -121,7 +121,7 @@ export function SetRail(Client: DSClient, Part?: Part) {
  *
  * @move
  */
-export function CheckRail(Client: DSClient) {
+export function CheckRail(Client: Client) {
 	if (Client.Rail.RailDebounce > 0 || Client.Rail.Current) {
 		return false;
 	}
@@ -144,9 +144,9 @@ export function CheckRail(Client: DSClient) {
 /**
  * @class
  * @state
- * @augments SrcState
+ * @augments BaseState
  */
-export class StateRail extends SrcState {
+export class StateRail extends BaseState {
 	public Params: RaycastParams;
 	public Skin: number = 2;
 
@@ -158,7 +158,7 @@ export class StateRail extends SrcState {
 		this.Params.FilterType = Enum.RaycastFilterType.Include;
 	}
 
-	protected CheckInput(Client: DSClient) {
+	protected CheckInput(Client: Client) {
 		if (CheckJump(Client)) {
 			SetRail(Client);
 
@@ -166,7 +166,7 @@ export class StateRail extends SrcState {
 		}
 	}
 
-	protected BeforeUpdateHook(Client: DSClient) {
+	protected BeforeUpdateHook(Client: Client) {
 		const Rail = Client.Rail;
 
 		//Immediately quit if not on a rail
@@ -243,7 +243,7 @@ export class StateRail extends SrcState {
 		}
 	}
 
-	protected AfterUpdateHook(Client: DSClient) {
+	protected AfterUpdateHook(Client: Client) {
 		const Rail = Client.Rail;
 		const Crouching = Client.Input.Button.Roll.Pressed;
 		assert(Rail.Current);
@@ -328,7 +328,7 @@ export class StateRail extends SrcState {
 		}
 	}
 
-	protected OnStep(Client: DSClient) {
+	protected OnStep(Client: Client) {
 		if (Client.Rail.RailDebounce > 0) {
 			Client.Rail.RailDebounce--;
 		}

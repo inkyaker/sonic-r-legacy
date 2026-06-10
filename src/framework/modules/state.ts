@@ -1,18 +1,18 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { RunCollision } from "framework/physics/collision";
 
 /**
  * State base type
  * @class
  */
-export class SrcState {
+export class BaseState {
 	/**
 	 * Public abstracted method for state input checking, executes before State.Tick
 	 *
 	 * Follows same rules as State.CheckInput
 	 * @param Client
 	 */
-	public CheckMoves(Client: DSClient) {
+	public CheckMoves(Client: Client) {
 		// Default input checking code
 
 		// Per state code
@@ -23,7 +23,7 @@ export class SrcState {
 	 * Public abstracted method for updating player via BeforeUpdateHook and AfterUpdateHook
 	 * @param Client Client
 	 */
-	public Tick(Client: DSClient) {
+	public Tick(Client: Client) {
 		// Pre update
 		if (this.BeforeUpdateHook(Client) !== undefined) {
 			return;
@@ -50,7 +50,7 @@ export class SrcState {
 	 * Runs every tick after state update
 	 * @param Client
 	 */
-	public Step(Client: DSClient) {
+	public Step(Client: Client) {
 		this.OnStep(Client);
 	}
 
@@ -60,7 +60,7 @@ export class SrcState {
 	 * States can be changed in this method, and the new state will be Ticked
 	 * @param Client Client
 	 */
-	protected CheckInput(_Client: DSClient) {}
+	protected CheckInput(_Client: Client) {}
 
 	/**
 	 * Override method for state update execution
@@ -69,7 +69,7 @@ export class SrcState {
 	 * @param Client Client
 	 * @returns {true|undefined} If returned true will cancel the tick, skipping Collision, AfterUpdateHook, and Animate
 	 */
-	protected BeforeUpdateHook(_Client: DSClient) {}
+	protected BeforeUpdateHook(_Client: Client) {}
 
 	/**
 	 * Override method for state update execution
@@ -77,7 +77,7 @@ export class SrcState {
 	 * Runs after the global update (Collision) and BeforeUpdateHook
 	 * @param Client Client
 	 */
-	protected AfterUpdateHook(_Client: DSClient) {}
+	protected AfterUpdateHook(_Client: Client) {}
 
-	protected OnStep(_Client: DSClient) {}
+	protected OnStep(_Client: Client) {}
 }

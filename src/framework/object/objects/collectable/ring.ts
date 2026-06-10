@@ -1,17 +1,17 @@
 import { TweenService } from "@rbxts/services";
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { GetAttribute } from "shared/common/class/attributes";
-import SrcObject from "../baseobj";
+import BaseObject from "../baseobj";
 
 /**
  * @class
  * @object
- * @augments SrcObject
+ * @augments BaseObject
  */
-class Ring extends SrcObject {
+class Ring extends BaseObject {
 	public Triggered: boolean = false;
 
-	protected OnTouch(Client: DSClient) {
+	protected OnTouch(Client: Client) {
 		if (this.Triggered) {
 			return;
 		}

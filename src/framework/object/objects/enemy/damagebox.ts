@@ -1,13 +1,13 @@
-import type { DSClient } from "framework";
+import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
-import SrcObject from "../baseobj";
+import BaseObject from "../baseobj";
 
 /**
  * @class
  * @object
- * @augments SrcObject
+ * @augments BaseObject
  */
-class DamageBox extends SrcObject {
+class DamageBox extends BaseObject {
 	public Enabled: boolean = true;
 	public Data;
 
@@ -21,7 +21,7 @@ class DamageBox extends SrcObject {
 		this.Connections.Add(this.Data("Enabled").Connect(() => (this.Enabled = this.Data.Enabled)));
 	}
 
-	protected OnTouch(Client: DSClient) {
+	protected OnTouch(Client: Client) {
 		if (!this.Enabled) {
 			return;
 		}
