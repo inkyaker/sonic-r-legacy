@@ -1,64 +1,69 @@
-import { Connector } from "shared/common/class/connector"
-import { AddLog } from "shared/common/utility/logger"
-import { Client } from "framework"
+import type { DSClient } from "framework";
+import { Connector } from "shared/common/class/connector";
+import { AddLog } from "shared/common/utility/logger";
 
 /**
  * @class
  * @object
  */
 class SrcObject {
-    public readonly Object: Model
-    public readonly Root: BasePart
-    public Debounce = 0
-    protected Connections = new Connector()
+	public HomingTarget = false;
+	public HomingWeight = 1;
 
-    constructor(Object: Model) {
-        if (!Object.PrimaryPart) {
-            AddLog(`Failed to load object ${script.Name}! No PrimaryPart set!`)
-            error()
-        }
+	public readonly Object: Model;
+	public readonly Root: BasePart;
+	public Debounce = 0;
+	protected Connections = new Connector();
 
-        this.Object = Object
-        this.Root = Object.PrimaryPart
-    }
+	constructor(Object: Model) {
+		if (!Object.PrimaryPart) {
+			AddLog(`Failed to load object ${script.Name}! No PrimaryPart set!`);
+			error();
+		}
 
-    protected OnTick(GetClient: () => Client) {
-        if (this.Debounce > 0) {
-            this.Debounce--
-        }
-    }
+		this.Object = Object;
+		this.Root = Object.PrimaryPart;
+	}
 
-    /**
-     * Client touched callback
-     * @param Client
-     */
-    protected OnTouch(Client: Client) { }
+	protected OnTick(_GetClient: () => DSClient) {
+		if (this.Debounce > 0) {
+			this.Debounce--;
+		}
+	}
 
-    /**
-     * .RenderStepped callback
-     * @param DeltaTime
-     */
-    protected PreRender(DeltaTime: number) { }
+	/**
+	 * Client touched callback
+	 * @param Client
+	 */
+	protected OnTouch(_Client: DSClient) {}
 
-    protected OnRespawn() { }
+	/**
+	 * .RenderStepped callback
+	 * @param DeltaTime
+	 */
+	protected PreRender(_DeltaTime: number) {}
 
-    public Tick(GetClient: () => Client) {
-        this.OnTick(GetClient)
-    }
+	protected OnRespawn() {}
 
-    public TouchClient(Client: Client) {
-        if (this.Debounce > 0) { return }
-        
-        this.OnTouch(Client)
-    }
+	public Tick(GetClient: () => DSClient) {
+		this.OnTick(GetClient);
+	}
 
-    public Draw(DeltaTime: number) {
-        this.PreRender(DeltaTime)
-    }
+	public TouchClient(Client: DSClient) {
+		if (this.Debounce > 0) {
+			return;
+		}
 
-    public Respawn() {
-        this.OnRespawn()
-    }
+		this.OnTouch(Client);
+	}
+
+	public Draw(DeltaTime: number) {
+		this.PreRender(DeltaTime);
+	}
+
+	public Respawn() {
+		this.OnRespawn();
+	}
 }
 
-export = SrcObject
+export = SrcObject;

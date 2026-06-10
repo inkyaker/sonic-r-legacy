@@ -15,12 +15,16 @@
 		"moduleDetection": "force",
 		"strict": true,
 		"target": "ESNext",
-		"typeRoots": ["node_modules/@rbxts"],
+		"types": ["types"],
+		"paths": {
+			"*": ["node_modules/*", "src/*"]
+		},
+		"typeRoots": ["node_modules/@rbxts", "node_modules/@runicly", "node_modules/@flamework"],
 
 		// configurable
 		"rootDir": "src",
 		"outDir": "out",
-		"baseUrl": "src",
+		"baseUrl": ".",
 		"incremental": true,
 		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo",
 		"plugins": [

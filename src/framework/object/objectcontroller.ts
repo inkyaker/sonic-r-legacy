@@ -1,68 +1,82 @@
-import { Workspace } from "shared/common/globals"
-import SrcObject from "./objects/baseobj"
-import { Client } from ".."
-import { AddLog } from "shared/common/utility/logger"
+import { Workspace } from "shared/common/globals";
+import { AddLog } from "shared/common/utility/logger";
+import type { DSClient } from "..";
+import type SrcObject from "./objects/baseobj";
 
 // TODO: see if theres a better way to do this
 // a dynamic list for all that extends SrcObject would be nice, and could also be implemented for states rather than a fixed registry
-const ObjectClasses = new Map<string, typeof SrcObject>()
+const ObjectClasses = new Map<string, typeof SrcObject>();
 for (const [_, Module] of pairs((script.Parent as Folder & { objects: Folder }).objects.GetDescendants())) {
-    if (!Module.IsA("ModuleScript")) { continue }
-    const Class = require(Module) as typeof SrcObject
-    ObjectClasses.set(tostring(Class), Class)
+	if (!Module.IsA("ModuleScript")) {
+		continue;
+	}
+	const Class = require(Module) as typeof SrcObject;
+	ObjectClasses.set(tostring(Class), Class);
 }
 
 export class ObjectController {
-    public Params: RaycastParams
-    public Objects: Map<Model, SrcObject>
-    public Skin: number = 1
-    private Client
+	public Params: RaycastParams;
+	public Objects: Map<Model, SrcObject>;
+	public Skin: number = 1;
+	private Client;
 
-    constructor(Client: Client) {
-        this.Objects = new Map()
-        this.Client = Client
+	constructor(Client: DSClient) {
+		this.Objects = new Map();
+		this.Client = Client;
 
-        for (const [_, Model] of pairs(Workspace.Level.Objects.GetDescendants())) {
-            if (!Model.IsA("Model")) { continue }
-            
-            const Class = ObjectClasses.get(Model.Name)
-            if (!Class) { 
-                AddLog(`Failed to initialize Object ${Model}, unable to find corresponding Object module!`)
-                continue
-            }
+		for (const [_, Model] of pairs(Workspace.Level.Objects.GetDescendants())) {
+			if (!Model.IsA("Model")) {
+				continue;
+			}
 
-            const Target = new Class(Model)
+			const Class = ObjectClasses.get(Model.Name);
+			if (!Class) {
+				AddLog(`Failed to initialize Object ${Model}, unable to find corresponding Object module!`);
+				continue;
+			}
 
-            this.Objects.set(Model, Target)
-        }
+			const Target = new Class(Model);
 
-        this.Params = new RaycastParams()
-        this.Params.FilterType = Enum.RaycastFilterType.Include
-        this.Params.FilterDescendantsInstances = [Workspace.Level.Objects]
-    }
+			this.Objects.set(Model, Target);
+		}
 
-    public CollideWithClient() {
-        const LastPosition = this.Client.LastCFrame.Position
-        if (LastPosition !== this.Client.Position) {
-            const Look = CFrame.lookAt(LastPosition, this.Client.Position)
-            const Magnitude = LastPosition.Distance(this.Client.Position)
+		this.Params = new RaycastParams();
+		this.Params.FilterType = Enum.RaycastFilterType.Include;
+		this.Params.FilterDescendantsInstances = [Workspace.Level.Objects];
+	}
 
-            const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params)
-            if (Cast) {
-                const Model = Cast.Instance.FindFirstAncestorOfClass("Model")
+	public CollideWithClient() {
+		const LastPosition = this.Client.LastCFrame.Position;
+		if (LastPosition !== this.Client.Position) {
+			const Look = CFrame.lookAt(LastPosition, this.Client.Position);
+			const Magnitude = LastPosition.Distance(this.Client.Position);
 
-                if (Model) {
-                    this.Objects.get(Model)?.TouchClient(this.Client)
-                }
-            }
-        }
-    }
+			const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
+			if (Cast) {
+				const Model = Cast.Instance.FindFirstAncestorOfClass("Model");
 
-    public TickObjects() {
-        for (const [_, Object] of pairs(this.Objects)) {
-            Object.Tick(() => {
-                return this.Client
-            })
-        }
-    }
+				if (Model) {
+					this.Objects.get(Model)?.TouchClient(this.Client);
+				}
+			}
+		}
+	}
+
+	public TickObjects() {
+		for (const [_, Object] of pairs(this.Objects)) {
+			Object.Tick(() => {
+				return this.Client;
+			});
+		}
+	}
+
+	public DrawObjects(DeltaTime: number) {
+		for (const [_, Object] of this.Objects) {
+			Object.Draw(DeltaTime);
+		}
+	}
+
+	public GetObject(Collider: BasePart) {
+		return this.Objects.get(Collider.FindFirstAncestorOfClass("Model")!);
+	}
 }

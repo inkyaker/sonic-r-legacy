@@ -1,9 +1,6 @@
 {
-	"name": "digitalswirl-ts",
-	"globIgnorePaths": [
-		"**/package.json",
-		"**/tsconfig.json"
-	],
+	"name": "sonic-r",
+	"globIgnorePaths": ["**/package.json", "**/tsconfig.json"],
 	"tree": {
 		"$className": "DataModel",
 		"ServerScriptService": {
@@ -20,6 +17,9 @@
 					"$className": "Folder",
 					"@rbxts": {
 						"$path": "node_modules/@rbxts"
+					},
+					"@flamework": {
+						"$path": "node_modules/@flamework"
 					}
 				}
 			},
@@ -54,7 +54,7 @@
 				"RespectFilteringEnabled": true
 			}
 		},
-		"TextChatService" : {
+		"TextChatService": {
 			"$className": "TextChatService",
 			"$properties": {
 				"ChatVersion": "TextChatService"

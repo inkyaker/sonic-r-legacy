@@ -1,5 +1,5 @@
 {
-    "properties":{
-        "RunContext":"Client"
-    }
+	"properties": {
+		"RunContext": "Client"
+	}
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2025 nadia8666
+    Copyright 2026 nadia8666
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -13,31 +13,29 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Players } from "@rbxts/services"
-import { Client } from "framework"
+import { Players } from "@rbxts/services";
+import { DSClient } from "framework";
 
 if (!game.IsLoaded()) {
-    game.Loaded.Wait()
+	game.Loaded.Wait();
 }
 
-const LocalPlayer = Players.LocalPlayer
-let RunningClient: Client | undefined = undefined
+const LocalPlayer = Players.LocalPlayer;
+let _RunningClient: DSClient | undefined;
 
 function CharacterAdded() {
-    const Character = LocalPlayer.Character
+	const Character = LocalPlayer.Character;
 
-    assert(Character, "Character not found!")
+	assert(Character, "Character not found!");
 
-    RunningClient = new Client(Character)
+	_RunningClient = new DSClient(Character);
 }
 
-function CharacterRemoving() {
-
-}
+function CharacterRemoving() {}
 
 if (LocalPlayer.Character) {
-    CharacterAdded()
+	CharacterAdded();
 }
 
-LocalPlayer.CharacterAdded.Connect(CharacterAdded)
-LocalPlayer.CharacterRemoving.Connect(CharacterRemoving)
+LocalPlayer.CharacterAdded.Connect(CharacterAdded);
+LocalPlayer.CharacterRemoving.Connect(CharacterRemoving);

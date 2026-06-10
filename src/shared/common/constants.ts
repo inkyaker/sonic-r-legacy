@@ -1,3 +1,3 @@
 export const Constants = {
-    Tickrate: 60,
-}
+	Tickrate: 60,
+};

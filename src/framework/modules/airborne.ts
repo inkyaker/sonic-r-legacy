@@ -1,53 +1,48 @@
-import { Client } from "framework"
-import { PhysicsHandler } from "framework/physics/physics"
-import { CheckBounce } from "./bounce"
-import { CheckHomingAttack } from "./homing"
-import { SrcState } from "./state"
-import { CheckRail } from "./rail"
-import { CheckAirKick } from "./airkick"
+import type { DSClient } from "framework";
+import { PhysicsHandler } from "framework/physics/physics";
+import { CheckBounce } from "./bounce";
+import { CheckHomingAttack } from "./homing";
+import { CheckRail } from "./rail";
+import { SrcState } from "./state";
 
 /**
  * @class
  * @augments SrcState
  */
 export class StateAirborne extends SrcState {
-    constructor() {
-        super()
-    }
+	protected CheckInput(Client: DSClient) {
+		return CheckHomingAttack(Client) || CheckBounce(Client) || CheckRail(Client);
+	}
 
-    protected CheckInput(Client: Client) {
-        return CheckHomingAttack(Client) || CheckAirKick(Client) || CheckBounce(Client) || CheckRail(Client)
-    }
+	protected BeforeUpdateHook(Client: DSClient) {
+		if (Client.Animation.Current === "Spring" && Client.Speed.Y <= 0.5) {
+			Client.Animation.Current = "SpringEnd";
+		}
 
-    protected BeforeUpdateHook(Client: Client) {
-        if (Client.Animation.Current === "Spring" && Client.Speed.Y <= .5) {
-            Client.Animation.Current = "SpringEnd"
-        }
+		if (!Client.IsScripted()) {
+			PhysicsHandler.ApplyGravity(Client);
+			PhysicsHandler.AlignToGravity(Client);
+		}
 
-        if (!Client.IsScripted()) {
-            PhysicsHandler.ApplyGravity(Client)
-            PhysicsHandler.AlignToGravity(Client)
-        }
+		PhysicsHandler.AccelerateAirborne(Client);
+	}
 
-        PhysicsHandler.AccelerateAirborne(Client)
-    }
+	protected AfterUpdateHook(Client: DSClient) {
+		if (Client.Ground.Grounded) {
+			if (Client.Flags.InBounce) {
+				Client.Flags.JumpTimer = 0;
+				const Speed = 1 + math.abs(Client.Speed.X) / 16;
+				Client.Speed = Client.Speed.mul(new Vector3(1, 0, 1)).add(new Vector3(0, Speed * ((Client.Flags.Bounces === 0 && 2.825) || 3.575)));
 
-    protected AfterUpdateHook(Client: Client) {
-        if (Client.Ground.Grounded) {
-            if (Client.Flags.InBounce) {
-                Client.Flags.JumpTimer = 0
-                const Speed = 1 + (math.abs(Client.Speed.X) / 16)
-                Client.Speed = Client.Speed.mul(new Vector3(1, 0, 1)).add(new Vector3(0, Speed * (Client.Flags.Bounces === 0 && 2.825 || 3.575)))
+				Client.Flags.Bounces++;
 
-                Client.Flags.Bounces++
+				Client.Flags.InBounce = false;
+			} else {
+				Client.Sound.Play("Character/Land");
 
-                Client.Flags.InBounce = false
-            } else {
-                Client.Sound.Play("Character/Land")
-
-                Client.State.Current = Client.State.States.Grounded
-                Client.Land()
-            }
-        }
-    }
+				Client.State.Current = Client.State.States.Grounded;
+				Client.Land();
+			}
+		}
+	}
 }

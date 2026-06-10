@@ -1,185 +1,183 @@
-export type ValidAnimation = keyof typeof CharacterInfo["Animations"]
+export type ValidAnimation = keyof (typeof CharacterInfo)["Animations"];
 export interface InferredAnimation {
 	[Index: number]: {
-		AnimationID: string,
-		Asset: AnimationTrack,
-		Position?: number,
-		Looped: boolean,
+		AnimationID: string;
+		Asset: AnimationTrack;
+		Position?: number;
+		Looped: boolean;
 		Speed?: {
-			Base: number,
-			Increment: number,
-			Absolute: boolean
-		}
-	}
+			Base: number;
+			Increment: number;
+			Absolute: boolean;
+		};
+	};
 }
 
 export interface AnimationData {
-	EndAnimation?: keyof typeof CharacterInfo["Animations"],
+	EndAnimation?: keyof (typeof CharacterInfo)["Animations"];
 	Transitions?: {
 		[Index: string]: {
-			From?: number,
-			To?: number
-		}
-	}
+			From?: number;
+			To?: number;
+		};
+	};
 }
 
-export type SetAnimation = InferredAnimation & AnimationData
+export type SetAnimation = InferredAnimation & AnimationData;
 
 export const CharacterInfo = {
 	Physics: {
 		// Collision
 		Height: 5,
-		Scale: .6,
+		Scale: 0.6,
 		Radius: 3,
 		PositionError: 2,
 
 		// Physics
-		Weight: .08,
+		Weight: 0.08,
 
-		JogSpeed: .46,
+		// Speed
+		MaxXSpeed: 3,
+		JogSpeed: 0.46,
 		RunSpeed: 1.39,
-		RollGetup: 1.39, // Point at which the roll state should uncurl you
 		RushSpeed: 2.3,
 		DashSpeed: 5.09,
 		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
+		RollGetup: 1.39, // Point at which the roll state should uncurl you
 
-		AirAcceleration: .031,
-		RunAcceleration: .05,
-		MaxXSpeed: 3,
-
-		JumpInitalForce: 1.66,
-		JumpHoldForce: .076,
-		JumpTicks: 60,
-
+		// Acceleration
+		AirAcceleration: 0.031,
+		RunAcceleration: 0.05,
 		AirDeceleration: -0.17,
+		StandardDeceleration: -0.06,
+		AirResist: new Vector3(-0.008, -0.01, -0.4),
 
-		StandardDeceleration: -.06,
+		// Jump
+		JumpInitalForce: 1.66,
+		JumpHoldForce: 0.076,
+		JumpTicks: 60,
+		CoyoteFrames: 10,
 
-		SkidFriction: -.18,
-		GroundFriction: new Vector3(-.1, 0, -.6),
-
-		AirResist: new Vector3(-.008, -.01, -.4),
-
-		CameraOffset: new Vector3(0, 2, 0),
-
+		// Friction
+		SkidFriction: -0.18,
+		GroundFriction: new Vector3(-0.1, 0, -0.6),
+		
 		// Moves
-		HomingForce: { AirDash: 5, HomingAttack: 5 }
+		HomingForce: { AirDash: new Vector3(6, 1, 0), HomingAttack: 5.25 },
+		
+		// Renderer
+		CameraOffset: new Vector3(0, 2, 0),
 	},
 
 	Animations: {
 		Land: {
-			[0]: { AnimationID: "84985275274473", Looped: true },
+			0: { AnimationID: "84985275274473", Looped: true },
 		},
 		Idle: {
-			[0]: { AnimationID: "120676159453993", Looped: true },
+			0: { AnimationID: "120676159453993", Looped: true },
 		},
 		Roll: {
-			[0]: { AnimationID: "89521650226043", Looped: true, Speed: { Base: .25, Increment: 1/8, Absolute: true } },
+			0: { AnimationID: "89521650226043", Looped: true, Speed: { Base: 0.25, Increment: 1 / 8, Absolute: true } },
 		},
 		Spindash: {
-			[0]: { AnimationID: "89521650226043", Looped: true },
+			0: { AnimationID: "89521650226043", Looped: true },
 		},
 		Fall: {
-			[0]: { AnimationID: "106824283599126", Looped: true }
+			0: { AnimationID: "106824283599126", Looped: true },
 		},
 		Skid: {
-			[0]: { AnimationID: "99388608469800", Looped: true },
+			0: { AnimationID: "99388608469800", Looped: true },
 			EndAnimation: "Idle",
 		},
 		SpringStart: {
-			[0]: { AnimationID: "105125944783334", Looped: false },
+			0: { AnimationID: "105125944783334", Looped: false },
 			EndAnimation: "Spring",
 			Transitions: {
 				All: {
-					To: 0
-				}
-			}
+					To: 0,
+				},
+			},
 		},
 		Spring: {
-			[0]: { AnimationID: "139915985594263", Looped: true },
+			0: { AnimationID: "139915985594263", Looped: true },
 		},
 		SpringEnd: {
-			[0]: { AnimationID: "138856667761535", Looped: false },
-			EndAnimation: "Fall"
+			0: { AnimationID: "138856667761535", Looped: false },
+			EndAnimation: "Fall",
 		},
 		Run: {
-			[0]: {
+			0: {
 				AnimationID: "87236465713680",
 				Position: 0,
 				Speed: {
-					Base: .2,
-					Increment: .3,
-					Absolute: false
+					Base: 0.2,
+					Increment: 0.3,
+					Absolute: false,
 				},
-				Looped: true
+				Looped: true,
 			},
-			[1]: {
+			1: {
 				AnimationID: "117668028319772",
 				Position: 4,
 				Speed: {
-					Base: .2,
-					Increment: .3,
-					Absolute: false
+					Base: 0.2,
+					Increment: 0.3,
+					Absolute: false,
 				},
-				Looped: true
+				Looped: true,
 			},
-			[2]: {
+			2: {
 				AnimationID: "86037390555153",
 				Position: 6,
 				Speed: {
-					Base: .3,
-					Increment: .4,
-					Absolute: false
+					Base: 0.3,
+					Increment: 0.4,
+					Absolute: false,
 				},
-				Looped: true
+				Looped: true,
 			},
 		},
 		Rail: {
-			[0]: { AnimationID: "103281797241307", Looped: true }
+			0: { AnimationID: "103281797241307", Looped: true },
 		},
 		RailCrouch: {
-			[0]: { AnimationID: "0", Looped: true }
+			0: { AnimationID: "0", Looped: true },
 		},
 		RailLand: {
-			[0]: { AnimationID: "0", Looped: false }
+			0: { AnimationID: "0", Looped: false },
 		},
 		RailBalance: {
-			[0]: { AnimationID: "0", Looped: true }
+			0: { AnimationID: "0", Looped: true },
 		},
 		RailSwitchLeft: {
-			[0]: { AnimationID: "0", Looped: false }
+			0: { AnimationID: "0", Looped: false },
 		},
 		RailSwitchRight: {
-			[0]: { AnimationID: "0", Looped: false }
+			0: { AnimationID: "0", Looped: false },
 		},
-		AirKick: {
-			[0]: { AnimationID: "0", Looped: true }
-		},
-		AirKickUp: {
-			[0]: { AnimationID: "0", Looped: true }
-		}
-	} as const satisfies { [Index:string]: {
-		[Index: number]: {
-		AnimationID: string,
-		Position?: number,
-		Looped: boolean,
-		Speed?: {
-			Base: number,
-			Increment: number,
-			Absolute: boolean
-		}
-	}
-	} & {
-		EndAnimation?: string,
-		Transitions?: {
-			[Index: string]: {
-				From?: number,
-				To?: number
-			}
-		}
-	}}
-}
-
+	} as const satisfies {
+		[Index: string]: {
+			[Index: number]: {
+				AnimationID: string;
+				Position?: number;
+				Looped: boolean;
+				Speed?: {
+					Base: number;
+					Increment: number;
+					Absolute: boolean;
+				};
+			};
+		} & {
+			EndAnimation?: string;
+			Transitions?: {
+				[Index: string]: {
+					From?: number;
+					To?: number;
+				};
+			};
+		};
+	},
+};
 
 /*
 
@@ -357,20 +355,6 @@ return {
 				name = "Fall",
 				id = "106824283599126"
 			} }
-		},
-		AirKick = {
-			tracks = { {
-				name = "AirKick",
-				id = "0"
-			} },
-			end_anim = "Fall"
-		},
-		AirKickUp = {
-			tracks = { {
-				name = "AirKickUp",
-				id = "0"
-			} },
-			end_anim = "Fall"
 		},
 		LSD = {
 			tracks = { {

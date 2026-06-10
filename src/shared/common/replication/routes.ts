@@ -1,46 +1,45 @@
-import Net, { Route } from "@rbxts/yetanothernet"
-import { t } from "@rbxts/t"
-import { RunService } from "@rbxts/services"
+import Net, { Route } from "@rbxts/yetanothernet";
+import { RunService } from "@rbxts/services";
 
 //RESPAWN
-export const RespawnRoute:Route<[]> = new Route({
-    Channel: "Reliable",
-    Event: undefined,
-})
+export const RespawnRoute: Route<[]> = new Route({
+	Channel: "Reliable",
+	Event: undefined,
+});
 
 // UPDATE
 export type UpdateData = {
-    // list of client arguments to replicate
-    Angle:CFrame,
-    Position:Vector3,
-}
+	// list of client arguments to replicate
+	Angle: CFrame;
+	Position: Vector3;
+};
 
 export type UpdatePacket = {
-    Peer:string,
+	Peer: string;
 
-    Data:UpdateData
-}
+	Data: UpdateData;
+};
 
-export const UpdateRoute:Route<[UpdatePacket]> = new Route({
-    Channel: "Reliable",
-    Event: undefined,
-})
+export const UpdateRoute: Route<[UpdatePacket]> = new Route({
+	Channel: "Reliable",
+	Event: undefined,
+});
 
 // CONNECT DISCONNECT
 export type ConnectDisconnectPacket = {
-    Peer:string,
-}
+	Peer: string;
+};
 
-export const ConnectDisconnectRoute:Route<[ConnectDisconnectPacket]> = new Route({
-    Channel: "Reliable",
-    Event: undefined,
-})
+export const ConnectDisconnectRoute: Route<[ConnectDisconnectPacket]> = new Route({
+	Channel: "Reliable",
+	Event: undefined,
+});
 
 //TODO: add incoming middleware to all packets via t
 
-const [Start,End] = Net.createHook({ RespawnRoute, UpdateRoute, ConnectDisconnectRoute})
+const [Start, End] = Net.createHook({ RespawnRoute, UpdateRoute, ConnectDisconnectRoute });
 
 RunService.Heartbeat.Connect(() => {
-    Start()
-    End()
-})
+	Start();
+	End();
+});

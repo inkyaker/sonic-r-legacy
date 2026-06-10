@@ -1,136 +1,146 @@
 import { ReplicatedStorage, SoundService } from "@rbxts/services";
-import { Client } from "framework";
-import { StateList } from "framework/states";
+import type { StateList } from "framework/states";
 import { GetAttribute } from "shared/common/class/attributes";
 
 type PlayConfig = {
-    /**
-     * If `undefined` or `false`, all other instances of this sound will be deleted
-     */
-    MultiChannel?: boolean,
+	/**
+	 * If `undefined` or `false`, all other instances of this sound will be deleted
+	 */
+	MultiChannel?: boolean;
 
-    /**
-     * Setting this to a `Vector3` will fade out audio depending on camera distance to `OriginPoint`, with volume 0 being `SoundRange`
-     */
-    OriginPoint?: Vector3,
-    SoundRange?: number,
+	/**
+	 * Setting this to a `Vector3` will fade out audio depending on camera distance to `OriginPoint`, with volume 0 being `SoundRange`
+	 */
+	OriginPoint?: Vector3;
+	SoundRange?: number;
 
-    BoundState?: keyof StateList
-}
+	BoundState?: keyof StateList;
+};
 
 type StopConfig = {
-    /**
-     * Stopping a sound by name will stop all sounds under that name, use this to stop only a specific sound
-     */
-    Target?: Sound
-}
+	/**
+	 * Stopping a sound by name will stop all sounds under that name, use this to stop only a specific sound
+	 */
+	Target?: Sound;
+};
 
 export class SoundController {
-    public Assets
-    public Registry: Sound[] = []
-    
-    constructor() {
-        this.Assets = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Sounds") as Folder
-    }
+	public Assets;
+	public Registry: Sound[] = [];
 
-    public Play(Path: string, Config?: PlayConfig): Sound {
-        if (!Config) { Config = {} }
+	constructor() {
+		this.Assets = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Sounds") as Folder;
+	}
 
-        let Sound = this.PathToSound(Path)
+	public Play(Path: string, Config?: PlayConfig): Sound {
+		if (!Config) {
+			Config = {};
+		}
 
-        if (!Sound) {
-            error(`Unable to find sound at ${Path}!`)
-        }
+		let Sound = this.PathToSound(Path);
 
-        Sound = Sound.Clone()
-        Sound.Parent = SoundService
+		if (!Sound) {
+			error(`Unable to find sound at ${Path}!`);
+		}
 
-        if (Config.BoundState) {
-            Sound.SetAttribute("BoundState", Config.BoundState)
-        }
+		Sound = Sound.Clone();
+		Sound.Parent = SoundService;
 
-        if (!Config.MultiChannel) {
-            for (const [Index, Target] of pairs(this.Registry)) {
-                if (Target.GetAttribute("Class") === Sound.GetAttribute("Class")) {
-                    Target.Destroy()
-                    this.Registry[Index-1] = undefined as unknown as Sound
-                }
-            }
-        }
+		if (Config.BoundState) {
+			Sound.SetAttribute("BoundState", Config.BoundState);
+		}
 
-        this.Registry.push(Sound)
+		if (!Config.MultiChannel) {
+			for (const [Index, Target] of pairs(this.Registry)) {
+				if (Target.GetAttribute("Class") === Sound.GetAttribute("Class")) {
+					Target.Destroy();
+					this.Registry[Index - 1] = undefined as unknown as Sound;
+				}
+			}
+		}
 
-        task.spawn(() => {
-            if (!Sound.IsLoaded) {
-                Sound.Loaded.Wait()
-            }
-            
-            Sound.Play()
-            
-            if (Sound.Looped) { return }
-            
-            task.wait(Sound.TimeLength)
+		this.Registry.push(Sound);
 
-            if (Sound && Sound.Parent === SoundService) {
-                Sound.Destroy()
-            }
-        })
+		task.spawn(() => {
+			if (!Sound.IsLoaded) {
+				Sound.Loaded.Wait();
+			}
 
+			Sound.Play();
 
-        return Sound
-    }
+			if (Sound.Looped) {
+				return;
+			}
 
-    public Stop(Path: string, Config?: StopConfig) {
-        if (!Config) { Config = {} }
+			task.wait(Sound.TimeLength);
 
-        const Sound = Config.Target || this.PathToSound(Path)
-        if (!Sound) { return }
+			if (Sound && Sound.Parent === SoundService) {
+				Sound.Destroy();
+			}
+		});
 
-        const Class = Sound.GetAttribute("Class")
+		return Sound;
+	}
 
-        this.Registry.find((Source, Index) => {
-            if ((Sound && Source === Sound) || Source.GetAttribute("Class") === Class) {
-                this.Registry[Index-1] = undefined as unknown as Sound
-                Source.Destroy()
+	public Stop(Path: string, Config?: StopConfig) {
+		if (!Config) {
+			Config = {};
+		}
 
-                return true
-            }
-        })
-    }
+		const Sound = Config.Target || this.PathToSound(Path);
+		if (!Sound) {
+			return;
+		}
 
-    public Destroy() {
-        for (const [Index, Target] of pairs(this.Registry)) {
-            Target.Destroy()
-            this.Registry[Index-1] = undefined as unknown as Sound
-        }
-    }
+		const Class = Sound.GetAttribute("Class");
 
-    public PathToSound(Path: string): Sound | undefined {
-        const Splits = string.split(Path, "/")
-        let Root: Instance | undefined = this.Assets
+		this.Registry.find((Source, Index) => {
+			if ((Sound && Source === Sound) || Source.GetAttribute("Class") === Class) {
+				this.Registry[Index - 1] = undefined as unknown as Sound;
+				Source.Destroy();
 
-        for (const [_, Next] of pairs(Splits)) {
-            if (!Root) { break }
-            Root = Root.FindFirstChild(Next)
+				return true;
+			}
+		});
+	}
 
-            if (!Root || Root.IsA("Sound")) { break }
-        }
+	public Destroy() {
+		for (const [Index, Target] of pairs(this.Registry)) {
+			Target.Destroy();
+			this.Registry[Index - 1] = undefined as unknown as Sound;
+		}
+	}
 
-        if (Root && Root.IsA("Sound")) {
-            GetAttribute(Root, "Class", Root.Name)
-        }
+	public PathToSound(Path: string): Sound | undefined {
+		const Splits = string.split(Path, "/");
+		let Root: Instance | undefined = this.Assets;
 
-        return Root as Sound | undefined
-    }
+		for (const [_, Next] of pairs(Splits)) {
+			if (!Root) {
+				break;
+			}
+			Root = Root.FindFirstChild(Next);
 
-    public Update(Current: string) {
-        for (const [Index, Sound] of pairs(this.Registry)) {
-            let State = Sound.GetAttribute("BoundState")
+			if (!Root || Root.IsA("Sound")) {
+				break;
+			}
+		}
 
-            if (State && State !== Current) {
-                Sound.Destroy()
-                this.Registry[Index-1] = undefined as unknown as Sound
-            }
-        }
-    }
+		if (Root?.IsA("Sound")) {
+			GetAttribute(Root, "Class", Root.Name);
+		}
+
+		return Root as Sound | undefined;
+	}
+
+	public Update(Current: string) {
+		for (const [Index, Sound] of pairs(this.Registry)) {
+			let State = Sound.GetAttribute("BoundState");
+
+			if (State && State !== Current) {
+				Sound.Destroy();
+				this.Registry[Index - 1] = undefined as unknown as Sound;
+			}
+		}
+	}
 }

@@ -1,40 +1,36 @@
-import { Client } from "framework"
-import { SrcState } from "./state"
-import { CheckRail } from "./rail"
-import { PhysicsHandler } from "framework/physics/physics"
+import type { DSClient } from "framework";
+import { PhysicsHandler } from "framework/physics/physics";
+import { CheckRail } from "./rail";
+import { SrcState } from "./state";
 
 /**
  * @class
  * @augments SrcState
  */
 export class StateHurt extends SrcState {
-    constructor() {
-        super()
-    }
+	protected CheckInput(Client: DSClient) {
+		return CheckRail(Client);
+	}
 
-    protected CheckInput(Client: Client) {
-        return CheckRail(Client)
-    }
+	protected BeforeUpdateHook(Client: DSClient) {
+		PhysicsHandler.ApplyInertia(Client);
+		PhysicsHandler.AlignToGravity(Client);
+		Client.Ground.Grounded = false;
+	}
 
-    protected BeforeUpdateHook(Client: Client) {
-        PhysicsHandler.ApplyInertia(Client)
-        PhysicsHandler.AlignToGravity(Client)
-        Client.Ground.Grounded = false
-    }
+	protected AfterUpdateHook(Client: DSClient) {
+		if (Client.Ground.Grounded) {
+			Client.State.Current = Client.State.States.Grounded;
+			Client.Animation.Current = "Land";
+			Client.Land();
+			Client.Speed = Client.Speed.Lerp(Vector3.zero, math.abs(Client.Ground.DotProduct));
+		} else if (Client.Flags.HurtTime > 0) {
+			Client.Flags.HurtTime--;
 
-    protected AfterUpdateHook(Client: Client) {
-        if (Client.Ground.Grounded) {
-            Client.State.Current = Client.State.States.Grounded
-            Client.Animation.Current = "Land"
-            Client.Land()
-            Client.Speed = Client.Speed.Lerp(Vector3.zero, math.abs(Client.Ground.DotProduct))
-        } else if (Client.Flags.HurtTime > 0) {
-            Client.Flags.HurtTime--
-
-            if (Client.Flags.HurtTime <= 0) {
-                Client.State.Current = Client.State.States.Airborne
-                Client.Animation.Current = "Fall"
-            }
-        }
-    }
+			if (Client.Flags.HurtTime <= 0) {
+				Client.State.Current = Client.State.States.Airborne;
+				Client.Animation.Current = "Fall";
+			}
+		}
+	}
 }

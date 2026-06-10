@@ -1,32 +1,34 @@
 type Log = Array<string>;
 
-const Verbose = false
+const Verbose = false;
 const LogTable: Map<number, Log> = new Map();
 
-export function AddLog(Value:unknown) {
-    let Export = tostring(Value)
+export function AddLog(Value: unknown) {
+	let Export = tostring(Value);
 
-    if (typeOf(Export) !== "string") { return }
+	if (typeOf(Export) !== "string") {
+		return;
+	}
 
-    const Tick = os.clock();
-    const Original:Log|undefined = LogTable.get(Tick);
+	const Tick = os.clock();
+	const Original: Log | undefined = LogTable.get(Tick);
 
-    if (Verbose) {
-        print(Value)
-    }
+	if (Verbose) {
+		print(Value);
+	}
 
-    if (Original !== undefined) {
+	if (Original !== undefined) {
 		// Insert new log for current registered tick
-        Original.push(Export)
+		Original.push(Export);
 
-    	LogTable.set(Tick, Original);
-    } else {
-    	// Register new log for tick
-        let NewValue:Array<string> = new Array();
-        NewValue.push(Export)
+		LogTable.set(Tick, Original);
+	} else {
+		// Register new log for tick
+		let NewValue: Array<string> = new Array();
+		NewValue.push(Export);
 
-    	LogTable.set(Tick, NewValue);
-    }
+		LogTable.set(Tick, NewValue);
+	}
 }
 
 export function WipeLog() {
@@ -34,7 +36,7 @@ export function WipeLog() {
 }
 
 export function ExportLog() {
-    if (Verbose) {
-        print()
-    }
+	if (Verbose) {
+		print();
+	}
 }

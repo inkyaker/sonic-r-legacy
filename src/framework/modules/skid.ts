@@ -1,52 +1,54 @@
-import { Client } from "framework"
-import { PhysicsHandler } from "framework/physics/physics"
-import { SrcState } from "./state"
+import type { DSClient } from "framework";
+import { PhysicsHandler } from "framework/physics/physics";
+import { SrcState } from "./state";
 
 /**
  * Function ran in `State.CheckInput`
  * @move
- * @param Client 
+ * @param Client
  * @returns Move successful
  */
-export function CheckSkid(Client: Client) {
-    if (Client.Speed.X < Client.Physics.JogSpeed) { return }
+export function CheckSkid(Client: DSClient) {
+	if (Client.Speed.X < Client.Config.JogSpeed) {
+		return;
+	}
 
-    const [HasControl, Turn] = Client.Input.Get()
+	const [HasControl, Turn] = Client.Input.Get();
 
-    const Skid = HasControl && (math.abs(Turn) > math.rad(135)) || false
+	const Skid = (HasControl && math.abs(Turn) > math.rad(135)) || false;
 
-    if (Skid) {
-        Client.Sound.Play("Character/Skid")
+	if (Skid) {
+		Client.Sound.Play("Character/Skid");
 
-        Client.Animation.Current = "Skid"
-        Client.State.Current = Client.State.States.Skid
-    }
+		Client.Animation.Current = "Skid";
+		Client.State.Current = Client.State.States.Skid;
+	}
 
-    return Skid
+	return Skid;
 }
 
 /**
  * Function ran in `State.CheckInput`
  * @move
- * @param Client 
+ * @param Client
  * @returns Move successful
  */
-export function CheckStopSkid(Client: Client) {
-    if (Client.Speed.X <= .01) {
-        Client.Speed = Client.Speed.mul(new Vector3(0, 1, 1))
-        Client.State.Current = Client.State.States.Grounded
+export function CheckStopSkid(Client: DSClient) {
+	if (Client.Speed.X <= 0.01) {
+		Client.Speed = Client.Speed.mul(new Vector3(0, 1, 1));
+		Client.State.Current = Client.State.States.Grounded;
 
-        return true
-    } else {
-        const [HasControl, Turn] = Client.Input.Get()
-        const StopSkid = HasControl && (math.abs(Turn) <= math.rad(135)) || false
+		return true;
+	} else {
+		const [HasControl, Turn] = Client.Input.Get();
+		const StopSkid = (HasControl && math.abs(Turn) <= math.rad(135)) || false;
 
-        if (StopSkid) {
-            Client.State.Current = Client.State.States.Grounded
-        }
+		if (StopSkid) {
+			Client.State.Current = Client.State.States.Grounded;
+		}
 
-        return StopSkid
-    }
+		return StopSkid;
+	}
 }
 
 /**
@@ -55,17 +57,12 @@ export function CheckStopSkid(Client: Client) {
  * @augments SrcState
  */
 export class StateSkid extends SrcState {
-    constructor() {
-        super()
-    }
+	protected CheckInput(Client: DSClient) {
+		return CheckStopSkid(Client);
+	}
 
-    protected CheckInput(Client: Client) {
-        return CheckStopSkid(Client)
-    }
-
-    protected AfterUpdateHook(Client: Client) {
-        PhysicsHandler.ApplyGravity(Client)
-        PhysicsHandler.Skid(Client)
-    }
+	protected AfterUpdateHook(Client: DSClient) {
+		PhysicsHandler.ApplyGravity(Client);
+		PhysicsHandler.Skid(Client);
+	}
 }
-

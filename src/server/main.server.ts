@@ -1,9 +1,8 @@
-import { Players, RunService } from "@rbxts/services"
-import Net, { Route } from "@rbxts/yetanothernet"
-import * as Routes from "shared/common/replication/routes"
+import { Players, RunService } from "@rbxts/services";
+import * as Routes from "shared/common/replication/routes";
 
 RunService.Heartbeat.Connect(() => {
-    /*
+	/*
     for (const [_, Sender, Packet] of UpdateRoute.query()) {
         if (typeIs(Sender, "string")) { continue }
 
@@ -17,12 +16,12 @@ RunService.Heartbeat.Connect(() => {
     } 
     */
 
-    for (const [_, Sender] of Routes.RespawnRoute.query().server()) {
-        print("hello im route")
+	for (const [_, Sender] of Routes.RespawnRoute.query().server()) {
+		print("hello im route");
 
-        if (Sender && Sender.Parent === Players) {
-            print("hello im load")
-            Sender.LoadCharacter()
-        }
-    }
-})
+		if (Sender && Sender.Parent === Players) {
+			print("hello im load");
+			Sender.LoadCharacter();
+		}
+	}
+});

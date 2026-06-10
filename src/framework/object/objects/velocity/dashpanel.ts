@@ -1,6 +1,6 @@
-import { Client } from "framework";
-import SrcObject from "../baseobj";
+import type { DSClient } from "framework";
 import { Attributes } from "shared/common/class/attributes";
+import SrcObject from "../baseobj";
 
 /**
  * @class
@@ -8,38 +8,41 @@ import { Attributes } from "shared/common/class/attributes";
  * @augments SrcObject
  */
 class DashPanel extends SrcObject {
-    public Speed = 0
-    public LockTime = 0
-    public Data
+	public Speed = 0;
+	public LockTime = 0;
+	public Data;
 
-    constructor(Object: Model) {
-        super(Object)
+	public HomingTarget = true;
+	public HomingWeight = 0.67;
 
-        this.Data = Attributes<{ Speed: number, LockTime: number }>(Object)
+	constructor(Object: Model) {
+		super(Object);
 
-        this.Speed = this.Data.Speed
-        this.LockTime = this.Data.LockTime
+		this.Data = Attributes<{ Speed: number; LockTime: number }>(Object);
 
-        this.Connections.Add(this.Data("Speed").Connect(() => this.Speed = this.Data.Speed))
-        this.Connections.Add(this.Data("LockTime").Connect(() => this.LockTime = this.Data.LockTime))
-    }
+		this.Speed = this.Data.Speed;
+		this.LockTime = this.Data.LockTime;
 
-    protected OnTouch(Client: Client) {
-        Client.ResetObjectState()
-        
-        Client.Sound.Play("Object/DashPanel/Activate")
+		this.Connections.Add(this.Data("Speed").Connect(() => (this.Speed = this.Data.Speed)));
+		this.Connections.Add(this.Data("LockTime").Connect(() => (this.LockTime = this.Data.LockTime)));
+	}
 
-        Client.Angle = this.Root.GetPivot().Rotation
+	protected OnTouch(Client: DSClient) {
+		Client.ResetObjectState();
 
-        const LookVector = Client.ToLocal(this.Root.GetPivot().LookVector)
-        Client.Speed = Client.Speed.add(LookVector.mul(this.Speed))
+		Client.Sound.Play("Object/DashPanel/Activate");
 
-        Client.Flags.DirectVelocity = false
-        Client.Flags.LockTimer = math.ceil(this.LockTime * 60)
-        Client.Position = this.Root.GetPivot().Position
+		Client.Angle = this.Root.GetPivot().Rotation;
 
-        this.Debounce = 25
-    }
+		const LookVector = Client.ToLocal(this.Root.GetPivot().LookVector);
+		Client.Speed = Client.Speed.add(LookVector.mul(this.Speed));
+
+		Client.Flags.DirectVelocity = false;
+		Client.Flags.LockTimer = math.ceil(this.LockTime * 60);
+		Client.Position = this.Root.GetPivot().Position;
+
+		this.Debounce = 25;
+	}
 }
 
-export = DashPanel
+export = DashPanel;

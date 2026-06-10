@@ -1,38 +1,45 @@
-import { Client } from "framework"
-import { PhysicsHandler } from "framework/physics/physics"
-import { CheckJump } from "./jump"
-import { CheckSkid } from "./skid"
-import { CheckSpindash } from "./spindash"
-import { SrcState } from "./state"
-import { CheckRail } from "./rail"
+import type { DSClient } from "framework";
+import { PhysicsHandler } from "framework/physics/physics";
+import { CheckJump } from "./jump";
+import { CheckRail } from "./rail";
+import { CheckSkid } from "./skid";
+import { CheckSpindash } from "./spindash";
+import { SrcState } from "./state";
 
 /**
  * @class
  * @augments SrcState
  */
 export class StateGrounded extends SrcState {
-    constructor() {
-        super()
-    }
+	private LockedAnimations = new Set(["LandMoving", "Land", "JogStart"]);
 
-    protected CheckInput(Client: Client) {
-        return CheckJump(Client) || CheckSpindash(Client) || CheckSkid(Client) || CheckRail(Client)
-    }
+	protected CheckInput(Client: DSClient) {
+		return CheckJump(Client) || CheckSpindash(Client) || CheckSkid(Client) || CheckRail(Client);
+	}
 
-    protected AfterUpdateHook(Client: Client) {
-        PhysicsHandler.ApplyGravity(Client)
-        //PhysicsHandler.Turn(Client, Client.Input.GetTurn(), undefined)
-        PhysicsHandler.AccelerateGrounded(Client)
+	protected BeforeUpdateHook(Client: DSClient) {
+		if (Client.Speed.X === 0) {
+			PhysicsHandler.RotateWithGravity(Client);
+		}
 
-        if (Client.Ground.Grounded) {
-            const Slip = math.sqrt(1)
-            const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Physics.CrashSpeed, 1)
+		PhysicsHandler.ApplyGravity(Client);
+		PhysicsHandler.AccelerateGrounded(Client);
+	}
 
-            Client.Animation.Current = Client.Speed.X > 0 && "Run" || "Idle"
-            Client.Animation.Speed = Client.Animation.Current === "Run" && math.lerp(Client.Speed.X / Slip + (1 - Slip) * 2, Client.Speed.X, Acceleration) || 1
-        } else {
-            Client.Animation.Current = "Fall"
-            Client.State.Current = Client.State.States.Airborne
-        }
-    }
+	protected AfterUpdateHook(Client: DSClient) {
+		if (Client.Ground.Grounded) {
+			const Slip = math.sqrt(1);
+			const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Config.CrashSpeed, 1);
+
+			if (!this.LockedAnimations.has(Client.Animation.Current)) Client.Animation.Current = math.abs(Client.Speed.X) > 0.1 ? "Run" : "Idle";
+
+			Client.Animation.Speed = Client.Animation.Current === "Run" ? math.lerp(Client.Speed.X / Slip + (1 - Slip) * 2, Client.Speed.X, Acceleration) : 1;
+			Client.Ground.UngroundedFrames = 0;
+		} else {
+			if (Client.Ground.UngroundedFrames >= Client.Config.CoyoteFrames) {
+				Client.Animation.Current = "Fall";
+				Client.State.Current = Client.State.States.Airborne;
+			} else Client.Ground.UngroundedFrames++;
+		}
+	}
 }
