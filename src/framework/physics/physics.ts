@@ -202,31 +202,27 @@ export const PhysicsHandler = {
 
 	// Movementa
 	AlignToGravity: (Client: Client) => {
-		if (Client.IsScripted()) {
-			return;
+		if (Client.IsScripted()) return;
+
+		//Remember previous speed
+		const PrevSpeed = Client.ToGlobal(Client.Speed);
+
+		//Get next angle
+		const From = Client.Angle.UpVector;
+		const To = Client.Flags.Gravity.Unit.mul(-1);
+		const Turn = VUtil.Angle(From, To);
+
+		if (Turn !== 0) {
+			const MaxTurn = math.rad(11.25);
+			const LimitedTurn = math.clamp(Turn, -MaxTurn, MaxTurn);
+
+			const NextAngle = CFUtil.FromToRotation(From, To).mul(Client.Angle);
+
+			Client.Angle = Client.Angle.Lerp(NextAngle, LimitedTurn / Turn);
 		}
 
-		if (Client.Speed.Magnitude < Client.Config.DashSpeed) {
-			//Remember previous speed
-			const PrevSpeed = Client.ToGlobal(Client.Speed);
-
-			//Get next angle
-			const From = Client.Angle.UpVector;
-			const To = Client.Flags.Gravity.Unit.mul(-1);
-			const Turn = VUtil.Angle(From, To);
-
-			if (Turn !== 0) {
-				const MaxTurn = math.rad(11.25);
-				const LimitedTurn = math.clamp(Turn, -MaxTurn, MaxTurn);
-
-				const NextAngle = CFUtil.FromToRotation(From, To).mul(Client.Angle);
-
-				Client.Angle = Client.Angle.Lerp(NextAngle, LimitedTurn / Turn);
-			}
-
-			//Keep using previous speed
-			Client.Speed = Client.ToLocal(PrevSpeed);
-		}
+		//Keep using previous speed
+		Client.Speed = Client.ToLocal(PrevSpeed);
 	},
 
 	RotateWithGravity: (Client: Client) => {
