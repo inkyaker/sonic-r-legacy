@@ -76,7 +76,7 @@ export class StateMachine {
 			}
 
 			// Objects
-			this.Client.Object.TickObjects();
+			this.Client.Controller.Object.TickObjects();
 			this.TickState();
 
 			// Character state

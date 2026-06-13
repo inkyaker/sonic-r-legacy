@@ -1,87 +1,108 @@
+import { Controller, type OnStart } from "@flamework/core";
 import { Players } from "@rbxts/services";
-import Net, { type Route } from "@rbxts/yetanothernet";
-import * as Routes from "shared/common/replication/routes";
-
-// TODO: jsdoc
+import { Trash } from "@rbxts/trash";
+import { ClientEvents } from "framework/client_networking";
+import type { UpdatePacket } from "shared/common/networking";
+import { type DrawInfo, PackDrawInfo, Renderer } from "./renderer";
 
 /**
  * Replication peer
  * @class
  */
 export class Peer {
-	public Position: Vector3;
-	public Angle: CFrame;
+	public DrawInfo: DrawInfo = PackDrawInfo(undefined);
+	public Renderer: Renderer;
+	public Character: Model | undefined;
+	public Bin = new Trash();
 
-	constructor(InitialData: Routes.UpdateData) {
-		this.Position = InitialData.Position;
-		this.Angle = InitialData.Angle;
+	constructor(
+		public PeerId: number,
+		InitialData: UpdatePacket["Data"],
+	) {
+		const Player = Players.GetPlayerByUserId(PeerId);
+		if (Player) {
+			this.Bin.add(Player.CharacterAdded.Connect((Character) => this.CharacterAdded(Character)));
+			this.Bin.add(Player.CharacterRemoving.Connect(() => this.CharacterRemoving()));
+		} else error(`Failed to find player for peer id ${PeerId}!`);
+
+		this.Renderer = new Renderer();
+		this.Update(InitialData);
+		this.Renderer.DrawInfo = this.DrawInfo;
 	}
 
-	public Update(Data: Routes.UpdateData) {
-		for (const [Index, Value] of pairs(Data)) {
-			this[Index] = Value as CFrame & Vector3;
-		}
+	public CharacterAdded(Character: Model) {
+		this.Character = Character;
 	}
 
-	public Destroy() {}
+	public CharacterRemoving() {
+		this.Character = undefined;
+	}
+
+	public Update(Data: UpdatePacket["Data"]) {
+		for (const [Index, Value] of pairs(Data)) this.DrawInfo[Index] = Value as never;
+	}
+
+	public Draw(DeltaTime: number) {
+		if (!this.Character) return;
+
+		this.Renderer.DrawInfo = this.DrawInfo;
+		this.Renderer.Draw(this.Character, DeltaTime);
+	}
+
+	public Destroy() {
+		this.Bin.destroy();
+		this.CharacterRemoving();
+		this.Renderer.Destroy();
+	}
 }
 
 /**
  * Replicator
  * @class
  */
-export class PlayerReplicator {
-	public ReplicationRemote: Route<[Routes.UpdatePacket]>;
-	public Peers: Map<string, Peer>; //Array<Peer>
+@Controller()
+export class PlayerReplicator implements OnStart {
+	public Peers: Map<number, Peer> = new Map();
 
-	constructor() {
-		this.ReplicationRemote = Routes.UpdateRoute;
-		this.Peers = new Map();
-	}
-	public ReplicateSelf() {}
-
-	public ReplicateOthers() {
-		for (const [_Index, _Sender, Data] of this.ReplicationRemote.query().from(Net.server)) {
-			// update player info
-			const TargetPeer = this.Peers.get(Data.Peer);
-
-			if (TargetPeer === undefined) {
-				continue;
-			}
-
-			// update peer
-			TargetPeer.Update(Data.Data);
-		}
+	public onStart() {
+		this.SetupConnections();
 	}
 
-	public AddPeer(Data: Routes.ConnectDisconnectPacket) {
-		const TargetPlayer = Players.WaitForChild(Data.Peer, 15);
+	public ReplicateSelf(DrawInfo: DrawInfo) {
+		ClientEvents.Update({
+			PeerId: Players.LocalPlayer.UserId,
+			Data: DrawInfo,
+			Clock: os.clock(),
+		});
+	}
 
-		if (TargetPlayer === undefined || !classIs(TargetPlayer, "Player")) {
-			return;
-		}
+	public SetupConnections() {
+		ClientEvents.Update.connect((Data) => this.Peers.get(Data.PeerId)?.Update(Data.Data));
 
-		const NewPeer = new Peer({
-			Angle: new CFrame(), // todo
-			Position: new Vector3(), // todo
+		Players.PlayerAdded.Connect((Player) => this.AddPeer(Player));
+		Players.GetPlayers().forEach((Player) => task.spawn(() => this.AddPeer(Player)));
+
+		Players.PlayerRemoving.Connect((Player) => this.RemovePeer(Player.UserId));
+	}
+
+	public AddPeer(TargetPlayer: Player) {
+		if (TargetPlayer === Players.LocalPlayer) return;
+		
+		const NewPeer = new Peer(TargetPlayer.UserId, {
+			Angle: new CFrame(),
+			Position: new Vector3(),
 		});
 
-		this.Peers.set(Data.Peer, NewPeer);
+		this.Peers.set(TargetPlayer.UserId, NewPeer);
 	}
 
-	public RemovePeer(Data: Routes.ConnectDisconnectPacket) {
-		const TargetPeer = this.Peers.get(Data.Peer);
-		if (TargetPeer !== undefined) {
-			TargetPeer.Destroy();
-			this.Peers.delete(Data.Peer);
-		}
+	public RemovePeer(PeerId: number) {
+		this.Peers.get(PeerId)?.Destroy();
+		this.Peers.delete(PeerId);
 	}
 
 	public Destroy() {
-		this.Peers.forEach((Peer) => {
-			Peer.Destroy();
-		});
-
+		this.Peers.forEach((Peer) => Peer.Destroy());
 		this.Peers.clear();
 	}
 }

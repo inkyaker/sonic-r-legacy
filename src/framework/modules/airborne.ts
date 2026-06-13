@@ -28,6 +28,9 @@ export class StateAirborne extends BaseState {
 	}
 
 	protected AfterUpdateHook(Client: Client) {
+		if (Client.Animation.Current === "Roll")
+			Client.Animation.Speed = Client.Speed.Magnitude;
+
 		if (Client.Ground.Grounded) {
 			if (Client.Flags.InBounce) {
 				Client.Flags.JumpTimer = 0;

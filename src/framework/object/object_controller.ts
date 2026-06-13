@@ -1,7 +1,7 @@
 import type { Components } from "@flamework/components";
-import { Controller, Modding, type OnStart } from "@flamework/core";
+import { Controller, Dependency, Modding, type OnStart } from "@flamework/core";
 import { Workspace } from "shared/common/globals";
-import type { Client } from "..";
+import type { GameController } from "shared/loader.server";
 import type BaseObject from "./objects/baseobj";
 import type { OnDraw, OnRespawn, OnTick, OnTouch } from "./objects/object_implementables";
 
@@ -11,7 +11,7 @@ import type { OnDraw, OnRespawn, OnTick, OnTouch } from "./objects/object_implem
 export class ObjectController implements OnStart {
 	public Params: RaycastParams;
 	public Skin: number = 1;
-	public ActiveClient: Client | undefined;
+	public Controller!: GameController;
 
 	constructor(private Components: Components) {
 		this.Params = new RaycastParams();
@@ -37,26 +37,29 @@ export class ObjectController implements OnStart {
 
 		Modding.onListenerAdded<OnRespawn>((Obj) => this.OnRespawnListeners.add(Obj));
 		Modding.onListenerRemoved<OnRespawn>((Obj) => this.OnRespawnListeners.delete(Obj));
+
+		this.Controller = Dependency<GameController>(); // antipattern!
 	}
 
 	public CollideWithClient() {
-		if (!this.ActiveClient) return;
+		const ActiveClient = this.Controller.ActiveClient;
+		if (!ActiveClient) return;
 
-		const LastPosition = this.ActiveClient.LastCFrame.Position;
-		if (LastPosition !== this.ActiveClient.Position) {
-			const Look = CFrame.lookAt(LastPosition, this.ActiveClient.Position);
-			const Magnitude = LastPosition.Distance(this.ActiveClient.Position);
+		const LastPosition = ActiveClient.LastCFrame.Position;
+		if (LastPosition !== ActiveClient.Position) {
+			const Look = CFrame.lookAt(LastPosition, ActiveClient.Position);
+			const Magnitude = LastPosition.Distance(ActiveClient.Position);
 
 			const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
-			if (Cast) this.GetObject(Cast.Instance)?.TouchClient(this.ActiveClient);
+			if (Cast) this.GetObject(Cast.Instance)?.TouchClient(ActiveClient);
 		}
 	}
 
 	public TickObjects() {
-		if (!this.ActiveClient) return;
+		if (!this.Controller.ActiveClient) return;
 
 		// client reference is only valid for this one cycle
-		for (const Object of this.OnTickListeners) task.spawn(() => Object.Tick(() => this.ActiveClient!));
+		for (const Object of this.OnTickListeners) task.spawn(() => Object.Tick(() => this.Controller.ActiveClient!));
 	}
 
 	public DrawObjects(DeltaTime: number) {

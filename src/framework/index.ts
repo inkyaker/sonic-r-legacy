@@ -1,18 +1,19 @@
-import { Dependency } from "@flamework/core";
+import { BaseComponent, Component } from "@flamework/components";
+import type { OnStart } from "@flamework/core";
 import { CharacterInfo } from "shared/characterinfo";
 import { Constants } from "shared/common/constants";
-import * as Routes from "shared/common/replication/routes";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import { AddLog } from "shared/common/utility/logger";
 import * as Render from "shared/common/utility/renderregistry";
 import { PlaneProject } from "shared/common/utility/vutil";
+import type { GameController } from "shared/loader.server";
+import { ClientEvents } from "./client_networking";
 import { Input } from "./control/input";
 import { Animation } from "./draw/animation";
 import { Camera } from "./draw/camera";
-import { Renderer } from "./draw/renderer";
+import { PackDrawInfo, Renderer } from "./draw/renderer";
 import { SoundController } from "./draw/sound";
 import { Rail, SetRail } from "./modules/rail";
-import type { ObjectController } from "./object/object_controller";
 import type BaseObject from "./object/objects/baseobj";
 import { StateMachine } from "./statemachine";
 import { UIMain } from "./ui";
@@ -112,46 +113,52 @@ class HomingAttack {
  * Client
  * @class
  */
-export class Client {
+@Component()
+export class Client extends BaseComponent<{}, Model & { Humanoid: Humanoid }> implements OnStart {
 	// Main
-	public readonly Character: Model;
-	public readonly Humanoid: Humanoid;
-	public Position: Vector3;
-	public Speed: Vector3;
-	public Angle: CFrame;
-	public LastCFrame: CFrame;
-	public CurrentCFrame: CFrame;
-	public RenderCFrame: CFrame;
-	public PreviousAngle: CFrame;
+	public Character!: Model;
+	public Humanoid!: Humanoid;
+	public Root!: Part;
+	public Position!: Vector3;
+	public Speed!: Vector3;
+	public Angle!: CFrame;
+	public LastCFrame!: CFrame;
+	public CurrentCFrame!: CFrame;
+	public RenderCFrame!: CFrame;
+	public PreviousAngle!: CFrame;
 
 	// Flags
-	public Flags: Flags;
+	public Flags!: Flags;
 
 	// Character info
-	public readonly Config;
-	public readonly Animations;
+	public Config!: (typeof CharacterInfo)["Physics"];
+	public Animations!: (typeof CharacterInfo)["Animations"];
 
 	// Modules
-	public readonly State: StateMachine;
-	public readonly Camera: Camera;
-	public readonly Animation: Animation;
-	public readonly Renderer: Renderer;
-	public readonly Input: Input;
-	public readonly UI: UIMain;
-	public readonly Object: ObjectController;
-	public readonly Rail: Rail;
-	public readonly Sound: SoundController;
+	public State!: StateMachine;
+	public Camera!: Camera;
+	public Animation!: Animation;
+	public Renderer!: Renderer;
+	public Input!: Input;
+	public UI!: UIMain;
+	public Rail!: Rail;
+	public Sound!: SoundController;
 
 	// Components
-	public Ground: Ground;
-	public GameState: GameState;
-	public HomingAttack: HomingAttack;
+	public Ground!: Ground;
+	public GameState!: GameState;
+	public HomingAttack!: HomingAttack;
 
-	constructor(Character: Model) {
-		this.Character = Character;
+	constructor(public Controller: GameController) {
+		super();
+	}
+
+	public onStart() {
+		this.Character = this.instance;
 		this.Humanoid = this.Character.WaitForChild("Humanoid") as Humanoid;
-		this.Position = Character.GetPivot().Position;
-		this.Angle = Character.GetPivot().Rotation;
+		this.Root = this.Character.PrimaryPart! as Part;
+		this.Position = this.Character.GetPivot().Position;
+		this.Angle = this.Character.GetPivot().Rotation;
 		this.Speed = Vector3.zero;
 
 		this.LastCFrame = this.Angle.add(this.Position);
@@ -164,10 +171,9 @@ export class Client {
 		this.State = new StateMachine(this);
 		this.Animation = new Animation(this);
 		this.Camera = new Camera(this);
-		this.Renderer = new Renderer(this);
+		this.Renderer = new Renderer();
 		this.Input = new Input(this);
 		this.UI = new UIMain();
-		this.Object = Dependency<ObjectController>();
 		this.Rail = new Rail();
 		this.Sound = new SoundController();
 
@@ -181,18 +187,13 @@ export class Client {
 
 		this.PreviousAngle = CFrame.identity;
 
-		AddLog(`Loaded new Client ${Character}`);
-
-		this.Object.ActiveClient = this;
+		AddLog(`Loaded new Client ${this.Character}`);
 	}
 
 	/**
 	 * Destroys the Client
 	 */
 	public Destroy() {
-		this.Object.ActiveClient = undefined;
-
-		//TODO
 		this.Sound.Destroy();
 	}
 
@@ -212,10 +213,15 @@ export class Client {
 		// Interpolate positions
 		this.RenderCFrame = this.LastCFrame.Lerp(this.Angle.add(this.Position), this.State.TickTimer);
 
-		this.Renderer.Draw(DeltaTime);
+		const DrawInfo = PackDrawInfo(this);
+		this.Renderer.DrawInfo = DrawInfo;
+		this.Renderer.Draw(this.Character, DeltaTime);
 		this.Camera.Update(DeltaTime);
 
 		this.Sound.Update(this.State.GetStateName(this.State.Current));
+
+		this.Controller.Replicator.ReplicateSelf(DrawInfo);
+		for (const [_, Peer] of this.Controller.Replicator.Peers) Peer.Draw(DeltaTime);
 	}
 
 	// Utility functions
@@ -373,12 +379,7 @@ export class Client {
 	 */
 	public Damage(Source: Vector3) {
 		// TODO: invincibility
-		if (this.Flags.Invulnerability > 0) {
-			return;
-		}
-
-		// TODO
-		// spilled ring
+		if (this.Flags.Invulnerability > 0) return;
 
 		this.ResetObjectState();
 		this.ExitBall();
@@ -403,7 +404,7 @@ export class Client {
 			} else {
 				//TODO: die
 				this.State.Current = this.State.States.None;
-				Routes.RespawnRoute.send();
+				ClientEvents.Respawn();
 			}
 		} else {
 			this.GameState.Shield = "";

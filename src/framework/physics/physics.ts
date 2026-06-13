@@ -414,10 +414,8 @@ export const PhysicsHandler = {
 		const Objects = [];
 
 		for (const [_, Collider] of pairs(Colliders)) {
-			const Object = Client.Object.GetObject(Collider);
-			if (!Object?.HomingTarget) {
-				continue;
-			}
+			const Object = Client.Controller.Object.GetObject(Collider);
+			if (!Object?.HomingTarget) continue;
 
 			const Center = Collider.Position;
 			const Offset = Center.sub(Client.Position);

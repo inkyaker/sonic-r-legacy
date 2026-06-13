@@ -24,7 +24,7 @@ class SpikeTrap extends BaseObject<Model> {
 	public Enabled: boolean = false;
 
 	public onStart() {
-		this.SetupModel()
+		this.SetupModel();
 
 		this.Data = Attributes<Data>(this.Object);
 		this.CycleLength = this.Data.CycleLength;

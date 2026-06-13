@@ -13,34 +13,41 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Flamework } from "@flamework/core";
+import type { Components } from "@flamework/components";
+import { Controller, Flamework, type OnStart } from "@flamework/core";
 import { Players } from "@rbxts/services";
-import { Client } from "framework";
+import type { Client } from "framework";
+import type { PlayerReplicator } from "framework/draw/replication";
+import type { ObjectController } from "framework/object/object_controller";
 
 // TODO: loading screen
 if (!game.IsLoaded()) {
 	game.Loaded.Wait();
 }
 
+@Controller()
+export class GameController implements OnStart {
+	public LocalPlayer = Players.LocalPlayer;
+	public ActiveClient: Client | undefined;
+
+	constructor(
+		public Replicator: PlayerReplicator,
+		public Components: Components,
+		public Object: ObjectController,
+	) {}
+
+	public onStart() {
+		if (this.LocalPlayer.Character) this.ActiveClient = this.Components.addComponent<Client>(this.LocalPlayer.Character!);
+
+		this.LocalPlayer.CharacterAdded.Connect((Character) => (this.ActiveClient = this.Components.addComponent<Client>(Character)));
+
+		this.LocalPlayer.CharacterRemoving.Connect(() => {
+			this.ActiveClient?.Destroy();
+			this.ActiveClient = undefined;
+		});
+	}
+}
+
 Flamework.addPathsGlob("src/shared/**.ts");
 Flamework.addPathsGlob("src/framework/**.ts");
 Flamework.ignite();
-
-const LocalPlayer = Players.LocalPlayer;
-let _RunningClient: Client | undefined;
-
-function CharacterAdded() {
-	const Character = LocalPlayer.Character;
-	assert(Character, "Character not found!");
-
-	_RunningClient = new Client(Character);
-}
-
-function CharacterRemoving() {}
-
-if (LocalPlayer.Character) {
-	CharacterAdded();
-}
-
-LocalPlayer.CharacterAdded.Connect(CharacterAdded);
-LocalPlayer.CharacterRemoving.Connect(CharacterRemoving);

@@ -36,14 +36,11 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       '@rbxts/t':
-        specifier: ^3.2.1
+        specifier: 3.2.1
         version: 3.2.1
-      '@rbxts/ui-labs':
-        specifier: ^2.4.2
-        version: 2.4.2
-      '@rbxts/yetanothernet':
-        specifier: ^0.10.0-alpha.5
-        version: 0.10.0-alpha.5
+      '@rbxts/trash':
+        specifier: 1.0.10
+        version: 1.0.10
     devDependencies:
       '@biomejs/biome':
         specifier: 2.4.16
@@ -54,6 +51,9 @@ importers:
       '@rbxts/types':
         specifier: ^1.0.925
         version: 1.0.925
+      '@rbxts/ui-labs':
+        specifier: ^2.4.2
+        version: 2.4.2
       '@runicly/rbxts-transformer-flamework':
         specifier: 1.3.3
         version: 1.3.3(typescript@5.5.3)
@@ -232,14 +232,14 @@ packages:
   '@rbxts/t@3.2.1':
     resolution: {integrity: sha512-/fnf2QSx+TI3HSJ6QW2ikvGQk0mlx/63UXo60pLAKGqbxXiAuTJh88bpKpHw6aCzfFLJAwrVIcgCUOokLMPcag==}
 
+  '@rbxts/trash@1.0.10':
+    resolution: {integrity: sha512-QvBdoecX7b3PQAH/qiKYp11YH559f+Nk9Cvx2/cIdopY1osWIk//2CN669LWIW5oaHLJWsNrogZIZyuxpV68Pg==}
+
   '@rbxts/types@1.0.925':
     resolution: {integrity: sha512-wUbRd/6m1NOGVw5sYKerRnSKj7Vbj0e+tZLQ3TsjMmA5uS2wl36Jzep66BYIpaKn8DvhMhLxntjFBd318S66bA==}
 
   '@rbxts/ui-labs@2.4.2':
     resolution: {integrity: sha512-9cyzDYN4mM7KSupZpbHRCUWCfSHzy8LCqa9Czys2jaKYUCn8oV4j5AE+5jTrHD/8RcltP5EvCSFIFwB0N/NfxA==}
-
-  '@rbxts/yetanothernet@0.10.0-alpha.5':
-    resolution: {integrity: sha512-wWzzlcSOLT40b7plvpi/bnZnR1UCpJAWZDy6TqZLlMbrwQl8uSl6Ncgwj/MZHwx9cafIH7n1muPIdzdpCvBekg==}
 
   '@roblox-ts/luau-ast@2.0.0':
     resolution: {integrity: sha512-cmMi093IdwBOLVxwuordhM8AmtbyTIyRpsTbB0D/JauidW4SXsQRQowSwWjHo4QP0DRJBXvOIlxtqEQi50uNzQ==}
@@ -711,11 +711,13 @@ snapshots:
 
   '@rbxts/t@3.2.1': {}
 
+  '@rbxts/trash@1.0.10':
+    dependencies:
+      '@rbxts/t': 3.2.1
+
   '@rbxts/types@1.0.925': {}
 
   '@rbxts/ui-labs@2.4.2': {}
-
-  '@rbxts/yetanothernet@0.10.0-alpha.5': {}
 
   '@roblox-ts/luau-ast@2.0.0': {}
 

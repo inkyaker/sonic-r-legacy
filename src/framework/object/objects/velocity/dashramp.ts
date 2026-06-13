@@ -20,8 +20,8 @@ class DashRamp extends BaseObject<Model> {
 	public Data!: Attributes<Data>;
 
 	public onStart() {
-		this.SetupModel()
-		
+		this.SetupModel();
+
 		this.Data = Attributes<Data>(this.Object);
 
 		this.Speed = this.Data.Speed;

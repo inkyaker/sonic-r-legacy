@@ -13,25 +13,25 @@ import { BaseState } from "./state";
 export function CheckHomingAttack(Client: Client) {
 	if (Client.Input.Button.Jump.Pressed && Client.Flags.BallEnabled) {
 		const Object = PhysicsHandler.GetHomingObject(Client);
-		Client.Flags.TrailEnabled = true;
-
 		Client.Sound.Play("Character/Dash");
-
+		
 		if (Object) {
 			Client.EnterBall();
 			Client.Animation.Current = "Roll";
 			Client.HomingAttack.Target = Object;
 			Client.HomingAttack.Timer = 0;
-
+			
 			Client.State.Current = Client.State.States.Homing;
 			Client.HomingAttack.Speed = math.max(Client.Speed.Magnitude, Client.Config.HomingForce.HomingAttack);
 		} else {
 			Client.Animation.Current = "Roll"; // TODO: homing attack animation if wanted
 			Client.ExitBall();
-
+			
 			Client.State.Current = Client.State.States.Airborne;
 		}
 
+		Client.Flags.TrailEnabled = true;
+		
 		Client.Speed = Client.Config.HomingForce.AirDash.Max(Client.Speed.WithZ(0));
 
 		return true;

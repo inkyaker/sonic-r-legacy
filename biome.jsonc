@@ -9,7 +9,8 @@
 			"suspicious": {
 				"noAssignInExpressions": "off",
 				"useIterableCallbackReturn": "off",
-				"noShadowRestrictedNames": "off"
+				"noShadowRestrictedNames": "off",
+				"noEmptyInterface": "off"
 			},
 			"complexity": {
 				"noBannedTypes": "off",
