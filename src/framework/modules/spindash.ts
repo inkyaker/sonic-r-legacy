@@ -69,7 +69,6 @@ export class StateSpindash extends BaseState {
 export class StateRoll extends BaseState {
 	protected CheckInput(Client: Client) {
 		if (Client.Input.Button.Roll.Pressed || Client.Speed.X < Client.Config.RollGetup) {
-			// TODO: ceil clip
 			Client.State.Current = Client.State.States.Grounded;
 			Client.ExitBall();
 

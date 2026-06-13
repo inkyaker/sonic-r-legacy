@@ -509,17 +509,17 @@ export const CharacterInfo = {
 		Weight: 0.08,
 
 		// Speed
-		MaxXSpeed: 3,
-		JogSpeed: 0.46,
-		RunSpeed: 1.39,
-		RushSpeed: 2.3,
+		MaxXSpeed: 4,
+		JogSpeed: 0.25,
+		RunSpeed: .85,
+		RushSpeed: 1.95,
 		DashSpeed: 5.09,
 		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
 		RollGetup: 1.39, // Point at which the roll state should uncurl you
 
 		// Acceleration
 		AirAcceleration: 0.031,
-		RunAcceleration: 0.05,
+		RunAcceleration: 0.025,
 		AirDeceleration: -0.17,
 		StandardDeceleration: -0.06,
 		AirResist: new Vector3(-0.008, -0.01, -0.4),
@@ -569,47 +569,37 @@ export const CharacterInfo = {
 				AnimationKey: "Jog2",
 				Position: 0,
 				Speed: {
-					Base: 0.2,
-					Increment: 0.3,
+					Base: .9,
+					Increment: 0.5,
 					Absolute: false,
 				},
 				Looped: true,
 			},
 			1: {
 				AnimationKey: "Run",
-				Position: 2.25,
+				Position: 2.15,
 				Speed: {
-					Base: 0.2,
-					Increment: 0.3,
+					Base: .75,
+					Increment: 0.55,
 					Absolute: false,
 				},
 				Looped: true,
 			},
 			2: {
-				AnimationKey: "RunJet",
-				Position: 3.25,
+				AnimationKey: "Dash",
+				Position: 3.95,
 				Speed: {
-					Base: 0.3,
-					Increment: 0.4,
+					Base: .65,
+					Increment: 0.6,
 					Absolute: false,
 				},
 				Looped: true,
 			},
 			3: {
-				AnimationKey: "Dash",
-				Position: 4.25,
-				Speed: {
-					Base: 0.3,
-					Increment: 0.4,
-					Absolute: false,
-				},
-				Looped: true,
-			},
-			4: {
 				AnimationKey: "MaxRun",
-				Position: 4.75,
+				Position: 5.5,
 				Speed: {
-					Base: 0.3,
+					Base: .9,
 					Increment: 0.4,
 					Absolute: false,
 				},

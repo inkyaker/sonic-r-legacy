@@ -260,24 +260,16 @@ export const PhysicsHandler = {
 	},
 
 	/**
-	 * Replacement function for `AccelerateGrounded` and `AccelerateAirborne` for the `Roll` state, disables acceleration and keeps speed
+	 * Replacement function for `AccelerateGrounded` and `AccelerateAirborne` for the `Roll` state, disables acceleration and keeps speed. Includes gravity
 	 * @param Client
 	 */
 	ApplyInertia: (Client: Client) => {
-		// TODO: see if i can seperate the gravity from this
 		const Weight = Client.GetWeight();
 		let Acceleration = Client.ToLocal(Client.Flags.Gravity.mul(Weight));
 
-		if (Client.Ground.Grounded && Client.Speed.X > Client.Config.RunSpeed && Client.Ground.DotProduct < 0) {
-			// TODO: make dynamic
-			Acceleration = Acceleration.mul(new Vector3(1, -8, 1));
-		}
-
-		if (Client.Flags.BallEnabled && Client.Ground.DotProduct < 0.98) {
-			Acceleration = Acceleration.add(new Vector3(Client.Speed.X * -0.0002, 0, 0));
-		} else {
-			Acceleration = Acceleration.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X, 0, 0));
-		}
+		if (Client.Ground.Grounded && Client.Speed.X > Client.Config.RunSpeed && Client.Ground.DotProduct < 0) Acceleration = Acceleration.mul(new Vector3(1, -8, 1));
+		if (Client.Flags.BallEnabled && Client.Ground.DotProduct < 0.98) Acceleration = Acceleration.add(new Vector3(Client.Speed.X * -0.0002, 0, 0));
+		else Acceleration = Acceleration.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X, 0, 0));
 
 		Acceleration = Acceleration.add(new Vector3(0, Client.Speed.Y, Client.Speed.Z).mul(Client.Config.AirResist.Z));
 

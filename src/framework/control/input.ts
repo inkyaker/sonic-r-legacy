@@ -186,8 +186,6 @@ export class Input {
 	 * @returns Tuple: {HasControl, ClientTurn, StickMagnitude}
 	 */
 	public Get() {
-		// has_control, last_turn, stick_mag
-		// TODO: has_control
 		return $tuple(!this.InputLocked() && this.Stick.Magnitude !== 0, this.GetTurn(), this.Stick.Magnitude);
 	}
 }
