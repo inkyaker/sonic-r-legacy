@@ -2,6 +2,7 @@ import { BaseComponent, Component } from "@flamework/components";
 import type { OnStart } from "@flamework/core";
 import { CharacterInfo } from "shared/characterinfo";
 import { Constants } from "shared/common/constants";
+import type { CharacterType } from "shared/common/data";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import { AddLog } from "shared/common/utility/logger";
 import * as Render from "shared/common/utility/renderregistry";
@@ -9,7 +10,7 @@ import { PlaneProject } from "shared/common/utility/vutil";
 import type { GameController } from "shared/loader.server";
 import { ClientEvents } from "./client_networking";
 import { Input } from "./control/input";
-import { Animation } from "./draw/animation";
+import { AnimationController } from "./draw/animation";
 import { Camera } from "./draw/camera";
 import { PackDrawInfo, Renderer } from "./draw/renderer";
 import { SoundController } from "./draw/sound";
@@ -114,7 +115,7 @@ class HomingAttack {
  * @class
  */
 @Component()
-export class Client extends BaseComponent<{}, Model & { Humanoid: Humanoid }> implements OnStart {
+export class Client extends BaseComponent<{ CharacterType: CharacterType }, Model & { Humanoid: Humanoid }> implements OnStart {
 	// Main
 	public Character!: Model;
 	public Humanoid!: Humanoid;
@@ -137,7 +138,7 @@ export class Client extends BaseComponent<{}, Model & { Humanoid: Humanoid }> im
 	// Modules
 	public State!: StateMachine;
 	public Camera!: Camera;
-	public Animation!: Animation;
+	public Animation!: AnimationController;
 	public Renderer!: Renderer;
 	public Input!: Input;
 	public UI!: UIMain;
@@ -169,7 +170,7 @@ export class Client extends BaseComponent<{}, Model & { Humanoid: Humanoid }> im
 		this.Animations = CharacterInfo.Animations;
 
 		this.State = new StateMachine(this);
-		this.Animation = new Animation(this);
+		this.Animation = new AnimationController(this);
 		this.Camera = new Camera(this);
 		this.Renderer = new Renderer();
 		this.Input = new Input(this);

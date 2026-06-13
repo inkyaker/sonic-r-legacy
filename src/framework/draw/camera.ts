@@ -1,5 +1,4 @@
 import { Players, UserInputService, Workspace } from "@rbxts/services";
-import * as Render from "shared/common/utility/renderregistry";
 import type { Client } from "..";
 
 const MouseSensitivity = new Vector2(1, 0.77).mul(math.rad(0.5));
@@ -16,7 +15,6 @@ export class Camera {
 	public InputVector: Vector3;
 
 	constructor(Client: Client) {
-		//Render.RegisterStepped("Camera", Enum.RenderPriority.Camera.Value + 1, (Delta:number) => this.Update(Delta))
 		this.Rotation = { X: 0, Y: 0, Z: 0 };
 		this.Zoom = 16;
 		this.Client = Client;
@@ -90,9 +88,8 @@ export class Camera {
 			.add(new Vector3(0, this.Client.Humanoid.HipHeight, 0))
 			.add(Rotation.LookVector.mul(-this.Zoom));
 
-		if (!Workspace.CurrentCamera) {
-			return;
-		}
+		if (!Workspace.CurrentCamera) return;
+
 		Workspace.CurrentCamera.CFrame = FinalCFrame;
 		Workspace.CurrentCamera.Focus = FinalCFrame;
 
@@ -104,7 +101,5 @@ export class Camera {
 	 */
 	public Destroy() {
 		this.InputChanged.Disconnect();
-
-		Render.UnregisterStepped("Camera");
 	}
 }

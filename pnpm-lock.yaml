@@ -23,6 +23,9 @@ importers:
       '@rbxts/pretty-react-hooks':
         specifier: ^0.6.4
         version: 0.6.4(@rbxts/react-roblox@17.2.3)(@rbxts/react@17.3.7-ts.1)
+      '@rbxts/profilestore':
+        specifier: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
+        version: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
       '@rbxts/react':
         specifier: ^17.3.7-ts.1
         version: 17.3.7-ts.1
@@ -198,6 +201,10 @@ packages:
     peerDependencies:
       '@rbxts/react': '*'
       '@rbxts/react-roblox': '*'
+
+  '@rbxts/profilestore@file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz':
+    resolution: {integrity: sha512-RDk97vi3jstTsSp/NCXGnVdgnLlsaqTYHQfgHV5jrvmHinNATgGy6x0XOuwMDXE+/FS/6xnNuQjinc3tPo6XGA==, tarball: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz}
+    version: 1.0.0
 
   '@rbxts/react-roblox@17.2.3':
     resolution: {integrity: sha512-YgS+C3tf92iM1NTK1f6R2O2G8+nbcKFnblA0mTs2Nt878OsWLgxhnhkCBZ6wYv+yeDGD9/sssKHZ6s2LzUWTrQ==}
@@ -679,6 +686,8 @@ snapshots:
       '@rbxts/ripple': 0.9.3
       '@rbxts/services': 1.6.0
       '@rbxts/set-timeout': 1.1.2
+
+  '@rbxts/profilestore@file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz': {}
 
   '@rbxts/react-roblox@17.2.3':
     dependencies:

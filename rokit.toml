@@ -4,4 +4,4 @@
 # New tools can be added by running `rokit add <tool>` in a terminal.
 
 [tools]
-rotor = "uproot/rotor@1.3.0"
+rotor = "uproot/rotor@2.0.0"

@@ -16,7 +16,7 @@ export class StateAirborne extends BaseState {
 
 	protected BeforeUpdateHook(Client: Client) {
 		if (Client.Animation.Current === "Spring" && Client.Speed.Y <= 0.5) {
-			Client.Animation.Current = "SpringEnd";
+			Client.Animation.Current = "Fall";
 		}
 
 		if (!Client.IsScripted()) {

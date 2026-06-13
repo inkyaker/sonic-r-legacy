@@ -1,7 +1,7 @@
 type Log = Array<string>;
 
 const Verbose = false;
-const LogTable: Map<number, Log> = new Map();
+export const LogTable: Map<number, Log> = new Map();
 
 export function AddLog(Value: unknown, Context?: { Error?: boolean }) {
 	let Export = tostring(Value);
@@ -34,7 +34,5 @@ export function WipeLog() {
 }
 
 export function ExportLog() {
-	if (Verbose) {
-		print();
-	}
+	for (const [Tick, Logs] of LogTable) Logs.forEach((Log) => print(`${Tick}: ${Log}`));
 }

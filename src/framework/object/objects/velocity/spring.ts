@@ -62,7 +62,7 @@ class Spring extends BaseObject<Model> {
 		Client.Flags.DirectVelocity = this.DirectVelocity;
 		Client.Flags.LockTimer = math.ceil(this.LockTime * 60);
 		Client.State.Current = Client.State.States.Airborne;
-		Client.Animation.Current = "SpringStart";
+		Client.Animation.Current = "Spring";
 		Client.Ground.Grounded = false;
 
 		this.Debounce = 6;

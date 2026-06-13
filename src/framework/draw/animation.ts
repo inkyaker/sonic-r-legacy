@@ -1,11 +1,11 @@
 import { deepCopy as DeepCopy } from "@rbxts/deepcopy";
-import type { InferredAnimation, SetAnimation, ValidAnimation } from "shared/characterinfo";
+import { AnimationSet, type InferredAnimation, type SetAnimation, type ValidAnimation } from "shared/characterinfo";
 import type { Client } from "..";
 
 /**
  * @class
  */
-export class Animation {
+export class AnimationController {
 	public Animations;
 	public Current: ValidAnimation;
 	public Speed: number = 0;
@@ -25,15 +25,25 @@ export class Animation {
 	 */
 	public LoadAnimations(Client: Client) {
 		const AnimationController: Animator = Client.Character.WaitForChild("Humanoid").WaitForChild("Animator") as Animator; // TODO: make animationcontroller.animator
+
+		const HashList = new Map<string, Animation>();
+		for (const [Name, Data] of pairs(AnimationSet)) {
+			const ID = Data[Client.attributes.CharacterType];
+			const Animation = new Instance("Animation", AnimationController);
+			Animation.AnimationId = `rbxassetid://${ID}`;
+			Animation.Parent = Client.Humanoid;
+			HashList.set(Name, Animation);
+		}
+
 		for (const [_, AnimationInfo] of pairs(this.Animations)) {
 			for (const [Key, Value] of pairs(AnimationInfo)) {
 				let Animation = Value as InferredAnimation[0];
 
 				if (typeIs(Key, "number")) {
-					const NewInstance = new Instance("Animation", AnimationController);
-					NewInstance.AnimationId = `rbxassetid://${Animation.AnimationID}`;
+					const Asset = HashList.get(Animation.AnimationKey);
+					if (!Asset) return;
 
-					Animation.Asset = AnimationController.LoadAnimation(NewInstance);
+					Animation.Asset = AnimationController.LoadAnimation(Asset);
 					Animation.Asset.Looped = Animation.Looped;
 				}
 			}

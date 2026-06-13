@@ -1,15 +1,10 @@
 import { ReplicatedStorage, Workspace } from "@rbxts/services";
+import type { AssetsDir, RS } from "shared/common/types";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import type { Client } from "..";
 
 const PI = math.pi;
 const TAU = PI * 2;
-
-type AssetsDir = Folder & {
-	JumpBall: Model;
-	BallTrail: Model;
-	SpindashBall: Model;
-};
 
 class JumpBall {
 	public Spin: number = 0;
@@ -113,7 +108,7 @@ export class Renderer {
 	public DrawInfo: DrawInfo = PackDrawInfo();
 
 	constructor() {
-		this.Assets = ReplicatedStorage.WaitForChild("Assets").WaitForChild("Models").WaitForChild("Player") as AssetsDir;
+		this.Assets = (ReplicatedStorage as RS).Assets.Models.Player;
 
 		this.BallTrail = new BallTrail(this);
 		this.JumpBall = new JumpBall(this);

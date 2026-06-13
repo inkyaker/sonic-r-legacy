@@ -24,7 +24,7 @@ export function CheckHomingAttack(Client: Client) {
 			Client.State.Current = Client.State.States.Homing;
 			Client.HomingAttack.Speed = math.max(Client.Speed.Magnitude, Client.Config.HomingForce.HomingAttack);
 		} else {
-			Client.Animation.Current = "Roll"; // TODO: homing attack animation if wanted
+			Client.Animation.Current = "Fall";
 			Client.ExitBall();
 			
 			Client.State.Current = Client.State.States.Airborne;

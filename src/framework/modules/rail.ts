@@ -85,12 +85,7 @@ export function SetRail(Client: Client, Part?: Part) {
 			const PreviousSpeed = Client.ToGlobal(Client.Speed);
 			Client.Angle = GetRailAngle(Client);
 			Client.Speed = new Vector3(Client.ToLocal(PreviousSpeed).X, 0, 0);
-
-			if (math.abs(Client.Speed.X) < Client.Config.JogSpeed && Client.ToLocal(PreviousSpeed).Y < -2) {
-				Client.Animation.Current = "RailLand";
-			} else {
-				Client.Animation.Current = "Rail";
-			}
+			Client.Animation.Current = "Rail";
 
 			Client.Position = GetRailPosition(Client);
 		} else if (Rail.Current !== Part) {
@@ -245,7 +240,6 @@ export class StateRail extends BaseState {
 
 	protected AfterUpdateHook(Client: Client) {
 		const Rail = Client.Rail;
-		const Crouching = Client.Input.Button.Roll.Pressed;
 		assert(Rail.Current);
 
 		//Move
@@ -280,14 +274,8 @@ export class StateRail extends BaseState {
 
 		//Set animation
 		if (RailActive(Client)) {
-			if (Client.Animation.Current !== "RailLand") {
-				if (Rail.BalanceFail >= 0.3) {
-					Client.Animation.Current = "RailBalance";
-				} else {
-					Client.Animation.Current = (Crouching && "RailCrouch") || "Rail";
-					Client.Animation.Speed = Client.Speed.X;
-				}
-			}
+			Client.Animation.Current = "Rail";
+			Client.Animation.Speed = Client.Speed.X;
 		} else {
 			const LocalOffset = Client.Angle.Inverse().mul(Rail.RailOffset);
 
