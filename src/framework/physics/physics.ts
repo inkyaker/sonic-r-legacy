@@ -135,7 +135,7 @@ export const PhysicsHandler = {
 		Client.Speed = Client.Speed.add(Client.Speed.mul(Client.GetAirResist()).div(1 + Client.Rail.RailTrick));
 
 		//Use lighter gravity if A is held or doing a rail trick
-		if (Client.Rail.RailTrick > 0 || (Client.Flags.JumpTimer > 0 && Client.Flags.BallEnabled && Client.Input.Button.Jump.Activated)) {
+		if (Client.Rail.RailTrick > 0 || (Client.Flags.JumpTimer > 0 && Client.Flags.BallEnabled && Client.Input.Button.Jump.IsDown)) {
 			Client.Flags.JumpTimer--;
 			Client.Speed = Client.Speed.add(new Vector3(0, Client.Config.JumpHoldForce * 0.8 * (1 + Client.Rail.RailTrick / 2), 0));
 		}

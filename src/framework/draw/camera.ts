@@ -13,12 +13,19 @@ export class Camera {
 	public Zoom: number;
 	public Rotation: { X: number; Y: number; Z: number };
 	public InputVector: Vector3;
+	public CenterPos: Vector3;
+	private OffsetSpringPos: Vector3;
+	private OffsetSpringVelocity: Vector3;
 
 	constructor(Client: Client) {
 		this.Rotation = { X: 0, Y: 0, Z: 0 };
 		this.Zoom = 16;
 		this.Client = Client;
 		this.InputVector = Vector3.xAxis;
+		this.CenterPos = Client.GetMiddle();
+		
+		this.OffsetSpringPos = Vector3.zero;
+		this.OffsetSpringVelocity = Vector3.zero;
 
 		this.InputChanged = UserInputService.InputChanged.Connect((Input, Processed) => {
 			if (Processed) {
@@ -29,44 +36,32 @@ export class Camera {
 				this.Zoom = math.clamp(this.Zoom - Input.Position.Z * 4, Players.LocalPlayer.CameraMinZoomDistance, Players.LocalPlayer.CameraMaxZoomDistance);
 			}
 		});
-
-		this.Client.Humanoid.CameraOffset = Client.Config.CameraOffset;
 	}
 
 	/**
 	 * Update `Camera`
-	 * @param Delta DeltaTime
+	 * @param DeltaTime DeltaTime
 	 * @returns
 	 */
-	public Update(_Delta: number) {
-		if (!game.Workspace.CurrentCamera) {
-			return;
-		}
-		if (game.Workspace.CurrentCamera.CameraType === Enum.CameraType.Scriptable) {
-			return;
-		}
+	public Update(DeltaTime: number) {
+		if (!Workspace.CurrentCamera || Workspace.CurrentCamera.CameraType === Enum.CameraType.Scriptable) return;
 
 		let JoyRight = Vector2.zero;
 
 		const GPState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1);
 		GPState.forEach((Value) => {
-			/*if (Value.KeyCode === Enum.KeyCode.Thumbstick1) {
-                JoyLeft = Value.Position
-            } else */
 			if (Value.KeyCode === Enum.KeyCode.Thumbstick2) {
 				JoyRight = new Vector2(Value.Position.X, Value.Position.Y);
 			}
 		});
 
-		const RotatingCamera = (UserInputService.IsMouseButtonPressed(Enum.UserInputType.MouseButton2) && UserInputService.GetMouseDelta().Magnitude > 0) || JoyRight.Magnitude > 0.15; //TODO: DEADZONE
+		const RotatingCamera = (UserInputService.IsMouseButtonPressed(Enum.UserInputType.MouseButton2) && UserInputService.GetMouseDelta().Magnitude > 0) || JoyRight.Magnitude > 0.15;
 
 		if (RotatingCamera) {
 			let CamDelta = UserInputService.GetMouseDelta();
 			if (JoyRight.Magnitude > 0.15) {
 				const CamSens = UserSettings().GetService("UserGameSettings").MouseSensitivity;
-
-				//TODO: rough approx. see how playerscripts does it for gamepad later
-				CamDelta = JoyRight.mul(new Vector2(1, -1)).mul(5).mul(CamSens); //TODO: customizable sensitivity
+				CamDelta = JoyRight.mul(new Vector2(1, -1)).mul(5).mul(CamSens);
 			}
 
 			const YInvert = UserSettings().GetService("UserGameSettings").GetCameraYInvertValue();
@@ -79,16 +74,23 @@ export class Camera {
 			this.Rotation.Y += math.rad(YawMod);
 		}
 
+		const RenderCFrame = this.Client.RenderCFrame;
+		const BaseTargetCenter = RenderCFrame.Position.add(RenderCFrame.UpVector.mul(this.Client.Config.CameraOffset));
+		const Speed = this.Client.ToGlobal(this.Client.Speed).mul(-0.5);
+		const TargetOffset = Speed.LimitDistance(3);
+		const Force = 2 / .15;
+		const Force2 = Force * DeltaTime;
+		const Exp = 1 / (1 + Force2 + 0.48 * Force2 ** 2 + 0.235 * Force2 ** 3);
+
+		const Change = this.OffsetSpringPos.sub(TargetOffset);
+		const Difference = this.OffsetSpringVelocity.add(Change.mul(Force)).mul(DeltaTime);
+
+		this.OffsetSpringVelocity = this.OffsetSpringVelocity.sub(Difference.mul(Force)).mul(Exp);
+		this.OffsetSpringPos = TargetOffset.add(Change.add(Difference).mul(Exp));
+		this.CenterPos = BaseTargetCenter.add(this.OffsetSpringPos);
+
 		const Rotation = CFrame.Angles(0, this.Rotation.Y, 0).mul(CFrame.Angles(this.Rotation.X, 0, 0));
-
-		// TODO: abstract & implement popper
-		const FinalCFrame = new CFrame(this.Client.RenderCFrame.Position)
-			.mul(Rotation)
-			.mul(new CFrame(this.Client.Humanoid.CameraOffset))
-			.add(new Vector3(0, this.Client.Humanoid.HipHeight, 0))
-			.add(Rotation.LookVector.mul(-this.Zoom));
-
-		if (!Workspace.CurrentCamera) return;
+		const FinalCFrame = Rotation.add(this.CenterPos).add(Rotation.LookVector.mul(-this.Zoom));
 
 		Workspace.CurrentCamera.CFrame = FinalCFrame;
 		Workspace.CurrentCamera.Focus = FinalCFrame;

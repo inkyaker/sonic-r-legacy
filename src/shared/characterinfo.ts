@@ -510,8 +510,8 @@ export const CharacterInfo = {
 
 		// Speed
 		MaxXSpeed: 4,
-		JogSpeed: 0.25,
-		RunSpeed: .85,
+		JogSpeed: 0.75,
+		RunSpeed: 1.45,
 		RushSpeed: 1.95,
 		DashSpeed: 5.09,
 		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
@@ -538,7 +538,7 @@ export const CharacterInfo = {
 		HomingForce: { AirDash: new Vector3(6, 1, 0), HomingAttack: 5.25 },
 
 		// Renderer
-		CameraOffset: new Vector3(0, 2, 0),
+		CameraOffset: 6,
 	},
 
 	Animations: {
@@ -549,7 +549,7 @@ export const CharacterInfo = {
 			0: { AnimationKey: "Idle", Looped: true },
 		},
 		Roll: {
-			0: { AnimationKey: "Roll", Looped: true, Speed: { Base: 0.25, Increment: 1 / 8, Absolute: true } },
+			0: { AnimationKey: "Spindash", Looped: true, Speed: { Base: 0.25, Increment: 1 / 8, Absolute: true } },
 		},
 		Spindash: {
 			0: { AnimationKey: "Spindash", Looped: true },
@@ -569,7 +569,7 @@ export const CharacterInfo = {
 				AnimationKey: "Jog2",
 				Position: 0,
 				Speed: {
-					Base: .9,
+					Base: 0.9,
 					Increment: 0.5,
 					Absolute: false,
 				},
@@ -579,7 +579,7 @@ export const CharacterInfo = {
 				AnimationKey: "Run",
 				Position: 2.15,
 				Speed: {
-					Base: .75,
+					Base: 0.75,
 					Increment: 0.55,
 					Absolute: false,
 				},
@@ -589,7 +589,7 @@ export const CharacterInfo = {
 				AnimationKey: "Dash",
 				Position: 3.95,
 				Speed: {
-					Base: .65,
+					Base: 0.65,
 					Increment: 0.6,
 					Absolute: false,
 				},
@@ -599,7 +599,7 @@ export const CharacterInfo = {
 				AnimationKey: "MaxRun",
 				Position: 5.5,
 				Speed: {
-					Base: .9,
+					Base: 0.9,
 					Increment: 0.4,
 					Absolute: false,
 				},
@@ -614,6 +614,15 @@ export const CharacterInfo = {
 		},
 		RailSwitchRight: {
 			0: { AnimationKey: "GrindJumpR", Looped: false },
+		},
+		Stomp: {
+			0: { AnimationKey: "Stomp", Looped: true },
+		},
+		StompLand: {
+			0: { AnimationKey: "Land", Looped: false },
+		},
+		AirBoost: {
+			0: { AnimationKey: "AirBoost", Looped: true },
 		},
 	} as const satisfies {
 		[Index: string]: {

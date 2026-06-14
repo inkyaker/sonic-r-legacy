@@ -4,6 +4,16 @@ import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
 import type { Client } from "..";
 
+const CollisionParams = new RaycastParams();
+CollisionParams.FilterType = Enum.RaycastFilterType.Include;
+
+// TODO: redo this might not be needed
+task.spawn(() => {
+	if (!game.IsLoaded()) game.Loaded.Wait();
+
+	CollisionParams.AddToFilter(Workspace.Level.Map.Collision);
+});
+
 function GetAligned(Client: Client, Normal: Vector3) {
 	if (Client.Angle.UpVector.Dot(Normal) < -0.999) {
 		return CFrame.Angles(math.pi, 0, 0).mul(Client.Angle);
@@ -33,12 +43,8 @@ function _LocalFlatten(Client: Client, vector: Vector3, normal: Vector3) {
 	return Client.ToLocal(VUtil.Flatten(Client.ToGlobal(vector), normal.Unit));
 }
 
-function Raycast(Whitelist: Instance[], From: Vector3, Direction: Vector3) {
-	const Params = new RaycastParams();
-	Params.FilterType = Enum.RaycastFilterType.Include;
-	Params.FilterDescendantsInstances = Whitelist;
-	Params.IgnoreWater = true;
-	const Result = game.Workspace.Raycast(From, Direction, Params);
+function Raycast(From: Vector3, Direction: Vector3) {
+	const Result = game.Workspace.Raycast(From, Direction, CollisionParams);
 	if (Result) {
 		return $tuple(Result.Instance, Result.Position, Result.Normal, Result.Material);
 	} else {
@@ -47,13 +53,13 @@ function Raycast(Whitelist: Instance[], From: Vector3, Direction: Vector3) {
 }
 
 //Wall collision
-function WallRay(Client: Client, Whitelist: Instance[], Y: number, Direction: Vector3, Velocity: number) {
+function WallRay(Client: Client, Y: number, Direction: Vector3, Velocity: number) {
 	//Raycast
 	const ReverseDirection = Direction.mul(Client.Config.Radius * Client.Config.Scale);
 	const From = Client.Position.add(Client.Angle.UpVector.mul(Y));
 	const ForwardDirection = Direction.mul((Client.Config.Radius + Velocity) * Client.Config.Scale);
 
-	const [Hit, Position, Normal] = Raycast(Whitelist, From, ForwardDirection);
+	const [Hit, Position, Normal] = Raycast(From, ForwardDirection);
 
 	if (Hit) {
 		return $tuple(Position?.sub(ReverseDirection)?.sub(From), Normal, Position);
@@ -69,10 +75,10 @@ function CheckWallAttach(Client: Client, Direction: Vector3, Normal: Vector3) {
 	return DirectionDot < -0.35 && SpeedDot < -1.16 && UpDot > 0.5;
 }
 
-function WallAttach(Client: Client, Whitelist: Instance[], InputNormal: Vector3) {
+function WallAttach(Client: Client, InputNormal: Vector3) {
 	const FUp = Client.Config.Height * Client.Config.Scale;
 	const FDown = FUp + Client.Config.PositionError * Client.Config.Scale;
-	const [Hit, Position, Normal] = Raycast(Whitelist, Client.Position.add(Client.Angle.UpVector.mul(FUp)), InputNormal.mul(-FDown));
+	const [Hit, Position, Normal] = Raycast(Client.Position.add(Client.Angle.UpVector.mul(FUp)), InputNormal.mul(-FDown));
 
 	if (Hit && Position) {
 		Client.Position = Position;
@@ -84,10 +90,10 @@ function WallHit(Client: Client, Normal: Vector3) {
 	Client.Speed = LocalVelCancel(Client, Client.Speed, Normal);
 }
 
-function WallCollide(Client: Client, Whitelist: Instance[], Y: number, Direction: Vector3, Velocity: number, ForwardAttach: boolean, BackAttach: boolean) {
+function WallCollide(Client: Client, Y: number, Direction: Vector3, Velocity: number, ForwardAttach: boolean, BackAttach: boolean) {
 	//Positive and negative wall collision
-	let [ForwardPos, ForwardNormal] = WallRay(Client, Whitelist, Y, Direction, math.max(Velocity, 0));
-	let [BackwardPos, BackwardNormal] = WallRay(Client, Whitelist, Y, Direction.mul(-1), math.max(-Velocity, 0));
+	let [ForwardPos, ForwardNormal] = WallRay(Client, Y, Direction, math.max(Velocity, 0));
+	let [BackwardPos, BackwardNormal] = WallRay(Client, Y, Direction.mul(-1), math.max(-Velocity, 0));
 
 	//Clip with walls
 	let ShouldMove = true;
@@ -110,7 +116,7 @@ function WallCollide(Client: Client, Whitelist: Instance[], Y: number, Direction
 	//Velocity cancelling
 	if (ForwardNormal) {
 		if (ForwardAttach && CheckWallAttach(Client, Direction, ForwardNormal)) {
-			WallAttach(Client, Whitelist, ForwardNormal);
+			WallAttach(Client, ForwardNormal);
 			ShouldMove = false;
 		} else {
 			WallHit(Client, ForwardNormal);
@@ -118,7 +124,7 @@ function WallCollide(Client: Client, Whitelist: Instance[], Y: number, Direction
 	}
 	if (BackwardNormal) {
 		if (BackAttach && CheckWallAttach(Client, Direction.mul(-1), BackwardNormal)) {
-			WallAttach(Client, Whitelist, BackwardNormal);
+			WallAttach(Client, BackwardNormal);
 			ShouldMove = false;
 		} else {
 			WallHit(Client, BackwardNormal);
@@ -134,9 +140,6 @@ function WallCollide(Client: Client, Whitelist: Instance[], Y: number, Direction
 export function RunCollision(Client: Client) {
 	//Remember previous state
 	const _PreviousSpeed = Client.ToGlobal(Client.Speed);
-
-	//Get collision whitelist
-	const CollisionWhitelist = [Workspace.Level.Map.Collision];
 
 	//Stick to moving floors
 	if (Client.Ground.Grounded && Client.Ground.Floor && Client.Ground.FloorLast && Client.Ground.FloorOffset) {
@@ -167,10 +170,10 @@ export function RunCollision(Client: Client) {
 			let XMove = true;
 			let ZMove = true;
 			for (const [i, v] of pairs(Heights)) {
-				if (WallCollide(Client, CollisionWhitelist, v, Client.Angle.LookVector, Client.Speed.X, (Client.Ground.Grounded || Client.Speed.Y <= 0) && i === 1, false) === false) {
+				if (WallCollide(Client, v, Client.Angle.LookVector, Client.Speed.X, (Client.Ground.Grounded || Client.Speed.Y <= 0) && i === 1, false) === false) {
 					XMove = false;
 				}
-				if (WallCollide(Client, CollisionWhitelist, v, Client.Angle.RightVector, Client.Speed.Z, false, false) === false) {
+				if (WallCollide(Client, v, Client.Angle.RightVector, Client.Speed.Z, false, false) === false) {
 					ZMove = false;
 				}
 			}
@@ -196,7 +199,7 @@ export function RunCollision(Client: Client) {
 
 			const From = Client.Position.add(Client.Angle.UpVector.mul(CeilUp));
 			const Direction = Client.Angle.UpVector.mul(CeilDown);
-			const [Hit, Position, Normal] = Raycast(CollisionWhitelist, From, Direction);
+			const [Hit, Position, Normal] = Raycast(From, Direction);
 
 			if (Hit && Position && Normal) {
 				if (Client.Ground.Grounded) {
@@ -225,7 +228,7 @@ export function RunCollision(Client: Client) {
 
 			const From = Client.Position.add(Client.Angle.UpVector.mul(FloorUp));
 			const Direction = Client.Angle.UpVector.mul(FloorDown);
-			let [Hit, Position, Normal] = Raycast(CollisionWhitelist, From, Direction);
+			let [Hit, Position, Normal] = Raycast(From, Direction);
 
 			//Do additional collision checks
 			if (Hit && Position && Normal) {
@@ -300,7 +303,7 @@ export function RunCollision(Client: Client) {
 		if (NewMiddle !== PreviousMiddle) {
 			const NewAdd = NewMiddle.sub(PreviousMiddle).Unit.mul(Client.Config.Radius * Client.Config.Scale);
 			const NewEnd = NewMiddle; // + new_add
-			const [Hit, Position, Normal] = Raycast(CollisionWhitelist, PreviousMiddle, NewEnd.sub(PreviousMiddle));
+			const [Hit, Position, Normal] = Raycast(PreviousMiddle, NewEnd.sub(PreviousMiddle));
 			if (Hit && Position && Normal) {
 				//Clip us out
 				Client.Position = Client.Position.add(Position.sub(NewAdd).sub(NewMiddle));
@@ -333,4 +336,9 @@ export function RunCollision(Client: Client) {
 
 		Client.Ground.FloorSpeed = Vector3.zero;
 	}
+}
+
+export function GetWallDot(Client: Client) {
+	const Cast = Workspace.Raycast(Client.GetMiddle(), Client.Angle.LookVector.mul(math.max(Client.Speed.X, 5)), CollisionParams);
+	return Cast ? math.max(Cast.Normal.Dot(Client.Angle.LookVector.mul(-1)), 0) : 0;
 }

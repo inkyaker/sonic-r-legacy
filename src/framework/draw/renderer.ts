@@ -49,9 +49,6 @@ class JumpBall {
 	}
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: <temporary>
-class SpindashBall {}
-
 class BallTrail {
 	public Model: Model;
 	public Visible = true;
@@ -101,6 +98,7 @@ class BallTrail {
  */
 export class Renderer {
 	public Angle: CFrame = CFrame.identity;
+	public Position: Vector3 = Vector3.zero;
 	public Assets: AssetsDir;
 	public BallTrail;
 	public JumpBall;
@@ -118,19 +116,17 @@ export class Renderer {
 	 * Draw Client, should only execute at the end of each `RenderStepped`
 	 */
 	public Draw(Character: Model, DeltaTime: number) {
-		let Angle = this.DrawInfo.Angle.mul(CFrame.Angles(0, 0, -this.DrawInfo.RailBalance));
-		this.Angle = Angle.Lerp(this.Angle, (0.675 ** 60) ** DeltaTime);
+		this.Angle = this.DrawInfo.Angle;
+		this.Position = this.DrawInfo.Position;
 
-		const Pivot = this.Angle.add(this.DrawInfo.Position);
+		const Pivot = this.Angle.add(this.DrawInfo.Position.add(this.Angle.UpVector.mul(this.DrawInfo.YOffset)));
 		Character.PivotTo(Pivot);
 
 		this.BallTrail.SetVisible(this.DrawInfo.BallTrailEnabled, Pivot);
-		if (this.BallTrail.Visible) this.BallTrail.Update(this.DrawInfo.Position);
+		if (this.BallTrail.Visible) this.BallTrail.Update(Pivot.Position);
 
 		this.JumpBall.SetVisible(this.DrawInfo.JumpBallEnabled, Pivot);
 		if (this.JumpBall.Visible) this.JumpBall.Update(Pivot, DeltaTime, this.DrawInfo.BallRotationSpeed);
-
-		this.SetVisible(Character, !this.JumpBall.Visible);
 	}
 
 	public SetVisible(Character: Model, Visible: boolean) {
@@ -149,17 +145,17 @@ export class Renderer {
 export function PackDrawInfo(Client?: Client) {
 	return Client
 		? {
-				Position: Client.RenderCFrame.Position.add(Client.Rail.RailOffset).add(Client.Angle.UpVector.mul(Client.Root.Size.Y / 2 + (Client.Humanoid.HipHeight || 0))),
-				Angle: Client.RenderCFrame.Rotation,
-				RailBalance: Client.Rail.RailBalance,
+				YOffset: Client.Root.Size.Y / 2 + (Client.Humanoid.HipHeight || 0),
+				Position: Client.RenderCFrame.Position.add(Client.Rail.RailOffset),
+				Angle: Client.RenderCFrame.Rotation.mul(CFrame.Angles(Client.Animation.Current === "AirBoost" ? math.clamp(Client.Speed.Y / 8, -1, 1) : 0, 0, 0)),
 				JumpBallEnabled: Client.Flags.BallEnabled && Client.Animation.Current === "Roll",
 				BallTrailEnabled: Client.Flags.TrailEnabled,
 				BallRotationSpeed: Client.Animation.GetRate(Client) * TAU,
 			}
 		: {
+				YOffset: 0,
 				Position: Vector3.zero,
 				Angle: CFrame.identity,
-				RailBalance: 0,
 				JumpBallEnabled: false,
 				BallTrailEnabled: false,
 				BallRotationSpeed: 0,

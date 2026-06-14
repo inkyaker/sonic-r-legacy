@@ -57,6 +57,9 @@ class Flags {
 	public DirectVelocity = false;
 	public ForceKeepTime = 0;
 	public InWater = false; // TODO: implement water
+
+	public Boosting = false;
+	public BoostTicks = 0;
 }
 
 /**
@@ -222,7 +225,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Sound.Update(this.State.GetStateName(this.State.Current));
 
 		this.Controller.Replicator.ReplicateSelf(DrawInfo);
-		for (const [_, Peer] of this.Controller.Replicator.Peers) Peer.Draw(DeltaTime);
+		this.Controller.Replicator.Draw(DeltaTime)
 	}
 
 	// Utility functions
@@ -300,6 +303,8 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * `JumpBall` will be automatically triggered if Animation is `Roll` `and Client.Flags.BallEnabled === true`
 	 */
 	public EnterBall() {
+		this.ExitBall();
+
 		this.Flags.TrailEnabled = false;
 		this.Flags.BallEnabled = true;
 	}
@@ -312,6 +317,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 
 		this.Flags.TrailEnabled = false;
 		this.Flags.BallEnabled = false;
+		this.Flags.InBounce = false;
 	}
 
 	/**
@@ -337,6 +343,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * Undoes the value changes from objects
 	 */
 	public ResetObjectState() {
+		this.ExitBall();
 		this.Flags.DirectVelocity = false;
 		this.Flags.InBounce = false;
 		this.Flags.LockTimer = 0;

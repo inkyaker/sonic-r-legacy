@@ -87,7 +87,7 @@ export class PlayerReplicator implements OnStart {
 
 	public AddPeer(TargetPlayer: Player) {
 		if (TargetPlayer === Players.LocalPlayer) return;
-		
+
 		const NewPeer = new Peer(TargetPlayer.UserId, {
 			Angle: new CFrame(),
 			Position: new Vector3(),
@@ -99,6 +99,10 @@ export class PlayerReplicator implements OnStart {
 	public RemovePeer(PeerId: number) {
 		this.Peers.get(PeerId)?.Destroy();
 		this.Peers.delete(PeerId);
+	}
+
+	public Draw(DeltaTime: number) {
+		this.Peers.forEach((Peer) => task.spawn(() => Peer.Draw(DeltaTime)));
 	}
 
 	public Destroy() {

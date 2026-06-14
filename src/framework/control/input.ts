@@ -20,9 +20,10 @@ export class Input {
 		this.Client = Client;
 		this.Button = {
 			Jump: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA]),
-			Spindash: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB]),
-			Roll: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB]),
-			Bounce: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX, Enum.KeyCode.ButtonB]),
+			Boost: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonX]),
+			Roll: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonR2]),
+			Bounce: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL2]),
+			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]), // TODO: gamepad stomp button
 			Debug: new ButtonState([Enum.KeyCode.One, Enum.KeyCode.DPadUp]),
 		};
 
@@ -86,7 +87,7 @@ export class Input {
 
 		// Update unpressed keys
 		for (const [Index, Button] of pairs(this.Button)) {
-			if (Button.Activated && !KeyList.find((Object) => Object === Index)) {
+			if (Button.IsDown && !KeyList.find((Object) => Object === Index)) {
 				Button.Update(false);
 			}
 		}

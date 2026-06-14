@@ -7,22 +7,70 @@ import type ts from "typescript";
 type Property = ts.SyntaxKind.PropertyAccessExpression;
 type Call = ts.SyntaxKind.CallExpression;
 type New = ts.SyntaxKind.NewExpression;
+type Binary = ts.SyntaxKind.BinaryExpression;
 
 interface i<Text extends string> {
 	kind: ts.SyntaxKind.Identifier;
 	text: Text;
 }
 
-interface AltVector3Constructor {
-	kind: Property;
-	expression: i<"Vector3">;
-	name: i<"new">;
-}
-
 interface VectorAxis<Axis extends "X" | "Y" | "Z"> {
 	kind: Property;
 	expression: 0;
 	name: i<Axis>;
+}
+
+interface LimitDistance {
+    kind: Binary;
+    operatorToken: ts.SyntaxKind.BarBarToken;
+    left: {
+        kind: Binary;
+        operatorToken: ts.SyntaxKind.AmpersandAmpersandToken;
+        left: {
+            kind: Binary;
+            operatorToken: ts.SyntaxKind.EqualsEqualsEqualsToken;
+            left: {
+                kind: Property;
+                expression: 0;
+                name: i<"Magnitude">;
+            };
+            right: {
+                kind: ts.SyntaxKind.NumericLiteral;
+                value: 0;
+            };
+        };
+        right: 0;
+    };
+    right: {
+        kind: Call;
+        expression: {
+            kind: Property;
+            expression: {
+                kind: Property;
+                expression: 0;
+                name: i<"Unit">;
+            };
+            name: i<"mul">;
+        };
+        arguments: [
+            {
+                kind: Call;
+                expression: {
+                    kind: Property;
+                    expression: i<"math">;
+                    name: i<"min">;
+                };
+                arguments: [
+                    {
+                        kind: Property;
+                        expression: 0;
+                        name: i<"Magnitude">;
+                    },
+                    1
+                ];
+            }
+        ];
+    };
 }
 
 interface Vec3WithX {
@@ -100,6 +148,9 @@ declare global {
 
 		/** @metadata ast-macro {@link Vec3WithZ ast-macro-target} */
 		WithZ(this: Vector3, Z: number): Vector3;
+
+		/** @metadata ast-macro {@link LimitDistance ast-macro-target} */
+        LimitDistance(this: Vector3, Distance: number): Vector3;
 	}
 
 	interface Vector2 {

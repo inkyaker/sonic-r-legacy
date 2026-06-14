@@ -7,7 +7,7 @@ import type { Client } from "framework";
  * @returns Move successful
  */
 export function CheckJump(Client: Client) {
-	if (Client.Input.Button.Jump.Pressed) {
+	if (Client.Input.Button.Jump.DidPress) {
 		Client.State.Current = Client.State.States.Airborne;
 		Client.Speed = Client.Speed.add(new Vector3(0, Client.Config.JumpInitalForce, 0));
 

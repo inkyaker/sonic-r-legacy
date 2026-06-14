@@ -1,9 +1,9 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
+import { StepBoost } from "./boost";
 import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
 import { CheckSkid } from "./skid";
-import { CheckSpindash } from "./spindash";
 import { BaseState } from "./state";
 
 /**
@@ -14,7 +14,7 @@ export class StateGrounded extends BaseState {
 	private LockedAnimations = new Set(["LandMoving", "Land", "JogStart"]);
 
 	protected CheckInput(Client: Client) {
-		return CheckJump(Client) || CheckSpindash(Client) || CheckSkid(Client) || CheckRail(Client);
+		return CheckJump(Client) || CheckSkid(Client) || CheckRail(Client);
 	}
 
 	protected BeforeUpdateHook(Client: Client) {
@@ -28,6 +28,8 @@ export class StateGrounded extends BaseState {
 
 	protected AfterUpdateHook(Client: Client) {
 		if (Client.Ground.Grounded) {
+			StepBoost(Client);
+
 			const Slip = math.sqrt(1);
 			const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Config.CrashSpeed, 1);
 
@@ -40,6 +42,13 @@ export class StateGrounded extends BaseState {
 				Client.Animation.Current = "Fall";
 				Client.State.Current = Client.State.States.Airborne;
 			} else Client.Ground.UngroundedFrames++;
+		}
+	}
+
+	protected OnStep(Client: Client) {
+		if (Client.Flags.Boosting && ![Client.State.States.Grounded, Client.State.States.Airborne, Client.State.States.Rail].includes(Client.State.Current as StateGrounded)) {
+			Client.Flags.Boosting = false;
+			Client.Flags.BoostTicks = 0;
 		}
 	}
 }

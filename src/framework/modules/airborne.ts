@@ -1,9 +1,11 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
+import { StepBoost } from "./boost";
 import { CheckBounce } from "./bounce";
 import { CheckHomingAttack } from "./homing";
 import { CheckRail } from "./rail";
 import { BaseState } from "./state";
+import { CheckStomp } from "./stomp";
 
 /**
  * @class
@@ -11,7 +13,7 @@ import { BaseState } from "./state";
  */
 export class StateAirborne extends BaseState {
 	protected CheckInput(Client: Client) {
-		return CheckHomingAttack(Client) || CheckBounce(Client) || CheckRail(Client);
+		return CheckHomingAttack(Client) || CheckBounce(Client) || CheckStomp(Client) || CheckRail(Client);
 	}
 
 	protected BeforeUpdateHook(Client: Client) {
@@ -28,8 +30,7 @@ export class StateAirborne extends BaseState {
 	}
 
 	protected AfterUpdateHook(Client: Client) {
-		if (Client.Animation.Current === "Roll")
-			Client.Animation.Speed = Client.Speed.Magnitude;
+		if (Client.Animation.Current === "Roll") Client.Animation.Speed = Client.Speed.Magnitude;
 
 		if (Client.Ground.Grounded) {
 			if (Client.Flags.InBounce) {
@@ -46,6 +47,6 @@ export class StateAirborne extends BaseState {
 				Client.State.Current = Client.State.States.Grounded;
 				Client.Land();
 			}
-		}
+		} else StepBoost(Client);
 	}
 }

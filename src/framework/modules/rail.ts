@@ -1,5 +1,6 @@
 import type { Client } from "framework";
 import { Workspace } from "shared/common/globals";
+import { StepBoost } from "./boost";
 import { CheckJump } from "./jump";
 import { BaseState } from "./state";
 
@@ -12,16 +13,12 @@ import { BaseState } from "./state";
 export class Rail {
 	public Current: BasePart | undefined;
 	public RailDirection: number = 1;
-	public RailBalance: number = 0;
-	public RailTargetBalance: number = 0;
 	public RailOffset: Vector3 = Vector3.zero;
 	public RailTrick: number = 0;
 	public RailSound: Sound | undefined;
 	public RailGrace: number = 0;
 	public RailBonusTime: number = 0;
 	public RailDebounce: number = 0;
-	public BalanceEnabled: boolean = true;
-	public BalanceFail: number = 0;
 
 	public Connections: RBXScriptConnection[] = [];
 }
@@ -73,9 +70,6 @@ export function SetRail(Client: Client, Part?: Part) {
 
 			Rail.Current = Part;
 			Rail.RailDirection = RailDirection;
-			Rail.RailBalance = 0;
-			Rail.RailTargetBalance = 0;
-			Rail.BalanceFail = 0;
 			Rail.RailOffset = Vector3.zero;
 			Rail.RailTrick = 0;
 			Rail.RailSound = undefined;
@@ -89,25 +83,17 @@ export function SetRail(Client: Client, Part?: Part) {
 
 			Client.Position = GetRailPosition(Client);
 		} else if (Rail.Current !== Part) {
-			const Dot = math.clamp(Rail.Current.CFrame.RightVector.Dot(Part.CFrame.LookVector), -0.999, 0.999);
 			Rail.Current = Part;
 			Rail.RailDirection = RailDirection;
-
-			const Balance = math.asin(Dot) * (Client.Speed.X / 10);
-			Rail.RailBalance = math.clamp(Rail.RailBalance - Balance * 1.625, math.rad(-80), math.rad(80));
-			Rail.RailTargetBalance = math.clamp(Rail.RailTargetBalance + Balance * 1.125, math.rad(-70), math.rad(70));
 
 			Client.Angle = GetRailAngle(Client);
 			Client.Position = GetRailPosition(Client);
 		} else {
 			return;
 		}
-
-		Rail.BalanceEnabled = (Part.Parent?.GetAttribute("Balance") && true) || false;
 	} else if (Client.Rail.Current !== undefined) {
 		Rail.Current = undefined;
 		Rail.RailDebounce = 25;
-		Rail.RailBalance = 0;
 		Rail.RailOffset = Vector3.zero;
 	}
 }
@@ -117,17 +103,16 @@ export function SetRail(Client: Client, Part?: Part) {
  * @move
  */
 export function CheckRail(Client: Client) {
-	if (Client.Rail.RailDebounce > 0 || Client.Rail.Current) {
-		return false;
-	}
+	if (Client.Rail.RailDebounce > 0 || Client.Rail.Current) return false;
+
 	const Rail = Client.State.States.Rail;
 	const LastPosition = Client.LastCFrame.Position;
 
 	if (LastPosition !== Client.Position) {
-		const Look = CFrame.lookAt(LastPosition, Client.Position);
+		const Look = LastPosition.sub(Client.Position).Unit;
 		const Magnitude = LastPosition.Distance(Client.Position);
 
-		const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(Rail.Skin)), Rail.Skin, Look.LookVector.mul(Magnitude + Rail.Skin), Rail.Params);
+		const Cast = Workspace.Spherecast(LastPosition.sub(Look.mul(Rail.Skin)), Rail.Skin, Look.mul(Magnitude + Rail.Skin), Rail.Params);
 		if (Cast) {
 			SetRail(Client, Cast.Instance as Part);
 		}
@@ -170,7 +155,7 @@ export class StateRail extends BaseState {
 		}
 
 		//Get grinding state
-		const Crouching = Client.Input.Button.Roll.Pressed;
+		const Crouching = Client.Input.Button.Roll.DidPress;
 
 		//Gravity
 		const Weight = Client.GetWeight();
@@ -188,10 +173,7 @@ export class StateRail extends BaseState {
 		}
 
 		//Get drag factor
-		const BalanceDiff = Rail.RailBalance - Rail.RailTargetBalance;
-		Rail.RailTargetBalance *= 0.875;
-
-		let Drag = (Rail.BalanceEnabled && 0.5 + (1 - math.cos(math.clamp(BalanceDiff, -math.pi / 2, math.pi / 2))) * 3.125) || 0.95;
+		let Drag = 0.95;
 
 		//Apply gravity and drag
 		Client.Speed = Client.Speed.add(new Vector3(Gravity, 0, 0));
@@ -214,28 +196,6 @@ export class StateRail extends BaseState {
 		} else {
 			Rail.RailBonusTime = math.max(Rail.RailBonusTime - 2, 0);
 		}
-
-		//Balancing
-		const StickX = Client.Input.Stick.X * math.clamp(Client.Speed.X, -1, 1);
-
-		if (RailActive(Client) && Rail.BalanceEnabled) {
-			//Drag balance
-			const Drag = math.lerp(math.cos(Rail.RailTargetBalance), 1, 0.25);
-			Rail.RailBalance *= math.lerp(1, (Crouching && 0.9675) || 0.825, Drag);
-
-			//Adjust balance using analogue stick
-			let AdjustForce =
-				((math.sign(Rail.RailBalance) === math.sign(StickX) && math.cos(Rail.RailBalance) * 1.2125) || 1.6125 + math.abs(Rail.RailBalance / 1.35)) * ((Crouching && 0.8975) || 1);
-			Rail.RailBalance += StickX * AdjustForce * math.rad(3.5 + math.abs(Client.Speed.X) / 2.825);
-
-			if (math.sign(StickX) === math.sign(Rail.RailTargetBalance)) {
-				const Diff = Rail.RailTargetBalance - Rail.RailBalance;
-				Rail.RailBalance += Diff * math.abs(StickX) * math.abs(math.sign(Rail.RailTargetBalance)) * 0.15;
-			}
-		} else {
-			//Balancing disabled
-			Rail.RailBalance *= 0.825;
-		}
 	}
 
 	protected AfterUpdateHook(Client: Client) {
@@ -244,13 +204,6 @@ export class StateRail extends BaseState {
 
 		//Move
 		Rail.RailOffset = Rail.RailOffset.mul(0.8);
-
-		//Balance failing
-		if (math.abs(Rail.RailBalance - Rail.RailTargetBalance) >= math.rad(55)) {
-			Rail.BalanceFail = math.min(Rail.BalanceFail + 0.1, 1);
-		} else {
-			Rail.BalanceFail = math.min(Rail.BalanceFail - 0.04, 1);
-		}
 
 		//Run sound
 		const Active = RailActive(Client);
@@ -281,6 +234,8 @@ export class StateRail extends BaseState {
 
 			Client.Animation.Current = (LocalOffset.X === 0 && Client.Animation.Current) || `RailSwitch${(LocalOffset.X < 0 && "Left") || "Right"}`;
 		}
+
+		StepBoost(Client);
 
 		if (Rail.RailGrace > 0) {
 			Rail.RailGrace--;

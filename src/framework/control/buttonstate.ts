@@ -2,15 +2,15 @@
  * @class
  */
 export class ButtonState {
-	public Pressed;
-	public Activated;
+	public DidPress;
+	public IsDown;
 	public CanBeUpdated;
 	private LastActivated;
 	public KeyCodes: Enum.KeyCode[];
 
 	constructor(InitialCodes: Enum.KeyCode[]) {
-		this.Pressed = false;
-		this.Activated = false;
+		this.DidPress = false;
+		this.IsDown = false;
 		this.LastActivated = false;
 		this.CanBeUpdated = true;
 		this.KeyCodes = InitialCodes;
@@ -30,14 +30,14 @@ export class ButtonState {
 			this.CanBeUpdated = false;
 		}
 
-		this.Activated = Activated;
+		this.IsDown = Activated;
 
-		if (!this.LastActivated && this.Activated) {
-			this.Pressed = true;
-		} else if (this.Pressed) {
-			this.Pressed = false;
+		if (!this.LastActivated && this.IsDown) {
+			this.DidPress = true;
+		} else if (this.DidPress) {
+			this.DidPress = false;
 		}
 
-		this.LastActivated = this.Activated;
+		this.LastActivated = this.IsDown;
 	}
 }
