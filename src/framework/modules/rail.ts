@@ -201,8 +201,13 @@ export class StateRail extends StateBase {
 
 	protected AfterUpdateHook(Client: Client) {
 		const Rail = Client.Rail;
-		assert(Rail.Current);
+		if (!Rail.Current) {
+			SetRail(Client);
+			Client.State.Current = Client.State.States.Airborne;
 
+			return;
+		}
+		
 		//Move
 		Rail.RailOffset = Rail.RailOffset.mul(0.8);
 
