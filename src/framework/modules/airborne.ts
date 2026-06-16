@@ -1,19 +1,20 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
+import { DecorateState, StateBase } from "./base_state";
 import { StepBoost } from "./boost";
 import { CheckBounce } from "./bounce";
 import { CheckHomingAttack } from "./homing";
 import { CheckRail } from "./rail";
-import { BaseState } from "./state";
 import { CheckStomp } from "./stomp";
 
 /**
  * @class
- * @augments BaseState
+ * @augments StateBase
  */
-export class StateAirborne extends BaseState {
+@DecorateState()
+export class StateAirborne extends StateBase {
 	protected CheckInput(Client: Client) {
-		return CheckHomingAttack(Client) || CheckBounce(Client) || CheckStomp(Client) || CheckRail(Client);
+		return (!Client.Flags.Boosting && CheckHomingAttack(Client)) || CheckBounce(Client) || CheckStomp(Client) || CheckRail(Client);
 	}
 
 	protected BeforeUpdateHook(Client: Client) {

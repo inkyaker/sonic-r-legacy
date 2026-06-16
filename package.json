@@ -13,7 +13,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
 		"@rbxts/compiler-types": "^3.0.0-types.0",
-		"@rbxts/types": "^1.0.925",
+		"@rbxts/types": "github:roblox-ts/types",
 		"@rbxts/ui-labs": "^2.4.2",
 		"@runicly/rbxts-transformer-flamework": "1.3.3",
 		"roblox-ts": "^3.0.0-dev-9165cde",

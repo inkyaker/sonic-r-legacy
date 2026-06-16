@@ -1,5 +1,4 @@
 import { ReplicatedStorage, SoundService } from "@rbxts/services";
-import type { StateList } from "framework/states";
 import { GetAttribute } from "shared/common/class/attributes";
 
 type PlayConfig = {
@@ -14,7 +13,7 @@ type PlayConfig = {
 	OriginPoint?: Vector3;
 	SoundRange?: number;
 
-	BoundState?: keyof StateList;
+	BoundState?: string;
 };
 
 type StopConfig = {
@@ -46,9 +45,7 @@ export class SoundController {
 		Sound = Sound.Clone();
 		Sound.Parent = SoundService;
 
-		if (Config.BoundState) {
-			Sound.SetAttribute("BoundState", Config.BoundState);
-		}
+		if (Config.BoundState) Sound.SetAttribute("BoundState", Config.BoundState);
 
 		if (!Config.MultiChannel) {
 			for (const [Index, Target] of pairs(this.Registry)) {

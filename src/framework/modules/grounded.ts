@@ -1,20 +1,22 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
+import { DecorateState, StateBase } from "./base_state";
 import { StepBoost } from "./boost";
 import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
 import { CheckSkid } from "./skid";
-import { BaseState } from "./state";
+import { CheckSlide } from "./slide";
 
 /**
  * @class
- * @augments BaseState
+ * @augments StateBase
  */
-export class StateGrounded extends BaseState {
+@DecorateState()
+export class StateGrounded extends StateBase {
 	private LockedAnimations = new Set(["LandMoving", "Land", "JogStart"]);
 
 	protected CheckInput(Client: Client) {
-		return CheckJump(Client) || CheckSkid(Client) || CheckRail(Client);
+		return CheckJump(Client) || CheckSkid(Client) || CheckSlide(Client) || CheckRail(Client);
 	}
 
 	protected BeforeUpdateHook(Client: Client) {

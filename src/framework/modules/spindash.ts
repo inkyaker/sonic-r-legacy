@@ -1,15 +1,16 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
+import { DecorateState, StateBase } from "./base_state";
 import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
-import { BaseState } from "./state";
 
 /**
  * @class
  * @state
- * @augments BaseState
+ * @augments StateBase
  */
-export class StateRoll extends BaseState {
+@DecorateState()
+export class StateRoll extends StateBase {
 	protected CheckInput(Client: Client) {
 		if (Client.Input.Button.Roll.DidPress || Client.Speed.X < Client.Config.RollGetup) {
 			Client.State.Current = Client.State.States.Grounded;

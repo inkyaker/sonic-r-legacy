@@ -1,11 +1,38 @@
+import { Modding, Reflect } from "@flamework/core";
 import type { Client } from "framework";
 import { RunCollision } from "framework/physics/collision";
+
+export const DecorateState = Modding.createDecorator("Class", (Descriptor, _) => {
+	Reflect.defineMetadata(Descriptor.object, "swirl:object", true);
+	Reflect.defineMetadata(Descriptor.object, "swirl:state_id", `${Descriptor.constructor}`);
+});
 
 /**
  * State base type
  * @class
  */
-export class BaseState {
+@DecorateState()
+export class StateBase {
+	/**
+	 * Get state ID
+	 */
+	public GetID() {
+		return Reflect.getMetadata(this, "swirl:state_id") as string;
+	}
+
+	public Is(Name: string) {
+		return this.GetID() === Name;
+	}
+
+	public DefineTransition<T extends StateBase>(Direction: "To" | "From", State: T | "All", Callback: (Client: Client) => void) {
+		this.Transitions[Direction].push({State: State, Callback: Callback})
+	}
+
+	public Transitions = {
+		To: [] as Array<{State: StateBase | "All", Callback: (Client: Client) => void}>,
+		From: [] as Array<{State: StateBase | "All", Callback: (Client: Client) => void}>,
+	};
+
 	/**
 	 * Public abstracted method for state input checking, executes before State.Tick
 	 *
@@ -13,8 +40,6 @@ export class BaseState {
 	 * @param Client
 	 */
 	public CheckMoves(Client: Client) {
-		// Default input checking code
-
 		// Per state code
 		this.CheckInput(Client);
 	}
@@ -79,5 +104,11 @@ export class BaseState {
 	 */
 	protected AfterUpdateHook(_Client: Client) {}
 
+	/**
+	 * Function ran on player step for all states, do not include performance intensive code
+	 *
+	 * Useful for per-state timer resets
+	 * @param Client Client
+	 */
 	protected OnStep(_Client: Client) {}
 }

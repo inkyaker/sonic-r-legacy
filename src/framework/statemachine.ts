@@ -1,6 +1,6 @@
 import { FrameworkState } from "shared/common/frameworkstate";
 import type { Client } from ".";
-import type { BaseState } from "./modules/state";
+import type { StateBase } from "./modules/base_state";
 import { StateList } from "./states";
 
 /**
@@ -11,7 +11,8 @@ export class StateMachine {
 	private Client: Client;
 	public TickTimer: number;
 	public States: StateList;
-	public Current: BaseState;
+	public Current: StateBase;
+	public LastState: StateBase;
 
 	constructor(Client: Client) {
 		this.States = new StateList();
@@ -19,16 +20,13 @@ export class StateMachine {
 		this.TickTimer = os.clock();
 		this.Client = Client;
 		this.Current = this.States.Airborne;
+		this.LastState = this.States.Grounded;
 	}
 
-	public GetStateName(State: BaseState) {
-		for (const [Name, Target] of pairs(this.States)) {
-			if (Target === State) {
-				return Name;
-			}
-		}
+	public GetStateName(State: StateBase) {
+		for (const [Name, Target] of pairs(this.States)) if (Target === State) return Name;
 
-		return "";
+		error(`dude what this state doesnt have a statename ${State}???????????`);
 	}
 
 	/**
@@ -38,6 +36,10 @@ export class StateMachine {
 		this.Current.CheckMoves(this.Client);
 
 		this.Current.Tick(this.Client);
+
+		if (this.LastState !== this.Current) {
+			this.LastState = this.Current;
+		}
 	}
 
 	/**
@@ -55,13 +57,8 @@ export class StateMachine {
 		this.TickTimer = math.min(this.TickTimer + DeltaTime * (60 * FrameworkState.GameSpeed), 10);
 		while (this.TickTimer > 1) {
 			// Timers
-			if (this.Client.Flags.LockTimer > 0) {
-				this.Client.Flags.LockTimer--;
-			}
-
-			if (this.Client.Flags.Invulnerability > 0) {
-				this.Client.Flags.Invulnerability--;
-			}
+			if (this.Client.Flags.LockTimer > 0) this.Client.Flags.LockTimer--;
+			if (this.Client.Flags.Invulnerability > 0) this.Client.Flags.Invulnerability--;
 
 			// Main update
 			this.Client.Input.Update();
@@ -80,9 +77,7 @@ export class StateMachine {
 			this.TickState();
 
 			// Character state
-			for (const [_, State] of pairs(this.States)) {
-				State.Step(this.Client);
-			}
+			for (const [_, State] of pairs(this.States)) State.Step(this.Client);
 
 			this.TickTimer--;
 

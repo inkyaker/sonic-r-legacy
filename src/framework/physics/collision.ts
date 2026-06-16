@@ -4,7 +4,7 @@ import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
 import type { Client } from "..";
 
-const CollisionParams = new RaycastParams();
+export const CollisionParams = new RaycastParams();
 CollisionParams.FilterType = Enum.RaycastFilterType.Include;
 
 // TODO: redo this might not be needed
@@ -146,7 +146,7 @@ export function RunCollision(Client: Client) {
 		const PreviousWorld = Client.Ground.FloorLast.mul(Client.Ground.FloorOffset);
 		const NewWorld = Client.Ground.Floor.CFrame.mul(Client.Ground.FloorOffset);
 		const RightDiff = CFUtil.FromToRotation(PreviousWorld.RightVector, NewWorld.RightVector);
-		const _UpDiff = CFUtil.FromToRotation(PreviousWorld.UpVector, NewWorld.UpVector);
+
 		Client.Ground.FloorSpeed = NewWorld.Position.sub(PreviousWorld.Position);
 		Client.Position = Client.Position.add(Client.Ground.FloorSpeed);
 		Client.Angle = RightDiff.mul(Client.Angle);
@@ -154,11 +154,10 @@ export function RunCollision(Client: Client) {
 
 	for (const _i of $range(1, 4)) {
 		//Remember previous position
-		const _PreviousPosition = Client.Position;
 		const PreviousMiddle = Client.GetMiddle();
 
 		//Wall collision heights
-		const HeightScale = 1;
+		const HeightScale = Client.State.Current.GetID() === "StateSlide" ? 0.3 : 1;
 		const Heights = [
 			Client.Config.Height * 0.85 * Client.Config.Scale * HeightScale,
 			Client.Config.Height * 1.25 * Client.Config.Scale * HeightScale,
@@ -178,12 +177,8 @@ export function RunCollision(Client: Client) {
 				}
 			}
 
-			if (XMove) {
-				Client.Position = Client.Position.add(Client.Angle.LookVector.mul(Client.Speed.X * Client.Config.Scale));
-			}
-			if (ZMove) {
-				Client.Position = Client.Position.add(Client.Angle.RightVector.mul(Client.Speed.Z * Client.Config.Scale));
-			}
+			if (XMove) Client.Position = Client.Position.add(Client.Angle.LookVector.mul(Client.Speed.X * Client.Config.Scale));
+			if (ZMove) Client.Position = Client.Position.add(Client.Angle.RightVector.mul(Client.Speed.Z * Client.Config.Scale));
 		}
 
 		//Ceiling collision
@@ -341,4 +336,8 @@ export function RunCollision(Client: Client) {
 export function GetWallDot(Client: Client) {
 	const Cast = Workspace.Raycast(Client.GetMiddle(), Client.Angle.LookVector.mul(math.max(Client.Speed.X, 5)), CollisionParams);
 	return Cast ? math.max(Cast.Normal.Dot(Client.Angle.LookVector.mul(-1)), 0) : 0;
+}
+
+export function CanGetup(Client: Client) {
+	return !Workspace.Raycast(Client.Position, Client.Angle.UpVector.mul(6), CollisionParams);
 }

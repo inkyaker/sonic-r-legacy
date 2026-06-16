@@ -11,13 +11,27 @@ export function CalculateBoostSpeed(Client: Client) {
 }
 
 export function StepBoost(Client: Client) {
-	Client.Flags.Boosting = Client.Input.Button.Boost.IsDown && !Client.Flags.LockTimer;
+	const WasBoosting = Client.Flags.Boosting;
+	Client.Flags.Boosting = Client.Input.Button.Boost.IsDown && !Client.Flags.LockTimer && !Client.Flags.InBounce;
 	if (Client.Flags.Boosting) {
+		if (!WasBoosting) {
+			Client.Sound.Play("Character/BoostCharge");
+			Client.Sound.Play("Character/BoostWind");
+			Client.Sound.Play("Character/BoostStart");
+		}
+
 		Client.Flags.BoostTicks++;
 		Client.Speed = CalculateBoostSpeed(Client);
-	} else if (Client.Flags.BoostTicks > 0) Client.Flags.BoostTicks = 0;
 
-	if (Client.Flags.Boosting && Client.State.Current === Client.State.States.Airborne) Client.Animation.Current = "AirBoost";
+		if (Client.State.Current.GetID() === "StateAirborne") {
+			Client.Animation.Current = "AirBoost";
+			Client.Flags.JumpTimer = 0;
+		}
+	} else if (Client.Flags.BoostTicks > 0) {
+		Client.Flags.BoostTicks = 0;
+		Client.Sound.Stop("Character/BoostCharge");
+		Client.Sound.Stop("Character/BoostWind");
+	}
 }
 
 export function CancelBoost(Client: Client) {

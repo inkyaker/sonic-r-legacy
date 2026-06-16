@@ -1,8 +1,9 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
+import { DecorateState, StateBase } from "./base_state";
 import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
-import { BaseState } from "./state";
+import { CheckSlide } from "./slide";
 
 export function CheckStomp(Client: Client) {
 	if (Client.Input.Button.Stomp.DidPress) {
@@ -15,7 +16,8 @@ export function CheckStomp(Client: Client) {
 	}
 }
 
-export class StateStomp extends BaseState {
+@DecorateState()
+export class StateStomp extends StateBase {
 	public GroundedTicks = 0;
 
 	protected CheckInput(Client: Client) {
@@ -50,8 +52,12 @@ export class StateStomp extends BaseState {
 				Client.Land();
 			} else if (this.GroundedTicks >= 67) Client.State.Current = Client.State.States.Grounded;
 
+			CheckSlide(Client);
 			this.GroundedTicks++;
-		} else Client.Speed = Client.Speed.mul(0.98).WithY(Client.Speed.Y);
+		} else {
+			if (Client.Input.Button.Boost.DidPress) Client.State.Current = Client.State.States.Airborne;
+			Client.Speed = Client.Speed.mul(0.98).WithY(Client.Speed.Y);
+		}
 	}
 
 	protected OnStep(Client: Client) {

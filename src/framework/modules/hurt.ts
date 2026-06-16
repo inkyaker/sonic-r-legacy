@@ -1,13 +1,14 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
+import { DecorateState, StateBase } from "./base_state";
 import { CheckRail } from "./rail";
-import { BaseState } from "./state";
 
 /**
  * @class
- * @augments BaseState
+ * @augments StateBase
  */
-export class StateHurt extends BaseState {
+@DecorateState()
+export class StateHurt extends StateBase {
 	protected CheckInput(Client: Client) {
 		return CheckRail(Client);
 	}

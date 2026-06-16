@@ -498,7 +498,7 @@ export const AnimationSet = {
 };
 
 export const CharacterInfo = {
-	Physics: {
+	Config: {
 		// Collision
 		Height: 5,
 		Scale: 0.6,
@@ -536,6 +536,7 @@ export const CharacterInfo = {
 
 		// Moves
 		HomingForce: { AirDash: new Vector3(6, 1, 0), HomingAttack: 5.25 },
+		SlideTurnRate: math.rad(5),
 
 		// Renderer
 		CameraOffset: 6,
@@ -623,6 +624,9 @@ export const CharacterInfo = {
 		},
 		AirBoost: {
 			0: { AnimationKey: "AirBoost", Looped: true },
+		},
+		Slide: {
+			0: { AnimationKey: "Slide", Looped: true },
 		},
 	} as const satisfies {
 		[Index: string]: {

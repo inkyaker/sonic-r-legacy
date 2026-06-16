@@ -23,7 +23,8 @@ export class Input {
 			Boost: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonX]),
 			Roll: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonR2]),
 			Bounce: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL2]),
-			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]), // TODO: gamepad stomp button
+			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
+			Slide: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
 			Debug: new ButtonState([Enum.KeyCode.One, Enum.KeyCode.DPadUp]),
 		};
 

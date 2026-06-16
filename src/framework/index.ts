@@ -135,7 +135,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	public Flags!: Flags;
 
 	// Character info
-	public Config!: (typeof CharacterInfo)["Physics"];
+	public Config!: (typeof CharacterInfo)["Config"];
 	public Animations!: (typeof CharacterInfo)["Animations"];
 
 	// Modules
@@ -169,7 +169,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.CurrentCFrame = this.LastCFrame;
 		this.RenderCFrame = this.CurrentCFrame;
 
-		this.Config = CharacterInfo.Physics;
+		this.Config = CharacterInfo.Config;
 		this.Animations = CharacterInfo.Animations;
 
 		this.State = new StateMachine(this);
@@ -222,10 +222,10 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Renderer.Draw(this.Character, DeltaTime);
 		this.Camera.Update(DeltaTime);
 
-		this.Sound.Update(this.State.GetStateName(this.State.Current));
+		this.Sound.Update(this.State.Current.GetID());
 
 		this.Controller.Replicator.ReplicateSelf(DrawInfo);
-		this.Controller.Replicator.Draw(DeltaTime)
+		this.Controller.Replicator.Draw(DeltaTime);
 	}
 
 	// Utility functions

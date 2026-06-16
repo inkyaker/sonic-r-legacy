@@ -1,8 +1,8 @@
 import type { Client } from "framework";
 import { Workspace } from "shared/common/globals";
+import { DecorateState, StateBase } from "./base_state";
 import { StepBoost } from "./boost";
 import { CheckJump } from "./jump";
-import { BaseState } from "./state";
 
 /**
  * Rail component interface
@@ -124,11 +124,12 @@ export function CheckRail(Client: Client) {
 /**
  * @class
  * @state
- * @augments BaseState
+ * @augments StateBase
  */
-export class StateRail extends BaseState {
+@DecorateState()
+export class StateRail extends StateBase {
 	public Params: RaycastParams;
-	public Skin: number = 2;
+	public Skin: number = 6;
 
 	constructor() {
 		super();
@@ -211,7 +212,7 @@ export class StateRail extends BaseState {
 			if (!Rail.RailSound) {
 				// Play sounds
 				Client.Sound.Play("Character/GrindContact");
-				Rail.RailSound = Client.Sound.Play("Character/Grind", { BoundState: "Rail" });
+				Rail.RailSound = Client.Sound.Play("Character/Grind", { BoundState: "StateRail" });
 			}
 
 			// Set sound volume

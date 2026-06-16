@@ -1,8 +1,8 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
 import { SignedAngle } from "shared/common/utility/vutil";
+import { DecorateState, StateBase } from "./base_state";
 import { CheckBounce } from "./bounce";
-import { BaseState } from "./state";
 
 /**
  * Function ran in `State.CheckInput`
@@ -40,9 +40,10 @@ export function CheckHomingAttack(Client: Client) {
 
 /**
  * @class
- * @augments BaseState
+ * @augments StateBase
  */
-export class StateHoming extends BaseState {
+@DecorateState()
+export class StateHoming extends StateBase {
 	protected CheckInput(Client: Client) {
 		return CheckBounce(Client);
 	}

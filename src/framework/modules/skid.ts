@@ -1,6 +1,6 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
-import { BaseState } from "./state";
+import { DecorateState, StateBase } from "./base_state";
 
 /**
  * Function ran in `State.CheckInput`
@@ -54,9 +54,10 @@ export function CheckStopSkid(Client: Client) {
 /**
  * @class
  * @state
- * @augments BaseState
+ * @augments StateBase
  */
-export class StateSkid extends BaseState {
+@DecorateState()
+export class StateSkid extends StateBase {
 	protected CheckInput(Client: Client) {
 		return CheckStopSkid(Client);
 	}
