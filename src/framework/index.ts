@@ -17,7 +17,7 @@ import { SoundController } from "./draw/sound";
 import { Rail, SetRail } from "./modules/rail";
 import type BaseObject from "./object/objects/baseobj";
 import { StateMachine } from "./statemachine";
-import { UIMain } from "./ui";
+import type { UIController } from "./ui/ui_controller";
 
 /**
  * Flags list
@@ -144,7 +144,6 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	public Animation!: AnimationController;
 	public Renderer!: Renderer;
 	public Input!: Input;
-	public UI!: UIMain;
 	public Rail!: Rail;
 	public Sound!: SoundController;
 
@@ -153,7 +152,10 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	public GameState!: GameState;
 	public HomingAttack!: HomingAttack;
 
-	constructor(public Controller: GameController) {
+	constructor(
+		public Controller: GameController,
+		public UI: UIController,
+	) {
 		super();
 	}
 
@@ -177,7 +179,6 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Camera = new Camera(this);
 		this.Renderer = new Renderer();
 		this.Input = new Input(this);
-		this.UI = new UIMain();
 		this.Rail = new Rail();
 		this.Sound = new SoundController();
 
@@ -399,11 +400,9 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 
 		if (AngleDiff.Magnitude !== 0) {
 			const Factor = math.abs(this.ToGlobal(this.Speed).Dot(AngleDiff.Unit)) / 5;
-			this.Angle = FromToRotation(this.Angle.LookVector, AngleDiff.Unit);
+			this.SetAngle(FromToRotation(this.Angle.LookVector, AngleDiff.Unit).mul(this.Angle));
 			this.Speed = this.ToLocal(AngleDiff.Unit.mul(-1.125 * (1 - Factor)).add(this.Flags.Gravity.Unit.mul(-1.675 * (1 - Factor / 4))));
-		} else {
-			this.Speed = this.ToLocal(this.Flags.Gravity.Unit.mul(-2.125));
-		}
+		} else this.Speed = this.ToLocal(this.Flags.Gravity.Unit.mul(-2.125));
 
 		if (this.GameState.Shield === "") {
 			if (this.GameState.Rings > 0) {

@@ -30,8 +30,6 @@ export class StateGrounded extends StateBase {
 
 	protected AfterUpdateHook(Client: Client) {
 		if (Client.Ground.Grounded) {
-			StepBoost(Client);
-
 			const Slip = math.sqrt(1);
 			const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Config.CrashSpeed, 1);
 
@@ -45,6 +43,8 @@ export class StateGrounded extends StateBase {
 				Client.State.Current = Client.State.States.Airborne;
 			} else Client.Ground.UngroundedFrames++;
 		}
+
+		StepBoost(Client);
 	}
 
 	protected OnStep(Client: Client) {

@@ -138,9 +138,6 @@ function WallCollide(Client: Client, Y: number, Direction: Vector3, Velocity: nu
  * @param Client
  */
 export function RunCollision(Client: Client) {
-	//Remember previous state
-	const _PreviousSpeed = Client.ToGlobal(Client.Speed);
-
 	//Stick to moving floors
 	if (Client.Ground.Grounded && Client.Ground.Floor && Client.Ground.FloorLast && Client.Ground.FloorOffset) {
 		const PreviousWorld = Client.Ground.FloorLast.mul(Client.Ground.FloorOffset);
@@ -152,7 +149,7 @@ export function RunCollision(Client: Client) {
 		Client.Angle = RightDiff.mul(Client.Angle);
 	}
 
-	for (const _i of $range(1, 4)) {
+	for (const _ of $range(1, 4)) {
 		//Remember previous position
 		const PreviousMiddle = Client.GetMiddle();
 

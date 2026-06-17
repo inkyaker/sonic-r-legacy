@@ -140,47 +140,26 @@ export class Input {
 	 * @returns Current turn value
 	 */
 	public GetTurn() {
-		if (this.Client.Flags.LockTimer > 0) {
-			return 0;
-		}
+		if (this.Client.Flags.LockTimer > 0 || !game.Workspace.CurrentCamera || this.Stick.Magnitude === 0) return 0;
 
-		if (!game.Workspace.CurrentCamera || this.Stick.Magnitude === 0) {
-			return 0;
-		}
+		const CameraUp = Vector3.yAxis;
+		const Look = this.Client.Angle.LookVector;
+		const Up = this.Client.Angle.UpVector;
 
-		//Get character vectors
-		const tgt_up = Vector3.yAxis; // TODO: camera chagne
-		const look = this.Client.Angle.LookVector;
-		const up = this.Client.Angle.UpVector;
+		let [CameraLook] = VUtil.PlaneProject(game.Workspace.CurrentCamera.CFrame.LookVector, CameraUp);
+		if (CameraLook.Magnitude !== 0) CameraLook = CameraLook.Unit;
+		else CameraLook = Look;
+		
+		const CameraTarget = CFrame.fromAxisAngle(CameraUp, math.atan2(-this.Client.Input.Stick.X, -this.Client.Input.Stick.Y)).mul(CameraLook);
+		if (CameraUp.Dot(Up) >= -0.999) this.Client.Flags.LastUp = Up;
 
-		//Get camera angle, aligned to our target up vector
-		let [cam_look] = VUtil.PlaneProject(game.Workspace.CurrentCamera.CFrame.LookVector, tgt_up);
-		if (cam_look.Magnitude !== 0) {
-			cam_look = cam_look.Unit;
-		} else {
-			cam_look = look;
-		}
-		//Get move vector in world space, aligned to our target up vector
-		let cam_move = CFrame.fromAxisAngle(tgt_up, math.atan2(-this.Client.Input.Stick.X, -this.Client.Input.Stick.Y)).mul(cam_look);
+		const FinalRotation = CFUtil.FromToRotation(CameraUp, this.Client.Flags.LastUp);
 
-		//Update last up
-		if (tgt_up.Dot(up) >= -0.999) {
-			this.Client.Flags.LastUp = up;
-		}
+		let [TurnUnsigned] = VUtil.PlaneProject(FinalRotation.mul(CameraTarget), Up);
+		TurnUnsigned = TurnUnsigned.Magnitude === 0 ? Look : TurnUnsigned.Unit;
 
-		//Get final rotation and move vector
-		const final_rotation = CFUtil.FromToRotation(tgt_up, this.Client.Flags.LastUp);
-
-		let [final_move] = VUtil.PlaneProject(final_rotation.mul(cam_move), up);
-		if (final_move.Magnitude !== 0) {
-			final_move = final_move.Unit;
-		} else {
-			final_move = look;
-		}
-
-		//Get turn amount
-		const turn = VUtil.SignedAngle(look, final_move, up);
-		return turn;
+		const Turn = VUtil.SignedAngle(Look, TurnUnsigned, Up);
+		return Turn;
 	}
 
 	/**

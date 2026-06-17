@@ -17,6 +17,9 @@ importers:
       '@flamework/networking':
         specifier: ^1.3.2
         version: 1.3.2(@flamework/core@1.3.2)
+      '@rbxts/charm':
+        specifier: 0.10.0
+        version: 0.10.0
       '@rbxts/deepcopy':
         specifier: ^0.1.3
         version: 0.1.3
@@ -27,8 +30,11 @@ importers:
         specifier: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
         version: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
       '@rbxts/react':
-        specifier: ^17.3.7-ts.1
+        specifier: 17.3.7-ts.1
         version: 17.3.7-ts.1
+      '@rbxts/react-charm':
+        specifier: 0.3.0
+        version: 0.3.0(@rbxts/charm@0.10.0)(@rbxts/react@17.3.7-ts.1)
       '@rbxts/react-roblox':
         specifier: ^17.2.3
         version: 17.2.3
@@ -49,7 +55,7 @@ importers:
         specifier: 2.4.16
         version: 2.4.16
       '@rbxts/compiler-types':
-        specifier: ^3.0.0-types.0
+        specifier: 3.0.0-types.0
         version: 3.0.0-types.0
       '@rbxts/types':
         specifier: github:roblox-ts/types
@@ -61,7 +67,7 @@ importers:
         specifier: 1.3.3
         version: 1.3.3(typescript@5.5.3)
       roblox-ts:
-        specifier: ^3.0.0-dev-9165cde
+        specifier: ^3.0.0
         version: 3.0.0
       typescript:
         specifier: ^5.5.3
@@ -184,6 +190,9 @@ packages:
   '@rbxts-js/timers@1.2.3-ts.1':
     resolution: {integrity: sha512-HKP4ymFX3QLWbR/2Gy4LXwvkhjC9OzbwZ5bNunxu+M8Ocbi1cjRduiZK/y5ogLr9cNIfSoxs6e1DQ3soc8/hwA==}
 
+  '@rbxts/charm@0.10.0':
+    resolution: {integrity: sha512-pcGpNyqNOcJ7r9UbAjFaUqU0F9Q+wCr4/2kUs8L0hh4dVhUN7t6ur4P7zAMzNuMJQG8YP47a9rq0l0/LlhLuow==}
+
   '@rbxts/compiler-types@3.0.0-types.0':
     resolution: {integrity: sha512-VGOHJPoL7+56NTatMGqQj3K7xWuzEV+aP4QD5vZiHu+bcff3kiTmtoadaF6NkJrmwfFAvbsd4Dg764ZjWNceag==}
 
@@ -205,6 +214,12 @@ packages:
   '@rbxts/profilestore@file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz':
     resolution: {integrity: sha512-RDk97vi3jstTsSp/NCXGnVdgnLlsaqTYHQfgHV5jrvmHinNATgGy6x0XOuwMDXE+/FS/6xnNuQjinc3tPo6XGA==, tarball: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz}
     version: 1.0.0
+
+  '@rbxts/react-charm@0.3.0':
+    resolution: {integrity: sha512-w64HoO6SxRSX86yNPiGazPQpR7cWBaWVATK9jkCphLQYmzdUV1BL9pRNN1Y1VMAk/PKiZ1mJdwX3PnwwvLXFvg==}
+    peerDependencies:
+      '@rbxts/charm': 0.10.0
+      '@rbxts/react': '*'
 
   '@rbxts/react-roblox@17.2.3':
     resolution: {integrity: sha512-YgS+C3tf92iM1NTK1f6R2O2G8+nbcKFnblA0mTs2Nt878OsWLgxhnhkCBZ6wYv+yeDGD9/sssKHZ6s2LzUWTrQ==}
@@ -243,7 +258,7 @@ packages:
     resolution: {integrity: sha512-QvBdoecX7b3PQAH/qiKYp11YH559f+Nk9Cvx2/cIdopY1osWIk//2CN669LWIW5oaHLJWsNrogZIZyuxpV68Pg==}
 
   '@rbxts/types@https://codeload.github.com/roblox-ts/types/tar.gz/1c6d3975118689d4e224e9440f5f6dc4c63ef810':
-    resolution: {gitHosted: true, integrity: sha512-VW0jMlnYQ9tu7mGwXIqrMMXrGrM5Y9jHvovWZbZUnIKlze57aJLvkLO0j2txmmPIC5YmgIwmAm4BiAjtnldsFQ==, tarball: https://codeload.github.com/roblox-ts/types/tar.gz/1c6d3975118689d4e224e9440f5f6dc4c63ef810}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/roblox-ts/types/tar.gz/1c6d3975118689d4e224e9440f5f6dc4c63ef810}
     version: 1.0.81
 
   '@rbxts/ui-labs@2.4.2':
@@ -499,8 +514,8 @@ packages:
     resolution: {integrity: sha512-hwAC2frIFlLJOtHd6F+5opMEhBgfAMK9z5l1mP+bykLBbMO5cn1q5lIwhhXbeh9Pq07rlhF8uGHlmeRLPd/3AA==}
     hasBin: true
 
-  semver@7.8.1:
-    resolution: {integrity: sha512-rkVq3IXh+4FDGch+KwzX3aV9W3kO54GyEgpvBzSyctDA6Xtd7RJQV1xmXbeQp5v7+VzLOfVqiutSE6GICgPFvg==}
+  semver@7.8.4:
+    resolution: {integrity: sha512-rUCObTnP32Q08R2uuIrt7r9PlEonuTmtuXYcW6s5kjdlj3xbnwe+21yXptAUYcMAABLkYYTtnmzb3w3EDZfueA==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -696,6 +711,8 @@ snapshots:
     dependencies:
       '@rbxts-js/collections': 1.2.3-ts.1
 
+  '@rbxts/charm@0.10.0': {}
+
   '@rbxts/compiler-types@3.0.0-types.0': {}
 
   '@rbxts/deepcopy@0.1.3': {}
@@ -713,6 +730,11 @@ snapshots:
       '@rbxts/set-timeout': 1.1.2
 
   '@rbxts/profilestore@file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz': {}
+
+  '@rbxts/react-charm@0.3.0(@rbxts/charm@0.10.0)(@rbxts/react@17.3.7-ts.1)':
+    dependencies:
+      '@rbxts/charm': 0.10.0
+      '@rbxts/react': 17.3.7-ts.1
 
   '@rbxts/react-roblox@17.2.3':
     dependencies:
@@ -975,7 +997,7 @@ snapshots:
     dependencies:
       hosted-git-info: 4.1.0
       is-core-module: 2.16.2
-      semver: 7.8.1
+      semver: 7.8.4
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -1016,7 +1038,7 @@ snapshots:
       typescript: 5.5.3
       yargs: 17.7.2
 
-  semver@7.8.1: {}
+  semver@7.8.4: {}
 
   spdx-correct@3.2.0:
     dependencies:

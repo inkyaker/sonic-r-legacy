@@ -96,25 +96,17 @@ export const PhysicsHandler = {
 				if (Client.Speed.X < (Client.Config.JogSpeed + Client.Config.RunSpeed) * 0.5 || AbsoluteTurn <= math.rad(22.5)) {
 					if (Client.Speed.X < Client.Config.JogSpeed || AbsoluteTurn >= math.rad(22.5)) {
 						if (Client.Speed.X < Client.Config.DashSpeed || !Client.Ground.Grounded) {
-							if (Client.Speed.X >= Client.Config.JogSpeed && Client.Speed.X <= Client.Config.RushSpeed && AbsoluteTurn > math.rad(45)) {
-								MovementAcceleration *= 0.8;
-							}
+							if (Client.Speed.X >= Client.Config.JogSpeed && Client.Speed.X <= Client.Config.RushSpeed && AbsoluteTurn > math.rad(45)) MovementAcceleration *= 0.8;
+
 							PhysicsHandler.Turn(Client, Turn, undefined);
-						} else {
-							PhysicsHandler.Turn(Client, Turn, IntertiaState.GROUND_NOFRICT);
-						}
-					} else {
-						PhysicsHandler.Turn(Client, Turn, IntertiaState.GROUND_NOFRICT);
-					}
+						} else PhysicsHandler.Turn(Client, Turn, IntertiaState.GROUND_NOFRICT);
+					} else PhysicsHandler.Turn(Client, Turn, IntertiaState.GROUND_NOFRICT);
 				} else {
 					MovementAcceleration = Client.Config.StandardDeceleration / Friction;
 					PhysicsHandler.Turn(Client, Turn, undefined);
 				}
 			}
-		} else {
-			//Decelerate
-			MovementAcceleration = PhysicsHandler.GetDecel(Client.Speed.X + Acceleration.X, Client.Config.StandardDeceleration);
-		}
+		} else MovementAcceleration = PhysicsHandler.GetDecel(Client.Speed.X + Acceleration.X, Client.Config.StandardDeceleration); // Decelerate
 
 		//Apply movement acceleration
 		Acceleration = Acceleration.add(new Vector3(MovementAcceleration * Friction, 0, 0));
@@ -164,43 +156,29 @@ export const PhysicsHandler = {
 
 	// Gravity
 	ApplyGravity: (Client: Client) => {
-		if (Client.IsScripted()) {
-			return;
-		}
+		if (Client.IsScripted()) return;
 
-		const weight = Client.GetWeight();
-
-		//Get cross product between our moving velocity and floor normal
-		const FloorCrossSpeed = Client.Flags.LastUp.Cross(Client.ToGlobal(Client.Speed)); // TODO: replace with floor normal if needed
-		let GravityAcceleration = Client.ToLocal(Client.Flags.Gravity.mul(weight));
+		const Weight = Client.GetWeight();
+		const FloorCrossSpeed = Client.Angle.UpVector.Cross(Client.ToGlobal(Client.Speed));
+		let GravityAcceleration = Client.ToLocal(Client.Flags.Gravity.mul(Weight));
 		if (Client.Ground.DotProduct < 0.875) {
 			if (Client.Ground.DotProduct >= 0.1 || math.abs(FloorCrossSpeed.Y) <= 0.6 || Client.Speed.X < 1.16) {
-				if (Client.Ground.DotProduct >= -0.4 || Client.Speed.X <= 1.16) {
+				if (Client.Ground.DotProduct >= -0.4 || Client.Speed.X <= 1.16)
 					if (Client.Ground.DotProduct < -0.3 && Client.Speed.X > 1.16) {
 					} else if (Client.Ground.DotProduct < -0.1 && Client.Speed.X > 1.16) {
-					} else if (Client.Ground.DotProduct < 0.5 && math.abs(Client.Speed.X) < Client.Config.RunSpeed) {
+					} else if (Client.Ground.DotProduct < 0.5 && math.abs(Client.Speed.X) < Client.Config.RunSpeed)
 						GravityAcceleration = GravityAcceleration.mul(new Vector3(4.225, 1, 4.225));
-					} else if (Client.Ground.DotProduct >= 0.7 || math.abs(Client.Speed.X) > Client.Config.RunSpeed) {
+					else if (Client.Ground.DotProduct >= 0.7 || math.abs(Client.Speed.X) > Client.Config.RunSpeed)
 						if (Client.Ground.DotProduct >= 0.87 || Client.Config.JogSpeed <= math.abs(Client.Speed.X)) {
-						} else {
-							GravityAcceleration = GravityAcceleration.mul(new Vector3(1, 1, 1.4));
-						}
-					} else {
-						GravityAcceleration = GravityAcceleration.mul(new Vector3(1, 1, 2));
-					}
-				} else {
-				}
-			} else {
-				GravityAcceleration = new Vector3(0, -weight, 0);
-			}
-		} else {
-			GravityAcceleration = new Vector3(0, -weight, 0);
-		}
+						} else GravityAcceleration = GravityAcceleration.mul(new Vector3(1, 1, 1.4));
+					else GravityAcceleration = GravityAcceleration.mul(new Vector3(1, 1, 2));
+			} else GravityAcceleration = new Vector3(0, -Weight, 0);
+		} else GravityAcceleration = new Vector3(0, -Weight, 0);
 
 		Client.Speed = Client.Speed.add(GravityAcceleration);
 	},
 
-	// Movementa
+	// Movement
 	AlignToGravity: (Client: Client) => {
 		if (Client.IsScripted()) return;
 
@@ -215,10 +193,9 @@ export const PhysicsHandler = {
 		if (Turn !== 0) {
 			const MaxTurn = math.rad(11.25);
 			const LimitedTurn = math.clamp(Turn, -MaxTurn, MaxTurn);
-
 			const NextAngle = CFUtil.FromToRotation(From, To).mul(Client.Angle);
 
-			Client.Angle = Client.Angle.Lerp(NextAngle, LimitedTurn / Turn);
+			Client.SetAngle(Client.Angle.Lerp(NextAngle, LimitedTurn / Turn));
 		}
 
 		//Keep using previous speed
@@ -233,7 +210,6 @@ export const PhysicsHandler = {
 			let Gravity = Client.ToLocal(Client.Flags.Gravity.Unit);
 
 			if (Gravity.Y <= 0 && Gravity.Y > -0.87) {
-				// Get turn
 				const Turn = -math.atan2(Gravity.Z, math.abs(Gravity.X));
 				const MaxTurn = math.abs(Gravity.Z) * math.rad(8.4375);
 
