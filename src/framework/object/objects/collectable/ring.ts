@@ -42,6 +42,8 @@ class Ring extends BaseObject<Model> {
 				TweenService.Create(Instance, new TweenInfo(1), { Brightness: Transparency === 1 ? 0 : DefaultBright }).Play();
 			}
 		}
+
+		this.Root.CanQuery = Transparency <= 0;
 	}
 }
 

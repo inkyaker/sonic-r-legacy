@@ -10,13 +10,18 @@ import type { OnDraw, OnRespawn, OnTick, OnTouch } from "./objects/object_implem
 @Controller()
 export class ObjectController implements OnStart {
 	public Params: RaycastParams;
-	public Skin: number = 1;
+	public OverlapParams: OverlapParams;
+	public Skin: number = 3;
 	public Controller!: GameController;
 
 	constructor(private Components: Components) {
 		this.Params = new RaycastParams();
 		this.Params.FilterType = Enum.RaycastFilterType.Include;
 		this.Params.FilterDescendantsInstances = [Workspace.Level.Objects];
+
+		this.OverlapParams = new OverlapParams();
+		this.OverlapParams.FilterType = Enum.RaycastFilterType.Include;
+		this.OverlapParams.FilterDescendantsInstances = [Workspace.Level.Objects];
 	}
 
 	public readonly OnTouchListeners = new Set<OnTouch>();
@@ -50,8 +55,17 @@ export class ObjectController implements OnStart {
 			const Look = CFrame.lookAt(LastPosition, ActiveClient.Position);
 			const Magnitude = LastPosition.Distance(ActiveClient.Position);
 
-			const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
-			if (Cast) this.GetObject(Cast.Instance)?.TouchClient(ActiveClient);
+			// TODO: this works for now but maybe a better solution that isnt iterative
+			const Objects = new Set<BaseObject<Model>>();
+			while (true) {
+				const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
+				if (Cast) {
+					const Object = this.GetObject(Cast.Instance);
+					if (!Object || Objects.has(Object)) break;
+					Object.TouchClient(ActiveClient);
+					Objects.add(Object);
+				} else break;
+			}
 		}
 	}
 

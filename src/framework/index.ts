@@ -3,6 +3,7 @@ import type { OnStart } from "@flamework/core";
 import { CharacterInfo } from "shared/characterinfo";
 import { Constants } from "shared/common/constants";
 import type { CharacterType } from "shared/common/data";
+import { FrameworkState } from "shared/common/frameworkstate";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import { AddLog } from "shared/common/utility/logger";
 import * as Render from "shared/common/utility/renderregistry";
@@ -73,12 +74,27 @@ class GameState {
 	public Rings: number = 0;
 	public Score: number = 0;
 
+	private LastRings: number = 0;
+	private LastScore: number = 0;
+
 	public AddScore(Change: number) {
 		this.Score += Change;
 	}
 
 	public AddRings(Change: number) {
 		this.Rings += Change;
+	}
+
+	public UpdateUI(Client: Client) {
+		if (this.LastRings !== this.Rings) {
+			this.LastRings = this.Rings;
+			Client.UI.Rings(this.Rings);
+		}
+
+		if (this.LastScore !== this.Score) {
+			this.LastScore = this.Score;
+			Client.UI.Score(this.Score);
+		}
 	}
 }
 
@@ -224,6 +240,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Camera.Update(DeltaTime);
 
 		this.Sound.Update(this.State.Current.GetID());
+		this.GameState.UpdateUI(this);
 
 		this.Controller.Replicator.ReplicateSelf(DrawInfo);
 		this.Controller.Replicator.Draw(DeltaTime);
@@ -408,15 +425,30 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 			if (this.GameState.Rings > 0) {
 				//TODO: spilled rings
 				this.GameState.Rings = 0;
-			} else {
-				//TODO: die
-				this.State.Current = this.State.States.None;
-				ClientEvents.Respawn();
-			}
-		} else {
-			this.GameState.Shield = "";
-		}
+			} else this.Respawn();
+		} else this.GameState.Shield = "";
 
 		return true;
+	}
+
+	/**
+	 * Kill and respawn the character
+	 * @param KeepLives If true, skip decrementing lives
+	 */
+	public Respawn(KeepLives?: boolean) {
+		this.State.Current = this.State.States.None;
+
+		if (!KeepLives) {
+			let Lives = FrameworkState.Lives();
+
+			if (Lives <= 1)
+				// TODO: gameover
+				Lives = 5;
+			else Lives--;
+
+			FrameworkState.Lives(Lives);
+		}
+
+		ClientEvents.Respawn();
 	}
 }
