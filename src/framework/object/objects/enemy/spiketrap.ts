@@ -86,9 +86,8 @@ class SpikeTrap extends BaseObject<Model> {
 	}
 
 	public OnTouch(Client: Client) {
-		if (!this.Enabled) {
-			return;
-		}
+		if (!this.Enabled || Client.Flags.Invulnerability > 0) return;
+
 		this.Debounce = 30;
 
 		Client.Damage(this.Root.Position);

@@ -418,13 +418,13 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Flags.HurtTime = math.floor(0.65 * Constants.Tickrate);
 		this.Flags.Invulnerability = math.floor(2.75 * Constants.Tickrate);
 		this.State.Current = this.State.States.Hurt;
+		this.Ground.Grounded = false;
 
-		const [AngleDiff] = PlaneProject(Source ? Source.sub(this.GetMiddle()) : this.Angle.LookVector, this.Flags.Gravity.Unit.mul(-1));
+		const [Direction] = PlaneProject(Source ? Source.sub(this.GetMiddle()) : this.Angle.LookVector, this.Flags.Gravity.Unit.mul(-1));
 
-		if (AngleDiff.Magnitude !== 0) {
-			const Factor = math.abs(this.ToGlobal(this.Speed).Dot(AngleDiff.Unit)) / 5;
-			this.SetAngle(FromToRotation(this.Angle.LookVector, AngleDiff.Unit).mul(this.Angle));
-			this.Speed = this.ToLocal(AngleDiff.Unit.mul(-1.125 * (1 - Factor)).add(this.Flags.Gravity.Unit.mul(-1.675 * (1 - Factor / 4)))).mul(2.25);
+		if (Direction.Magnitude !== 0) {
+			this.SetAngle(FromToRotation(this.Angle.LookVector, Direction.Unit).mul(this.Angle));
+			this.Speed = this.ToLocal(Direction.Unit.mul(-1.75).add(Vector3.yAxis.mul(1.25)));
 		} else this.Speed = this.ToLocal(this.Flags.Gravity.Unit.mul(-2.125));
 
 		this.Animation.Current = "Hurt";
@@ -433,7 +433,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 			if (this.GameState.Rings > 0) {
 				//TODO: spilled rings
 				this.GameState.Rings = 0;
-			} else this.Respawn();
+			} else this.State.States.Hurt.ShouldDie = true;
 		} else this.GameState.Shield = "";
 
 		return true;
