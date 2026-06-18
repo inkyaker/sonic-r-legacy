@@ -23,18 +23,15 @@ export class Camera {
 		this.Client = Client;
 		this.InputVector = Vector3.xAxis;
 		this.CenterPos = Client.GetMiddle();
-		
+
 		this.OffsetSpringPos = Vector3.zero;
 		this.OffsetSpringVelocity = Vector3.zero;
 
 		this.InputChanged = UserInputService.InputChanged.Connect((Input, Processed) => {
-			if (Processed) {
-				return;
-			}
+			if (Processed) return;
 
-			if (Input.UserInputType === Enum.UserInputType.MouseWheel) {
+			if (Input.UserInputType === Enum.UserInputType.MouseWheel)
 				this.Zoom = math.clamp(this.Zoom - Input.Position.Z * 4, Players.LocalPlayer.CameraMinZoomDistance, Players.LocalPlayer.CameraMaxZoomDistance);
-			}
 		});
 	}
 
@@ -50,9 +47,7 @@ export class Camera {
 
 		const GPState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1);
 		GPState.forEach((Value) => {
-			if (Value.KeyCode === Enum.KeyCode.Thumbstick2) {
-				JoyRight = new Vector2(Value.Position.X, Value.Position.Y);
-			}
+			if (Value.KeyCode === Enum.KeyCode.Thumbstick2) JoyRight = new Vector2(Value.Position.X, Value.Position.Y);
 		});
 
 		const RotatingCamera = (UserInputService.IsMouseButtonPressed(Enum.UserInputType.MouseButton2) && UserInputService.GetMouseDelta().Magnitude > 0) || JoyRight.Magnitude > 0.15;
@@ -78,7 +73,7 @@ export class Camera {
 		const BaseTargetCenter = RenderCFrame.Position.add(RenderCFrame.UpVector.mul(this.Client.Config.CameraOffset));
 		const Speed = this.Client.ToGlobal(this.Client.Speed).mul(-0.5);
 		const TargetOffset = Speed.LimitDistance(3);
-		const Force = 2 / .15;
+		const Force = 2 / 0.15;
 		const Force2 = Force * DeltaTime;
 		const Exp = 1 / (1 + Force2 + 0.48 * Force2 ** 2 + 0.235 * Force2 ** 3);
 

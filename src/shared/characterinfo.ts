@@ -312,10 +312,10 @@ export const AnimationSet = {
 		SuperShadow: "106901567473836",
 	},
 	Roll: {
-		Sonic: "117789009990286",
-		SuperSonic: "117789009990286",
-		Shadow: "117789009990286",
-		SuperShadow: "88639522961554",
+		Sonic: "114987115923718",
+		SuperSonic: "114987115923718",
+		Shadow: "114987115923718",
+		SuperShadow: "114987115923718",
 	},
 	RollExit: {
 		Sonic: "72179406493851",
@@ -390,10 +390,10 @@ export const AnimationSet = {
 		SuperShadow: "113394243807708",
 	},
 	Spindash: {
-		Sonic: "117789009990286",
-		SuperSonic: "117789009990286",
-		Shadow: "117789009990286",
-		SuperShadow: "117789009990286",
+		Sonic: "114987115923718",
+		SuperSonic: "114987115923718",
+		Shadow: "114987115923718",
+		SuperShadow: "114987115923718",
 	},
 	SpindashStart: {
 		Sonic: "124723429511175",
@@ -516,6 +516,8 @@ export const CharacterInfo = {
 		DashSpeed: 5.09,
 		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
 		RollGetup: 1.39, // Point at which the roll state should uncurl you
+		TurnStartSpeed: 2, // Minimum speed before your turn rate starts degrading
+		TurnDecayRate: .425,
 
 		// Acceleration
 		AirAcceleration: 0.031,
@@ -557,7 +559,7 @@ export const CharacterInfo = {
 			0: { AnimationKey: "Idle", Looped: true },
 		},
 		Roll: {
-			0: { AnimationKey: "Spindash", Looped: true, Speed: { Base: 0.25, Increment: 1 / 8, Absolute: true } },
+			0: { AnimationKey: "Roll", Looped: true, Speed: { Base: 0.65, Increment: 1 / 4, Absolute: true } },
 		},
 		Spindash: {
 			0: { AnimationKey: "Spindash", Looped: true },

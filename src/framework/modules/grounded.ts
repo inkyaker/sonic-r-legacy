@@ -46,11 +46,4 @@ export class StateGrounded extends StateBase {
 
 		StepBoost(Client);
 	}
-
-	protected OnStep(Client: Client) {
-		if (Client.Flags.Boosting && ![Client.State.States.Grounded, Client.State.States.Airborne, Client.State.States.Rail].includes(Client.State.Current as StateGrounded)) {
-			Client.Flags.Boosting = false;
-			Client.Flags.BoostTicks = 0;
-		}
-	}
 }

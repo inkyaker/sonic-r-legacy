@@ -309,6 +309,11 @@ export const PhysicsHandler = {
 
 		MaxTurn = math.abs(MaxTurn);
 
+		if (Client.Speed.X > Client.Config.TurnStartSpeed) {
+			const SpeedDelta = Client.Speed.X - Client.Config.TurnStartSpeed;
+			MaxTurn = MaxTurn * math.exp(-Client.Config.TurnDecayRate * SpeedDelta);
+		}
+
 		//Turn
 		PhysicsHandler.TurnRaw(Client, math.clamp(Turn, -MaxTurn, MaxTurn));
 

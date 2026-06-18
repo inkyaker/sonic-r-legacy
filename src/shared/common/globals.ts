@@ -1,4 +1,4 @@
-import { Workspace as workspace } from "@rbxts/services";
+import { SoundService as Sounds, Workspace as workspace } from "@rbxts/services";
 
 export const Workspace = workspace as Workspace & {
 	Level: Folder & {
@@ -11,3 +11,10 @@ export const Workspace = workspace as Workspace & {
 		Water: Folder;
 	};
 };
+
+export const SoundService = Sounds as SoundService & {
+	CharacterSFX: SoundGroup,
+	Music: SoundGroup,
+	ObjectSFX: SoundGroup,
+	
+}

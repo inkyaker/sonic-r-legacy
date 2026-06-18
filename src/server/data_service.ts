@@ -2,6 +2,7 @@ import { type OnStart, Service } from "@flamework/core";
 import { type Profile, ProfileStore } from "@rbxts/profilestore";
 import { Players } from "@rbxts/services";
 import { type DataFormat, DataTemplate, DataVersion } from "shared/common/data";
+import { ServerEvents } from "./server_networking";
 
 function Key(Player: Player) {
 	return `${Player.UserId}`;
@@ -13,7 +14,7 @@ export type DataProfile = Profile<string, DataFormat, DataService["Store"]>;
 
 @Service()
 export class DataService implements OnStart {
-	public Profiles = new Map<Player, DataProfile>();
+	public Profiles: Record<number, DataProfile> = {};
 	public Store = new ProfileStore("PlayerData", DataTemplate);
 
 	public onStart() {
@@ -36,20 +37,28 @@ export class DataService implements OnStart {
 		Profile.Reconcile();
 
 		Profile.OnSessionEnd.Connect(() => {
-			this.Profiles.delete(Player);
+			delete this.Profiles[Player.UserId];
 			Player.Kick("Game session ended\nCode: 000B");
 		});
 
 		if (Player.IsDescendantOf(Players)) {
 			this.MigrateData(Profile);
 
-			this.Profiles.set(Player, Profile);
+			this.Profiles[Player.UserId] = Profile;
+			this.ReplicateProfile(Player);
 		} else Profile.EndSession();
 	}
 
+	public ReplicateProfile(Player: Player) {
+		const Profile = this.Profiles[Player.UserId];
+		if (!Profile) return;
+
+		ServerEvents.ReplicateProfile(Player, Profile.Data);
+	}
+
 	public PlayerRemoving(Player: Player) {
-		this.Profiles.get(Player)?.EndSession();
-		this.Profiles.delete(Player);
+		this.Profiles[Player.UserId]?.EndSession();
+		delete this.Profiles[Player.UserId];
 	}
 
 	public MigrateData(Profile: DataProfile) {

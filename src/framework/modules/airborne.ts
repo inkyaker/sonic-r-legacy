@@ -45,6 +45,8 @@ export class StateAirborne extends StateBase {
 			} else {
 				Client.Sound.Play("Character/Land");
 
+				// TODO: Client.Animation.Current = Client.Speed.X > 0.5 ? "LandMoving" : Client.Speed.Y <= -6 ? "Land" : "LandShort";
+				// reason its not here is becuase i need to work out the animation transition timing (manual endanimation event?)
 				Client.Animation.Current = Client.Speed.Y <= -6 ? "Land" : "LandShort";
 
 				Client.State.Current = Client.State.States.Grounded;

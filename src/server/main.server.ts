@@ -17,7 +17,7 @@ export class ServerService implements OnStart {
 
 		Players.PlayerAdded.Connect((Player) => {
 			let Profile: DataProfile;
-			while (!((Profile = this.Data.Profiles.get(Player)!) || !Player.IsDescendantOf(Players))) task.wait(0.1);
+			while (!((Profile = this.Data.Profiles[Player.UserId]!) || !Player.IsDescendantOf(Players))) task.wait(0.1);
 			if (!Player.IsDescendantOf(Players)) return;
 
 			this.SpawnCharacter(Player);
@@ -25,7 +25,7 @@ export class ServerService implements OnStart {
 	}
 
 	public SpawnCharacter(Player: Player) {
-		const Profile = this.Data.Profiles.get(Player);
+		const Profile = this.Data.Profiles[Player.UserId];
 		if (!Profile) return;
 
 		const Type = Profile.Data.Character;
@@ -40,7 +40,7 @@ export class ServerService implements OnStart {
 		Character.Name = Player.Name;
 		Character.Parent = Workspace;
 		Character.PivotTo(CFrame.identity.add(Vector3.yAxis.mul(10)));
-		Character.SetAttribute("CharacterType", Type)
+		Character.SetAttribute("CharacterType", Type);
 
 		Player.Character = Character;
 	}

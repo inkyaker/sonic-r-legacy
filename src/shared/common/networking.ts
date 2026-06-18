@@ -1,4 +1,5 @@
 import { Networking } from "@flamework/networking";
+import type { DataFormat } from "./data";
 
 export interface UpdatePacket {
 	PeerId: number;
@@ -16,6 +17,7 @@ interface CTSEvents {
 
 interface STCEvents {
 	Update: Networking.Unreliable<(Data: UpdatePacket) => void>;
+	ReplicateProfile(Data: DataFormat): void;
 }
 
 interface CTSFunctions {}
