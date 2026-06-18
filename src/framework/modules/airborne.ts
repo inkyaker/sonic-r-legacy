@@ -45,11 +45,18 @@ export class StateAirborne extends StateBase {
 			} else {
 				Client.Sound.Play("Character/Land");
 
-				Client.Animation.Current = Client.Speed.Y <= -6 ? "Land" : "LandShort"
+				Client.Animation.Current = Client.Speed.Y <= -6 ? "Land" : "LandShort";
 
 				Client.State.Current = Client.State.States.Grounded;
 				Client.Land();
 			}
 		} else StepBoost(Client);
+	}
+
+	protected OnStep(Client: Client) {
+		if (Client.Flags.InBounce && Client.State.Current.GetID() !== "StateAirborne") {
+			Client.Flags.InBounce = false;
+			Client.Flags.Bounces = 0;
+		}
 	}
 }
