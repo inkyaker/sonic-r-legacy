@@ -14,9 +14,7 @@ class Ring extends BaseObject<Model> {
 	public Triggered: boolean = false;
 
 	public OnTouch(Client: Client) {
-		if (this.Triggered) {
-			return;
-		}
+		if (this.Triggered) return;
 		this.Triggered = true;
 
 		Client.Sound.Play("Object/Ring/Activate");

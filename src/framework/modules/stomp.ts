@@ -11,6 +11,7 @@ export function CheckStomp(Client: Client) {
 		Client.State.Current = Client.State.States.Stomp;
 
 		Client.Animation.Current = "Stomp";
+		Client.Sound.Play("Character/StompStart");
 
 		return true;
 	}
@@ -46,7 +47,8 @@ export class StateStomp extends StateBase {
 			Client.Speed = Client.Speed.mul(0.225);
 
 			if (this.GroundedTicks === 0) {
-				Client.Sound.Play("Character/Land");
+				Client.Sound.Stop("Character/StompStart");
+				Client.Sound.Play("Character/StompLand");
 
 				Client.Animation.Current = "StompLand";
 				Client.Land();
