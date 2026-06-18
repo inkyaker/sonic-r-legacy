@@ -51,7 +51,7 @@ export class SoundController {
 			for (const [Index, Target] of pairs(this.Registry)) {
 				if (Target.GetAttribute("Class") === Sound.GetAttribute("Class")) {
 					Target.Destroy();
-					this.Registry[Index - 1] = undefined as unknown as Sound;
+					delete this.Registry[Index - 1];
 				}
 			}
 		}
@@ -59,21 +59,14 @@ export class SoundController {
 		this.Registry.push(Sound);
 
 		task.spawn(() => {
-			if (!Sound.IsLoaded) {
-				Sound.Loaded.Wait();
-			}
+			if (!Sound.IsLoaded) Sound.Loaded.Wait();
 
 			Sound.Play();
 
-			if (Sound.Looped) {
-				return;
-			}
-
+			if (Sound.Looped) return;
 			task.wait(Sound.TimeLength);
 
-			if (Sound && Sound.Parent === SoundService) {
-				Sound.Destroy();
-			}
+			if (Sound && Sound.Parent === SoundService) Sound.Destroy();
 		});
 
 		return Sound;
@@ -85,16 +78,13 @@ export class SoundController {
 		}
 
 		const Sound = Config.Target || this.PathToSound(Path);
-		if (!Sound) {
-			return;
-		}
+		if (!Sound) return;
 
 		const Class = Sound.GetAttribute("Class");
-
 		this.Registry.find((Source, Index) => {
 			if ((Sound && Source === Sound) || Source.GetAttribute("Class") === Class) {
-				this.Registry[Index - 1] = undefined as unknown as Sound;
 				Source.Destroy();
+				this.Registry[Index] = undefined as unknown as Sound;
 
 				return true;
 			}
@@ -136,8 +126,8 @@ export class SoundController {
 
 			if (State && State !== Current) {
 				Sound.Destroy();
-				this.Registry[Index - 1] = undefined as unknown as Sound;
-			}
+				delete this.Registry[Index - 1];
+			} else if (Sound.Parent !== SoundService) delete this.Registry[Index - 1];
 		}
 	}
 }
