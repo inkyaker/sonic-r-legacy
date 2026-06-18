@@ -20,9 +20,9 @@ export class Input {
 		this.Client = Client;
 		this.Button = {
 			Jump: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA]),
-			Boost: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonX]),
-			Roll: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonR2]),
-			Bounce: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonL2]),
+			Boost: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX]),
+			Roll: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonR2]),
+			Bounce: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonL2]),
 			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
 			Slide: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
 			Debug: new ButtonState([Enum.KeyCode.One, Enum.KeyCode.DPadUp]),
