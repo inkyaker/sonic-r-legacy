@@ -1,8 +1,10 @@
 import { ReplicatedStorage } from "@rbxts/services";
+import type { CharacterType } from "shared/common/data";
 import { Workspace } from "shared/common/globals";
 import type { AssetsDir, RS } from "shared/common/types";
 import type { Client } from "..";
 import { BallTrail } from "./render_parts/ball_trail";
+import { BoostAura } from "./render_parts/boost_aura";
 import { JumpBall } from "./render_parts/jump_ball";
 
 const PI = math.pi;
@@ -13,16 +15,22 @@ const TAU = PI * 2;
  * @class
  */
 export class Renderer {
+	// Draw Information
 	public Angle: CFrame = CFrame.identity;
 	public Position: Vector3 = Vector3.zero;
-	public Assets: AssetsDir;
-	public BallTrail;
-	public JumpBall;
 	public CharacterVisible: boolean = true;
 	public DrawInfo: DrawInfo = PackDrawInfo();
+
+	// Assets
+	public Assets: AssetsDir;
 	public ModelParent: Model;
 
-	constructor() {
+	// Render Parts
+	public BallTrail;
+	public JumpBall;
+	public BoostAura;
+
+	constructor(public CharacterType: CharacterType) {
 		this.Assets = (ReplicatedStorage as RS).Assets.Models.Player;
 
 		this.ModelParent = new Instance("Model");
@@ -31,6 +39,7 @@ export class Renderer {
 
 		this.BallTrail = new BallTrail(this, this.ModelParent);
 		this.JumpBall = new JumpBall(this, this.ModelParent);
+		this.BoostAura = new BoostAura(this, this.ModelParent);
 	}
 
 	/**
@@ -44,10 +53,13 @@ export class Renderer {
 		Character.PivotTo(Pivot);
 
 		this.BallTrail.SetVisible(this.DrawInfo.BallTrailEnabled, Pivot);
-		if (this.BallTrail.Visible) this.BallTrail.Update(Pivot.Position);
+		this.BallTrail.Update(Pivot.Position);
 
 		this.JumpBall.SetVisible(this.DrawInfo.JumpBallEnabled, Pivot);
-		if (this.JumpBall.Visible) this.JumpBall.Update(Pivot, DeltaTime, this.DrawInfo.BallRotationSpeed);
+		this.JumpBall.Update(Pivot, DeltaTime, this.DrawInfo.BallRotationSpeed);
+
+		this.BoostAura.SetVisible(this.DrawInfo.BoostEnabled)
+		this.BoostAura.Update(Pivot, DeltaTime)
 	}
 
 	public SetVisible(Character: Model, Visible: boolean) {
@@ -71,6 +83,7 @@ export function PackDrawInfo(Client?: Client) {
 				Angle: Client.RenderCFrame.Rotation.mul(CFrame.Angles(Client.Animation.Current === "AirBoost" ? math.clamp(Client.Speed.Y / 8, -1, 1) : 0, 0, 0)),
 				JumpBallEnabled: Client.Flags.BallEnabled && Client.Animation.Current === "Roll",
 				BallTrailEnabled: Client.Flags.TrailEnabled,
+				BoostEnabled: Client.Flags.Boosting,
 				BallRotationSpeed: Client.Animation.GetRate(Client) * TAU,
 			}
 		: {
@@ -79,6 +92,7 @@ export function PackDrawInfo(Client?: Client) {
 				Angle: CFrame.identity,
 				JumpBallEnabled: false,
 				BallTrailEnabled: false,
+				BoostEnabled: false,
 				BallRotationSpeed: 0,
 			};
 }

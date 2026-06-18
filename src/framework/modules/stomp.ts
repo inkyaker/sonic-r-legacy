@@ -1,12 +1,15 @@
 import type { Client } from "framework";
 import { PhysicsHandler } from "framework/physics/physics";
 import { DecorateState, StateBase } from "./base_state";
+import { CancelBoost } from "./boost";
 import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
 import { CheckSlide } from "./slide";
 
 export function CheckStomp(Client: Client) {
 	if (Client.Input.Button.Stomp.DidPress) {
+		CancelBoost(Client);
+		Client.ExitBall();
 		Client.Speed = Client.Speed.WithY(-6);
 		Client.State.Current = Client.State.States.Stomp;
 

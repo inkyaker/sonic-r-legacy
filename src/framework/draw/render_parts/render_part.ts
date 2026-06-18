@@ -2,7 +2,7 @@ import type { Renderer } from "../renderer";
 
 export class RenderPart {
 	public Model!: Model;
-	public Visible = false;
+	public Visible = true;
 
 	// biome-ignore lint/complexity/noUselessConstructor: <required>
 	// biome-ignore lint/correctness/noUnusedFunctionParameters: <required>

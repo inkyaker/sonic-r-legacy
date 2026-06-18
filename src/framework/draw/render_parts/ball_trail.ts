@@ -3,8 +3,6 @@ import type { Renderer } from "../renderer";
 import { RenderPart } from "./render_part";
 
 export class BallTrail extends RenderPart {
-	public Model: Model;
-	public Visible = true;
 
 	constructor(Renderer: Renderer, Parent: Instance) {
 		super(Renderer, Parent);

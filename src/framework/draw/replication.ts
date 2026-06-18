@@ -2,6 +2,7 @@ import { Controller, type OnStart } from "@flamework/core";
 import { Players } from "@rbxts/services";
 import { Trash } from "@rbxts/trash";
 import { ClientEvents } from "framework/client_networking";
+import type { CharacterType } from "shared/common/data";
 import type { UpdatePacket } from "shared/common/networking";
 import { type DrawInfo, PackDrawInfo, Renderer } from "./renderer";
 
@@ -11,7 +12,7 @@ import { type DrawInfo, PackDrawInfo, Renderer } from "./renderer";
  */
 export class Peer {
 	public DrawInfo: DrawInfo = PackDrawInfo(undefined);
-	public Renderer: Renderer;
+	public Renderer: Renderer | undefined;
 	public Character: Model | undefined;
 	public Bin = new Trash();
 
@@ -25,17 +26,20 @@ export class Peer {
 			this.Bin.add(Player.CharacterRemoving.Connect(() => this.CharacterRemoving()));
 		} else error(`Failed to find player for peer id ${PeerId}!`);
 
-		this.Renderer = new Renderer();
 		this.Update(InitialData);
-		this.Renderer.DrawInfo = this.DrawInfo;
 	}
 
 	public CharacterAdded(Character: Model) {
 		this.Character = Character;
+
+		this.Renderer = new Renderer(Character.GetAttribute("CharacterType") as CharacterType);
+		this.Renderer.DrawInfo = this.DrawInfo;
 	}
 
 	public CharacterRemoving() {
 		this.Character = undefined;
+		this.Renderer?.Destroy();
+		this.Renderer = undefined;
 	}
 
 	public Update(Data: UpdatePacket["Data"]) {
@@ -43,7 +47,7 @@ export class Peer {
 	}
 
 	public Draw(DeltaTime: number) {
-		if (!this.Character) return;
+		if (!this.Character || !this.Renderer) return;
 
 		this.Renderer.DrawInfo = this.DrawInfo;
 		this.Renderer.Draw(this.Character, DeltaTime);
@@ -52,7 +56,6 @@ export class Peer {
 	public Destroy() {
 		this.Bin.destroy();
 		this.CharacterRemoving();
-		this.Renderer.Destroy();
 	}
 }
 

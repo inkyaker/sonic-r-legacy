@@ -198,7 +198,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.State = new StateMachine(this);
 		this.Animation = new AnimationController(this);
 		this.Camera = new Camera(this);
-		this.Renderer = new Renderer();
+		this.Renderer = new Renderer(this.attributes.CharacterType);
 		this.Input = new Input(this);
 		this.Rail = new Rail();
 		this.Sound = new SoundController();

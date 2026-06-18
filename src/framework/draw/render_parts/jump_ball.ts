@@ -6,10 +6,8 @@ const TAU = PI * 2;
 
 export class JumpBall extends RenderPart {
 	public Spin: number = 0;
-	public Model: Model;
 	public Smear: BasePart;
-	public Visible = true;
-
+	
 	constructor(Renderer: Renderer, Parent: Instance) {
 		super(Renderer, Parent);
 
