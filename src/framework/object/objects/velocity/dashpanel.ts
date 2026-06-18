@@ -22,9 +22,7 @@ class DashPanel extends BaseObject<Model> {
 	public HomingTarget = true;
 	public HomingWeight = 0.67;
 
-	public onStart() {
-		this.SetupModel();
-
+	public OnStart() {
 		this.Data = Attributes<Data>(this.Object);
 
 		this.Speed = this.Data.Speed;

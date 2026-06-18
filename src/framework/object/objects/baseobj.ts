@@ -3,7 +3,7 @@ import type { OnStart } from "@flamework/core";
 import type { Client } from "framework";
 import { Connector } from "shared/common/class/connector";
 import { AddLog } from "shared/common/utility/logger";
-import type { OnDraw, OnRespawn, OnTick, OnTouch } from "./object_implementables";
+import type { OnDraw, OnObjectStart, OnRespawn, OnTick, OnTouch } from "./object_implementables";
 
 /**
  * @class
@@ -12,7 +12,15 @@ import type { OnDraw, OnRespawn, OnTick, OnTouch } from "./object_implementables
 @Component({
 	refreshAttributes: false,
 })
-class BaseObject<T extends Model> extends BaseComponent<{}, T> implements OnStart, OnTick, OnDraw, OnTouch, OnRespawn {
+class BaseObject<T extends Model>
+	extends BaseComponent<
+		{
+			UniqueID: string;
+		},
+		T
+	>
+	implements OnObjectStart, OnStart, OnTick, OnDraw, OnTouch, OnRespawn
+{
 	public HomingTarget = false;
 	public HomingWeight = 1;
 
@@ -32,11 +40,12 @@ class BaseObject<T extends Model> extends BaseComponent<{}, T> implements OnStar
 		this.Root = Object.PrimaryPart!;
 	}
 
-	/**
-	 * You **MUST** call {@link BaseObject.SetupModel} if overriding.
-	 */
 	public onStart() {
 		this.SetupModel();
+	}
+
+	public OnStart(Data?: unknown) {
+		if (Data) this.Deserialize(Data);
 	}
 
 	public OnTick(_GetClient: () => Client) {
@@ -79,7 +88,25 @@ class BaseObject<T extends Model> extends BaseComponent<{}, T> implements OnStar
 		this.OnRespawn();
 	}
 
-	public Destroy() {}
+	/**
+	 * this function MUST act as a destroy/cleanup function
+	 */
+	public OnStreamOut() {
+		this.Connections.Disconnect();
+	}
+
+	/**
+	 * called on object deload to save its persistent data
+	 */
+	public Serialize(): unknown {
+		return {};
+	}
+
+	/**
+	 * load object's persistent state from data (sourced from {@link Serialize})
+	 * @param Data
+	 */
+	public Deserialize(_Data: unknown) {}
 }
 
 export = BaseObject;

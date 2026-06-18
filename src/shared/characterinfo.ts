@@ -544,7 +544,14 @@ export const CharacterInfo = {
 
 	Animations: {
 		Land: {
-			0: { AnimationKey: "Land", Looped: true },
+			0: { AnimationKey: "Land", Looped: false },
+		},
+		LandShort: {
+			0: { AnimationKey: "LandShort", Looped: false },
+		},
+		LandMoving: {
+			0: { AnimationKey: "LandRoll", Looped: false },
+			EndAnimation: "Run"
 		},
 		Idle: {
 			0: { AnimationKey: "Idle", Looped: true },
@@ -627,6 +634,12 @@ export const CharacterInfo = {
 		},
 		Slide: {
 			0: { AnimationKey: "Slide", Looped: true },
+		},
+		Hurt: {
+			0: { AnimationKey: "Hurt", Looped: true },
+		},
+		Die: {
+			0: { AnimationKey: "Die", Looped: false },
 		},
 	} as const satisfies {
 		[Index: string]: {

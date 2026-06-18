@@ -20,3 +20,10 @@ export interface OnRespawn {
 	OnRespawn(): void;
 	Respawn(): void;
 }
+
+export interface OnObjectStart {
+	/**
+	 * @param Data persistent data
+	 */
+	OnStart(Data?: unknown): void;
+}

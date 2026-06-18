@@ -14,8 +14,8 @@ export class StateHurt extends StateBase {
 	}
 
 	protected BeforeUpdateHook(Client: Client) {
-		PhysicsHandler.ApplyInertia(Client);
 		PhysicsHandler.AlignToGravity(Client);
+		PhysicsHandler.ApplyGravity(Client);
 		Client.Ground.Grounded = false;
 	}
 

@@ -45,6 +45,8 @@ export class StateAirborne extends StateBase {
 			} else {
 				Client.Sound.Play("Character/Land");
 
+				Client.Animation.Current = Client.Speed.Y <= -6 ? "Land" : "LandShort"
+
 				Client.State.Current = Client.State.States.Grounded;
 				Client.Land();
 			}

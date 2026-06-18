@@ -23,9 +23,7 @@ class Spring extends BaseObject<Model> {
 	public HomingTarget = true;
 	public HomingWeight = 2;
 
-	public onStart() {
-		this.SetupModel();
-
+	public OnStart() {
 		this.Data = Attributes<Data>(this.Object);
 
 		this.Force = this.Data.Force;

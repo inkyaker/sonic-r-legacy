@@ -109,7 +109,7 @@ export function CheckRail(Client: Client) {
 	const LastPosition = Client.LastCFrame.Position;
 
 	if (LastPosition !== Client.Position) {
-		const Look = LastPosition.sub(Client.Position).Unit;
+		const Look = CFrame.lookAt(LastPosition, Client.Position).LookVector;
 		const Magnitude = LastPosition.Distance(Client.Position);
 
 		const Cast = Workspace.Spherecast(LastPosition.sub(Look.mul(Rail.Skin)), Rail.Skin, Look.mul(Magnitude + Rail.Skin), Rail.Params);
@@ -129,7 +129,7 @@ export function CheckRail(Client: Client) {
 @DecorateState()
 export class StateRail extends StateBase {
 	public Params: RaycastParams;
-	public Skin: number = 6;
+	public Skin: number = 3;
 
 	constructor() {
 		super();
@@ -207,28 +207,18 @@ export class StateRail extends StateBase {
 
 			return;
 		}
-		
-		//Move
+
 		Rail.RailOffset = Rail.RailOffset.mul(0.8);
 
 		//Run sound
 		const Active = RailActive(Client);
 		if (Active) {
 			if (!Rail.RailSound) {
-				// Play sounds
 				Client.Sound.Play("Character/GrindContact");
 				Rail.RailSound = Client.Sound.Play("Character/Grind", { BoundState: "StateRail" });
 			}
 
-			// Set sound volume
-			if (Rail.RailSound) {
-				Rail.RailSound.Volume = math.sqrt(math.abs(Client.Speed.X) / 8);
-			}
-		} else {
-			if (Rail.RailSound) {
-				Client.Sound.Stop("Character/GrindContact");
-				Client.Sound.Stop("Character/Grind");
-			}
+			if (Rail.RailSound) Rail.RailSound.Volume = math.sqrt(math.abs(Client.Speed.X) / 8);
 		}
 
 		//Set animation

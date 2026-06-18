@@ -17,9 +17,7 @@ class DamageBox extends BaseObject<Model> {
 	public Enabled: boolean = true;
 	public Data!: Attributes<Data>;
 
-	public onStart() {
-		this.SetupModel();
-
+	public OnStart() {
 		this.Data = Attributes<Data>(this.Object);
 		this.Enabled = this.Data.Enabled;
 		this.Connections.Add(this.Data("Enabled").Connect(() => (this.Enabled = this.Data.Enabled)));

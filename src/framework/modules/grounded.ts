@@ -13,7 +13,7 @@ import { CheckSlide } from "./slide";
  */
 @DecorateState()
 export class StateGrounded extends StateBase {
-	private LockedAnimations = new Set(["LandMoving", "Land", "JogStart"]);
+	private LockedAnimations = new Set(["LandMoving", "JogStart"]);
 
 	protected CheckInput(Client: Client) {
 		return CheckJump(Client) || CheckSkid(Client) || CheckSlide(Client) || CheckRail(Client);

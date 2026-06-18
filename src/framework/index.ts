@@ -1,5 +1,6 @@
 import { BaseComponent, Component } from "@flamework/components";
 import type { OnStart } from "@flamework/core";
+import { Players } from "@rbxts/services";
 import { CharacterInfo } from "shared/characterinfo";
 import { Constants } from "shared/common/constants";
 import type { CharacterType } from "shared/common/data";
@@ -19,6 +20,8 @@ import { Rail, SetRail } from "./modules/rail";
 import type BaseObject from "./object/objects/baseobj";
 import { StateMachine } from "./statemachine";
 import type { UIController } from "./ui/ui_controller";
+
+const Player = Players.LocalPlayer;
 
 /**
  * Flags list
@@ -173,6 +176,8 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		public UI: UIController,
 	) {
 		super();
+
+		this.Controller.Object.Respawn();
 	}
 
 	public onStart() {
@@ -222,8 +227,10 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * Update Client once per frame, **do not run this method if you do not know what you're doing!**
 	 */
 	public Update(DeltaTime: number) {
-		// Angle reset
+		if (Player.GameplayPaused) return;
+
 		if (this.PreviousAngle !== this.Angle) {
+			// Angle reset
 			this.SetGroundRelative();
 			this.PreviousAngle = this.Angle;
 		}
@@ -404,12 +411,11 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * @param Source Origin Position
 	 */
 	public Damage(Source: Vector3) {
-		// TODO: invincibility
 		if (this.Flags.Invulnerability > 0) return;
 
 		this.ResetObjectState();
 		this.ExitBall();
-		this.Flags.HurtTime = math.floor(1.5 * Constants.Tickrate);
+		this.Flags.HurtTime = math.floor(0.65 * Constants.Tickrate);
 		this.Flags.Invulnerability = math.floor(2.75 * Constants.Tickrate);
 		this.State.Current = this.State.States.Hurt;
 
@@ -418,8 +424,10 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		if (AngleDiff.Magnitude !== 0) {
 			const Factor = math.abs(this.ToGlobal(this.Speed).Dot(AngleDiff.Unit)) / 5;
 			this.SetAngle(FromToRotation(this.Angle.LookVector, AngleDiff.Unit).mul(this.Angle));
-			this.Speed = this.ToLocal(AngleDiff.Unit.mul(-1.125 * (1 - Factor)).add(this.Flags.Gravity.Unit.mul(-1.675 * (1 - Factor / 4))));
+			this.Speed = this.ToLocal(AngleDiff.Unit.mul(-1.125 * (1 - Factor)).add(this.Flags.Gravity.Unit.mul(-1.675 * (1 - Factor / 4)))).mul(2.25);
 		} else this.Speed = this.ToLocal(this.Flags.Gravity.Unit.mul(-2.125));
+
+		this.Animation.Current = "Hurt";
 
 		if (this.GameState.Shield === "") {
 			if (this.GameState.Rings > 0) {

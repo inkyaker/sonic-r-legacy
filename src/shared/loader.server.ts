@@ -15,7 +15,7 @@
 */
 import type { Components } from "@flamework/components";
 import { Controller, Flamework, type OnStart } from "@flamework/core";
-import { Players } from "@rbxts/services";
+import { GuiService, Players } from "@rbxts/services";
 import type { Client } from "framework";
 import type { PlayerReplicator } from "framework/draw/replication";
 import type { ObjectController } from "framework/object/object_controller";
@@ -24,6 +24,8 @@ import type { ObjectController } from "framework/object/object_controller";
 if (!game.IsLoaded()) {
 	game.Loaded.Wait();
 }
+
+GuiService.SetGameplayPausedNotificationEnabled(false);
 
 @Controller()
 export class GameController implements OnStart {

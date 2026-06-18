@@ -21,9 +21,7 @@ class DashRing extends BaseObject<Model> {
 	public Rainbow = false;
 	public Data!: Attributes<Data>;
 
-	public onStart() {
-		this.SetupModel();
-
+	public OnStart() {
 		this.Data = Attributes<Data>(this.Object);
 
 		this.Speed = this.Data.Speed;

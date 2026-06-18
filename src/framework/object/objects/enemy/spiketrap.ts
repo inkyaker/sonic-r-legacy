@@ -23,9 +23,7 @@ class SpikeTrap extends BaseObject<Model> {
 	public Permanant: boolean = false;
 	public Enabled: boolean = false;
 
-	public onStart() {
-		this.SetupModel();
-
+	public OnStart() {
 		this.Data = Attributes<Data>(this.Object);
 		this.CycleLength = this.Data.CycleLength;
 		this.Permanant = this.Data.Permanant;

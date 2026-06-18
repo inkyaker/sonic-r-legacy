@@ -3,9 +3,7 @@ import { Controller, Dependency, Modding, type OnStart } from "@flamework/core";
 import { Workspace } from "shared/common/globals";
 import type { GameController } from "shared/loader.server";
 import type BaseObject from "./objects/baseobj";
-import type { OnDraw, OnRespawn, OnTick, OnTouch } from "./objects/object_implementables";
-
-// TODO: on respawn w/ proper support for streaming (serializing object data?)
+import type { OnDraw, OnObjectStart, OnRespawn, OnTick, OnTouch } from "./objects/object_implementables";
 
 @Controller()
 export class ObjectController implements OnStart {
@@ -13,6 +11,7 @@ export class ObjectController implements OnStart {
 	public OverlapParams: OverlapParams;
 	public Skin: number = 3;
 	public Controller!: GameController;
+	public ObjectDataCache: Record<string, unknown> = {};
 
 	constructor(private Components: Components) {
 		this.Params = new RaycastParams();
@@ -42,8 +41,18 @@ export class ObjectController implements OnStart {
 
 		Modding.onListenerAdded<OnRespawn>((Obj) => this.OnRespawnListeners.add(Obj));
 		Modding.onListenerRemoved<OnRespawn>((Obj) => this.OnRespawnListeners.delete(Obj));
+		Modding.onListenerAdded<OnObjectStart>((Obj) => Obj.OnStart(this.ObjectDataCache[(Obj as unknown as BaseObject<Model>).attributes.UniqueID]));
 
 		this.Controller = Dependency<GameController>(); // antipattern!
+
+		this.Components.onComponentRemoved<BaseObject<Model>>((Object) => {
+			const ID = Object.attributes.UniqueID;
+			const Data = Object.Serialize();
+			
+			this.ObjectDataCache[ID] = Data;
+			
+			Object.OnStreamOut()
+		});
 	}
 
 	public CollideWithClient() {
@@ -83,5 +92,9 @@ export class ObjectController implements OnStart {
 	public GetObject(Collider: BasePart) {
 		const Model = Collider.FindFirstAncestorOfClass("Model");
 		if (Model) return this.Components.getComponents<BaseObject<Model>>(Model)[0];
+	}
+
+	public Respawn() {
+		for (const Object of this.OnRespawnListeners) task.spawn(() => Object.Respawn());
 	}
 }
