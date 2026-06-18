@@ -15,6 +15,5 @@ export const Workspace = workspace as Workspace & {
 export const SoundService = Sounds as SoundService & {
 	CharacterSFX: SoundGroup,
 	Music: SoundGroup,
-	ObjectSFX: SoundGroup,
-	
+	ObjectSFX: SoundGroup,	
 }

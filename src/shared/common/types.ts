@@ -6,6 +6,10 @@ export type AssetsDir = Folder & {
 	JumpBall: Model;
 	BallTrail: Model;
 	SpindashBall: Model;
+
+	Boost: Folder & {
+		[K in CharacterType as `${K}Boost`]: Model;
+	};
 };
 
 export type RS = ReplicatedStorage & {

@@ -1,96 +1,12 @@
-import { ReplicatedStorage, Workspace } from "@rbxts/services";
+import { ReplicatedStorage } from "@rbxts/services";
+import { Workspace } from "shared/common/globals";
 import type { AssetsDir, RS } from "shared/common/types";
-import { FromToRotation } from "shared/common/utility/cfutil";
 import type { Client } from "..";
+import { BallTrail } from "./render_parts/ball_trail";
+import { JumpBall } from "./render_parts/jump_ball";
 
 const PI = math.pi;
 const TAU = PI * 2;
-
-class JumpBall {
-	public Spin: number = 0;
-	public Model: Model;
-	public Smear: BasePart;
-	public Visible = true;
-
-	constructor(Renderer: Renderer) {
-		this.Model = Renderer.Assets.JumpBall.Clone();
-		this.Model.Parent = Workspace.CurrentCamera;
-
-		this.Smear = this.Model.WaitForChild("Smear") as BasePart;
-
-		this.SetVisible(false);
-	}
-
-	public GetSpin() {
-		return CFrame.Angles(-this.Spin, 0, 0);
-	}
-
-	public Update(Pivot: CFrame, DeltaTime: number, Speed: number) {
-		this.Spin = (this.Spin + DeltaTime * Speed) % TAU;
-
-		this.Model.PivotTo(Pivot.mul(this.GetSpin()));
-		this.Smear.LocalTransparencyModifier = 1 - math.clamp((math.abs(Speed) - 20) / 50, 0, 1);
-	}
-
-	public SetVisible(Visible: boolean, CFrame?: CFrame) {
-		if (this.Visible !== Visible) {
-			this.Visible = Visible;
-
-			if (this.Visible && CFrame) {
-				this.Model.PivotTo(CFrame.mul(this.GetSpin()));
-			}
-
-			for (const [_, Instance] of pairs(this.Model.GetDescendants())) if (Instance.IsA("BasePart")) Instance.LocalTransparencyModifier = this.Visible ? 0 : 1;
-		}
-	}
-
-	public Destroy() {
-		this.Model.Destroy();
-	}
-}
-
-class BallTrail {
-	public Model: Model;
-	public Visible = true;
-
-	constructor(Renderer: Renderer) {
-		this.Model = Renderer.Assets.BallTrail.Clone();
-		this.Model.Parent = Workspace.CurrentCamera;
-
-		this.SetVisible(false);
-	}
-
-	public Update(Position: Vector3) {
-		if (this.Visible) {
-			const Pivot = this.Model.GetPivot();
-			const PreviousPos = Pivot.Position;
-
-			if (Position !== PreviousPos) {
-				const Look = Pivot.LookVector;
-				let Diff = Position.sub(PreviousPos).Unit;
-				if (Look.Dot(Diff) < 0) {
-					Diff = Diff.mul(-1);
-				}
-
-				const RotationDiff = FromToRotation(Look, Diff).mul(Pivot.Rotation);
-				this.Model.PivotTo(RotationDiff.add(Position));
-			}
-		}
-	}
-
-	public SetVisible(Visible: boolean, CFrame?: CFrame) {
-		if (this.Visible !== Visible) {
-			this.Visible = Visible;
-
-			if (this.Visible && CFrame) this.Model.PivotTo(CFrame);
-			for (const [_, Instance] of pairs(this.Model.GetDescendants())) if (Instance.IsA("Trail")) Instance.Enabled = this.Visible;
-		}
-	}
-
-	public Destroy() {
-		this.Model.Destroy();
-	}
-}
 
 /**
  * Client renderer
@@ -104,12 +20,17 @@ export class Renderer {
 	public JumpBall;
 	public CharacterVisible: boolean = true;
 	public DrawInfo: DrawInfo = PackDrawInfo();
+	public ModelParent: Model;
 
 	constructor() {
 		this.Assets = (ReplicatedStorage as RS).Assets.Models.Player;
 
-		this.BallTrail = new BallTrail(this);
-		this.JumpBall = new JumpBall(this);
+		this.ModelParent = new Instance("Model");
+		this.ModelParent.Name = `DrawModels`;
+		this.ModelParent.Parent = Workspace.CurrentCamera!;
+
+		this.BallTrail = new BallTrail(this, this.ModelParent);
+		this.JumpBall = new JumpBall(this, this.ModelParent);
 	}
 
 	/**
