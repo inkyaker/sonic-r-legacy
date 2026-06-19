@@ -1,16 +1,23 @@
+import { BallTrailColors } from "shared/common/globals";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import type { Renderer } from "../renderer";
 import { RenderPart } from "./render_part";
 
 export class BallTrail extends RenderPart {
-
 	constructor(Renderer: Renderer, Parent: Instance) {
 		super(Renderer, Parent);
 
 		this.Model = Renderer.Assets.BallTrail.Clone();
 		this.Model.Parent = Parent;
 
+		this.SetTrailColor(BallTrailColors[Renderer.CharacterType]);
 		this.SetVisible(false);
+	}
+
+	public SetTrailColor(Color: Color3) {
+		this.Model.GetDescendants().forEach((Instance) => {
+			if (Instance.IsA("Trail")) Instance.Color = new ColorSequence(Color);
+		});
 	}
 
 	public Update(Position: Vector3) {

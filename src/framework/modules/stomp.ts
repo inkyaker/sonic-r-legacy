@@ -11,6 +11,7 @@ export function CheckStomp(Client: Client) {
 		CancelBoost(Client);
 		Client.Speed = Client.Speed.WithY(-6);
 		Client.State.Current = Client.State.States.Stomp;
+		Client.State.States.Stomp.HasGrounded = false;
 
 		Client.Animation.Current = "Stomp";
 		Client.Sound.Play("Character/StompStart");
@@ -22,6 +23,7 @@ export function CheckStomp(Client: Client) {
 @DecorateState()
 export class StateStomp extends StateBase {
 	public GroundedTicks = 0;
+	public HasGrounded = false;
 
 	protected CheckInput(Client: Client) {
 		return (Client.Ground.Grounded && CheckJump(Client)) || CheckRail(Client);
@@ -45,7 +47,9 @@ export class StateStomp extends StateBase {
 	protected AfterUpdateHook(Client: Client) {
 		if (Client.Animation.Current === "Roll") Client.Animation.Speed = Client.Speed.Magnitude;
 
-		if (Client.Ground.Grounded) {
+		if (Client.Ground.Grounded && !this.HasGrounded) this.HasGrounded = true;
+
+		if (this.HasGrounded) {
 			Client.Speed = Client.Speed.mul(0.225);
 
 			if (this.GroundedTicks === 0) {
@@ -56,7 +60,7 @@ export class StateStomp extends StateBase {
 				Client.Land();
 			} else if (this.GroundedTicks >= 67) Client.State.Current = Client.State.States.Grounded;
 
-			CheckSlide(Client);
+			if (Client.Ground.Grounded) CheckSlide(Client);
 			this.GroundedTicks++;
 		} else {
 			if (Client.Input.Button.Boost.DidPress) Client.State.Current = Client.State.States.Airborne;

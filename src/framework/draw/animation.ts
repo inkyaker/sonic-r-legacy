@@ -1,5 +1,6 @@
 import { deepCopy as DeepCopy } from "@rbxts/deepcopy";
-import { AnimationSet, type InferredAnimation, type SetAnimation, type ValidAnimation } from "shared/characterinfo";
+import type { InferredAnimation, SetAnimation, ValidAnimation } from "shared/characterinfo";
+import { AnimationSet } from "shared/common/globals";
 import type { Client } from "..";
 
 /**
