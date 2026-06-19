@@ -72,6 +72,8 @@ export class Renderer {
 	public Destroy() {
 		this.JumpBall.Destroy();
 		this.BallTrail.Destroy();
+
+		this.ModelParent.Destroy()
 	}
 }
 
