@@ -517,7 +517,7 @@ export const CharacterInfo = {
 		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
 		RollGetup: 1.39, // Point at which the roll state should uncurl you
 		TurnStartSpeed: 2, // Minimum speed before your turn rate starts degrading
-		TurnDecayRate: .425,
+		TurnDecayRate: .425, // Turning decay rate
 
 		// Acceleration
 		AirAcceleration: 0.031,

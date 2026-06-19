@@ -7,7 +7,7 @@ const TAU = PI * 2;
 export class JumpBall extends RenderPart {
 	public Spin: number = 0;
 	public Smear: BasePart;
-	
+
 	constructor(Renderer: Renderer, Parent: Instance) {
 		super(Renderer, Parent);
 
@@ -24,10 +24,12 @@ export class JumpBall extends RenderPart {
 	}
 
 	public Update(Pivot: CFrame, DeltaTime: number, Speed: number) {
-		this.Spin = (this.Spin + DeltaTime * Speed) % TAU;
+		if (this.Visible) {
+			this.Spin = (this.Spin + DeltaTime * Speed) % TAU;
 
-		this.Model.PivotTo(Pivot.mul(this.GetSpin()));
-		this.Smear.LocalTransparencyModifier = 1 - math.clamp((math.abs(Speed) - 20) / 50, 0, 1);
+			this.Model.PivotTo(Pivot.mul(this.GetSpin()));
+			this.Smear.LocalTransparencyModifier = 1 - math.clamp((math.abs(Speed) - 20) / 50, 0, 1);
+		}
 	}
 
 	public SetVisible(Visible: boolean, CFrame?: CFrame) {
