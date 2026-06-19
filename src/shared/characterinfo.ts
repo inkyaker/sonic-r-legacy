@@ -312,10 +312,10 @@ export const AnimationSet = {
 		SuperShadow: "106901567473836",
 	},
 	Roll: {
-		Sonic: "91074696048681",
-		SuperSonic: "91074696048681",
-		Shadow: "91074696048681",
-		SuperShadow: "91074696048681",
+		Sonic: "97858070637548",
+		SuperSonic: "97858070637548",
+		Shadow: "97858070637548",
+		SuperShadow: "97858070637548",
 	},
 	RollExit: {
 		Sonic: "72179406493851",
@@ -390,10 +390,10 @@ export const AnimationSet = {
 		SuperShadow: "113394243807708",
 	},
 	Spindash: {
-		Sonic: "91074696048681",
-		SuperSonic: "91074696048681",
-		Shadow: "91074696048681",
-		SuperShadow: "91074696048681",
+		Sonic: "97858070637548",
+		SuperSonic: "97858070637548",
+		Shadow: "97858070637548",
+		SuperShadow: "97858070637548",
 	},
 	SpindashStart: {
 		Sonic: "124723429511175",
