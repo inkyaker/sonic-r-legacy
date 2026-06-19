@@ -517,7 +517,7 @@ export const CharacterInfo = {
 		CrashSpeed: 3.7, // Used in Grounded's acceleration animation speed check
 		RollGetup: 1.39, // Point at which the roll state should uncurl you
 		TurnStartSpeed: 2, // Minimum speed before your turn rate starts degrading
-		TurnDecayRate: .425, // Turning decay rate
+		TurnDecayRate: 0.425, // Turning decay rate
 
 		// Acceleration
 		AirAcceleration: 0.031,
@@ -553,7 +553,7 @@ export const CharacterInfo = {
 		},
 		LandMoving: {
 			0: { AnimationKey: "LandRoll", Looped: false },
-			EndAnimation: "Run"
+			EndAnimation: "Run",
 		},
 		Idle: {
 			0: { AnimationKey: "Idle", Looped: true },
@@ -630,6 +630,7 @@ export const CharacterInfo = {
 		},
 		StompLand: {
 			0: { AnimationKey: "Land", Looped: false },
+			EndAnimation: "Fall",
 		},
 		AirBoost: {
 			0: { AnimationKey: "AirBoost", Looped: true },
