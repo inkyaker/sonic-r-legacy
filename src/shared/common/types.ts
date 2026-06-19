@@ -3,7 +3,9 @@ import type { CharacterType } from "./data";
 export type Getter<T> = () => T;
 
 export type AssetsDir = Folder & {
-	JumpBall: Model;
+	JumpBall: Folder & {
+		[K in CharacterType as `${K}JumpBall`]: Model;
+	};
 	BallTrail: Model;
 	SpindashBall: Model;
 

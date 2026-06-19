@@ -10,7 +10,7 @@ export class JumpBall extends RenderPart {
 	constructor(Renderer: Renderer, Parent: Instance) {
 		super(Renderer, Parent);
 
-		this.Model = Renderer.Assets.JumpBall.Clone();
+		this.Model = Renderer.Assets.JumpBall[`${Renderer.CharacterType}JumpBall`].Clone();
 		this.Model.Parent = Parent;
 
 		this.SetVisible(false);
@@ -25,7 +25,6 @@ export class JumpBall extends RenderPart {
 			this.Spin = (this.Spin + DeltaTime * Speed) % TAU;
 
 			this.Model.PivotTo(Pivot.mul(this.GetSpin()));
-			this.Model.GetChildren().forEach((Part) => ((Part as BasePart).LocalTransparencyModifier = 1 - math.clamp((math.abs(Speed) - 20) / 50, 0, 1)));
 		}
 	}
 
@@ -33,11 +32,14 @@ export class JumpBall extends RenderPart {
 		if (this.Visible !== Visible) {
 			this.Visible = Visible;
 
-			if (this.Visible && CFrame) {
-				this.Model.PivotTo(CFrame.mul(this.GetSpin()));
-			}
+			if (this.Visible && CFrame) this.Model.PivotTo(CFrame.mul(this.GetSpin()));
 
-			for (const [_, Instance] of pairs(this.Model.GetDescendants())) if (Instance.IsA("BasePart")) Instance.LocalTransparencyModifier = this.Visible ? 0 : 1;
+			for (const [_, Instance] of pairs(this.Model.GetDescendants()))
+				if (Instance.IsA("BasePart")) Instance.LocalTransparencyModifier = this.Visible ? .15 : 1;
+				else if (Instance.IsA("ParticleEmitter")) {
+					Visible ? Instance.Emit(2) : Instance.Clear();
+					Instance.Enabled = Visible;
+				}
 		}
 	}
 
