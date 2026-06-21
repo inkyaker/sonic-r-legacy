@@ -11,6 +11,8 @@ export function CalculateBoostSpeed(Client: Client) {
 }
 
 export function StepBoost(Client: Client) {
+	Client.Flags._BoostTicked = true;
+	
 	const WasBoosting = Client.Flags.Boosting;
 	Client.Flags.Boosting = Client.Input.Button.Boost.IsDown && !Client.Flags.LockTimer && !Client.Flags.InBounce;
 	if (Client.Flags.Boosting) {
@@ -27,14 +29,13 @@ export function StepBoost(Client: Client) {
 			Client.Animation.Current = "AirBoost";
 			Client.Flags.JumpTimer = 0;
 		}
-	} else if (Client.Flags.BoostTicks > 0) {
-		Client.Flags.BoostTicks = 0;
-		Client.Sound.Stop("Character/BoostCharge");
-		Client.Sound.Stop("Character/BoostWind");
-	}
+	} else if (Client.Flags.BoostTicks > 0) CancelBoost(Client);
 }
 
 export function CancelBoost(Client: Client) {
+	Client.Sound.Stop("Character/BoostCharge");
+	Client.Sound.Stop("Character/BoostWind");
+
 	Client.Flags.Boosting = false;
 	Client.Flags.BoostTicks = 0;
 }

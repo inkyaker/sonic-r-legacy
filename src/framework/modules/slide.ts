@@ -7,7 +7,7 @@ import { CheckJump } from "./jump";
 import { CheckRail } from "./rail";
 
 export function CheckSlide(Client: Client) {
-	if (Client.Input.Button.Slide.IsDown && !Client.Input.Button.Boost.IsDown) {
+	if (Client.Input.Button.Slide.IsDown) {
 		Client.Speed = Client.Speed.WithX(math.max(Client.Speed.X, 4));
 		Client.State.Current = Client.State.States.Slide;
 

@@ -1,6 +1,7 @@
 import { FrameworkState } from "shared/common/frameworkstate";
 import type { Client } from ".";
 import type { StateBase } from "./modules/base_state";
+import { CancelBoost } from "./modules/boost";
 import { StateList } from "./states";
 
 /**
@@ -32,14 +33,17 @@ export class StateMachine {
 	/**
 	 * Internal method for ticking the current state
 	 */
-	private TickState() {
-		this.Current.CheckMoves(this.Client);
+	private TickCurrentState() {
+		this.Client.Flags._BoostTicked = false; // TODO: move to some sort of client.pretick method if i end up needing more of these, thigns.
 
+		this.Current.CheckMoves(this.Client);
 		this.Current.Tick(this.Client);
 
 		if (this.LastState !== this.Current) {
 			this.LastState = this.Current;
 		}
+
+		if (!this.Client.Flags._BoostTicked && this.Client.Flags.Boosting) CancelBoost(this.Client);
 	}
 
 	/**
@@ -72,11 +76,11 @@ export class StateMachine {
 				this.Client.Speed = this.Client.Speed.mul(new Vector3(1, -1, 0));
 			}
 
-			// Objects
+			// Tick character
 			this.Client.Controller.Object.TickObjects();
-			this.TickState();
+			this.TickCurrentState();
 
-			// Character state
+			// Step states
 			for (const [_, State] of pairs(this.States)) State.Step(this.Client);
 
 			this.TickTimer--;

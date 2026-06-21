@@ -62,6 +62,7 @@ class Flags {
 	public ForceKeepTime = 0;
 	public InWater = false; // TODO: implement water
 
+	public _BoostTicked = false;
 	public Boosting = false;
 	public BoostTicks = 0;
 }
