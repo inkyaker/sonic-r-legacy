@@ -56,10 +56,10 @@ export class StateHoming extends StateBase {
 		const Center = Collider.Position;
 		const Look = Center.sub(Client.Position).mul(new Vector3(1, 0, 1)).Unit;
 
-		const MaxTurn = math.rad(35.25) * (1 + Client.HomingAttack.Timer / 180);
+		const MaxTurn = math.rad(65) * (1 + Client.HomingAttack.Timer / 180);
 		const Turn = SignedAngle(Client.Angle.LookVector, Look, Vector3.yAxis);
 
-		PhysicsHandler.Turn(Client, math.clamp(Turn, -MaxTurn, MaxTurn));
+		PhysicsHandler.TurnRaw(Client, math.clamp(Turn, -MaxTurn, MaxTurn));
 
 		const ObjectPos = new CFrame(Client.Position).mul(Client.Angle).Inverse().mul(Center);
 		const ObjectPosSpeed = new CFrame(Client.Position.add(Client.ToGlobal(Client.Speed.mul(Client.Config.Scale)))).mul(Client.Angle).Inverse().mul(Center);
