@@ -5,6 +5,7 @@ import type { AssetsDir, RS } from "shared/common/types";
 import type { Client } from "..";
 import { BallTrail } from "./render_parts/ball_trail";
 import { BoostAura } from "./render_parts/boost_aura";
+import { Effects } from "./render_parts/effects";
 import { JumpBall } from "./render_parts/jump_ball";
 
 const PI = math.pi;
@@ -29,6 +30,7 @@ export class Renderer {
 	public BallTrail;
 	public JumpBall;
 	public BoostAura;
+	public Effects;
 
 	constructor(public CharacterType: CharacterType) {
 		this.Assets = (ReplicatedStorage as RS).Assets.Models.Player;
@@ -40,6 +42,7 @@ export class Renderer {
 		this.BallTrail = new BallTrail(this, this.ModelParent);
 		this.JumpBall = new JumpBall(this, this.ModelParent);
 		this.BoostAura = new BoostAura(this, this.ModelParent);
+		this.Effects = new Effects(this, this.ModelParent);
 	}
 
 	/**
@@ -58,8 +61,11 @@ export class Renderer {
 		this.JumpBall.SetVisible(this.DrawInfo.JumpBallEnabled, Pivot);
 		this.JumpBall.Update(Pivot, DeltaTime, this.DrawInfo.BallRotationSpeed);
 
-		this.BoostAura.SetVisible(this.DrawInfo.BoostEnabled)
-		this.BoostAura.Update(Pivot, DeltaTime)
+		this.BoostAura.SetVisible(this.DrawInfo.BoostEnabled);
+		this.BoostAura.Update(Pivot, DeltaTime);
+
+		this.Effects.Update(Pivot);
+		this.Effects.UpdateEffects(this.DrawInfo);
 	}
 
 	public SetVisible(Character: Model, Visible: boolean) {
@@ -73,7 +79,7 @@ export class Renderer {
 		this.JumpBall.Destroy();
 		this.BallTrail.Destroy();
 
-		this.ModelParent.Destroy()
+		this.ModelParent.Destroy();
 	}
 }
 
@@ -87,6 +93,9 @@ export function PackDrawInfo(Client?: Client) {
 				BallTrailEnabled: Client.Flags.TrailEnabled,
 				BoostEnabled: Client.Flags.Boosting,
 				BallRotationSpeed: Client.Animation.GetRate(Client) * TAU,
+
+				StompEnabled: Client.State.Current.GetID() === "StateStomp" && !Client.State.States.Stomp.HasGrounded,
+				SlideEnabled: Client.State.Current.GetID() === "StateSlide",
 			}
 		: {
 				YOffset: 0,
@@ -96,6 +105,9 @@ export function PackDrawInfo(Client?: Client) {
 				BallTrailEnabled: false,
 				BoostEnabled: false,
 				BallRotationSpeed: 0,
+
+				StompEnabled: false,
+				SlideEnabled: false,
 			};
 }
 

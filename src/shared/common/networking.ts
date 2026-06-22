@@ -13,6 +13,7 @@ export interface UpdatePacket {
 interface CTSEvents {
 	Respawn(): void;
 	Update: Networking.Unreliable<(Data: UpdatePacket) => void>;
+	RunEffect: Networking.Unreliable<(EffectName: string) => void>;
 }
 
 interface STCEvents {
