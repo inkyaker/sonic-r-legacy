@@ -42,6 +42,8 @@ export class StateAirborne extends StateBase {
 				Client.Flags.Bounces++;
 
 				Client.Flags.InBounce = false;
+				Client.Sound.Play("Character/Bounce")
+				Client.Sound.Play("Character/BounceHard")
 			} else {
 				Client.Sound.Play("Character/Land");
 
