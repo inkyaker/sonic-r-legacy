@@ -30,7 +30,7 @@
     "@rbxts/profilestore": "file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz",
     "@rbxts/react": "17.3.7-ts.1",
     "@rbxts/react-charm": "0.4.0-rc.4",
-    "@rbxts/react-roblox": "^17.3.7-ts.1",
+    "@rbxts/react-roblox": "^17.3.7-ts.2",
     "@rbxts/ripple": "^0.10.2",
     "@rbxts/services": "^1.6.0",
     "@rbxts/t": "3.2.1",

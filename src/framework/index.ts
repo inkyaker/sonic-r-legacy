@@ -73,23 +73,83 @@ class Flags {
  * @ClientComponent
  */
 class GameState {
+	constructor(Client: Client) {
+		Client.UI.Rings(this.Rings);
+		Client.UI.Score(this.Score);
+		Client.UI.ScoreMult(this.Mult);
+	}
+
 	public Shield: string = "";
 	public Power: string = "";
-	public Rings: number = 0;
-	public Score: number = 0;
+	public Rings = 0;
+	public Score = 0;
 
-	private LastRings: number = 0;
-	private LastScore: number = 0;
+	/**
+	 * set automatically as an addition of all other mult types
+	 */
+	public Mult = 1;
+
+	/**
+	 * score multiplier tied directly to rings, decremented on damage, increased for every 10 rings gotten
+	 */
+	public RingMult = 0;
+
+	/**
+	 * direct score multiplier based on objects, decrements by 1 every 2.5 seconds and after 5 cycles will fully expire and reset
+	 */
+	public DirectMult = 0;
+	private LastDirectMult = 0;
+	private DirectMultFails = 0;
+
+	// UI
+	private LastRings = 0;
+	private LastScore = 0;
+	private LastMult = 0;
 
 	public AddScore(Change: number) {
-		this.Score += Change;
+		this.Score += Change * this.Mult;
+		if (Change < 0) this.ResetMult();
 	}
 
 	public AddRings(Change: number) {
 		this.Rings += Change;
+
+		const Mult = math.floor(this.Rings / 10);
+		if (this.RingMult !== Mult) {
+			this.RingMult = Mult;
+			this.UpdateMult();
+		}
 	}
 
-	public UpdateUI(Client: Client) {
+	public UpdateMult() {
+		this.Mult = 1 + (this.DirectMult + this.RingMult);
+	}
+
+	public ResetMult() {
+		this.DirectMult = 0;
+		this.RingMult = 0;
+		this.UpdateMult();
+	}
+
+	public AddMult(Change: number) {
+		this.DirectMult = math.max(this.DirectMult + Change, 0);
+		if (Change > 0) this.DirectMultFails = 0;
+
+		this.LastDirectMult = os.clock();
+		this.UpdateMult();
+	}
+
+	public Update(Client: Client) {
+		if (this.DirectMult > 0 && os.clock() - this.LastDirectMult >= 2.5) {
+			this.DirectMultFails++;
+
+			if (this.DirectMultFails >= 5) {
+				this.DirectMult = 0;
+				this.DirectMultFails = 0;
+				this.UpdateMult();
+			} else this.AddMult(-1);
+		}
+
 		if (this.LastRings !== this.Rings) {
 			this.LastRings = this.Rings;
 			Client.UI.Rings(this.Rings);
@@ -98,6 +158,11 @@ class GameState {
 		if (this.LastScore !== this.Score) {
 			this.LastScore = this.Score;
 			Client.UI.Score(this.Score);
+		}
+
+		if (this.LastMult !== this.Mult) {
+			this.LastMult = this.Mult;
+			Client.UI.ScoreMult(this.Mult);
 		}
 	}
 }
@@ -207,12 +272,13 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Ground = new Ground();
 
 		this.Flags = new Flags();
-		this.GameState = new GameState();
+		this.GameState = new GameState(this);
 		this.HomingAttack = new HomingAttack();
 
 		Render.RegisterStepped("Client", Enum.RenderPriority.Input.Value + 1, (DeltaTime) => this.Update(DeltaTime));
 
 		this.PreviousAngle = CFrame.identity;
+		this.UI.CharacterType(this.attributes.CharacterType);
 
 		AddLog(`Loaded new Client ${this.Character}`);
 	}
@@ -248,7 +314,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Camera.Update(DeltaTime);
 
 		this.Sound.Update(this.State.Current.GetID());
-		this.GameState.UpdateUI(this);
+		this.GameState.Update(this);
 
 		this.Controller.Replicator.ReplicateSelf(DrawInfo);
 		this.Controller.Replicator.Draw(DeltaTime);
@@ -433,7 +499,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		if (this.GameState.Shield === "") {
 			if (this.GameState.Rings > 0) {
 				//TODO: spilled rings
-				this.GameState.Rings = 0;
+				this.GameState.AddRings(-this.GameState.Rings);
 			} else this.State.States.Hurt.ShouldDie = true;
 		} else this.GameState.Shield = "";
 

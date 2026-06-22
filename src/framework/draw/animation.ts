@@ -1,6 +1,6 @@
 import { deepCopy as DeepCopy } from "@rbxts/deepcopy";
 import type { InferredAnimation, SetAnimation, ValidAnimation } from "shared/characterinfo";
-import { AnimationSet } from "shared/common/globals";
+import { AnimationSet, type AnimationSetData } from "shared/common/globals";
 import type { Client } from "..";
 
 /**
@@ -29,7 +29,7 @@ export class AnimationController {
 
 		const HashList = new Map<string, Animation>();
 		for (const [Name, Data] of pairs(AnimationSet)) {
-			const ID = Data[Client.attributes.CharacterType];
+			const ID = (Data as AnimationSetData)[Client.attributes.CharacterType] ?? Data.Default;
 			const Animation = new Instance("Animation", AnimationController);
 			Animation.AnimationId = `rbxassetid://${ID}`;
 			Animation.Parent = Client.Humanoid;

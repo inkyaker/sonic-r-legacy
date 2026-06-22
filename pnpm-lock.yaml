@@ -28,7 +28,7 @@ importers:
         version: 1.2.0
       '@rbxts/pretty-react-hooks':
         specifier: ^0.6.4
-        version: 0.6.4(@rbxts/react-roblox@17.3.7-ts.1(@rbxts/react@17.3.7-ts.1))(@rbxts/react@17.3.7-ts.1)
+        version: 0.6.4(@rbxts/react-roblox@17.3.7-ts.2(@rbxts/react@17.3.7-ts.1))(@rbxts/react@17.3.7-ts.1)
       '@rbxts/profilestore':
         specifier: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
         version: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
@@ -39,8 +39,8 @@ importers:
         specifier: 0.4.0-rc.4
         version: 0.4.0-rc.4(@rbxts/react@17.3.7-ts.1)
       '@rbxts/react-roblox':
-        specifier: ^17.3.7-ts.1
-        version: 17.3.7-ts.1(@rbxts/react@17.3.7-ts.1)
+        specifier: ^17.3.7-ts.2
+        version: 17.3.7-ts.2(@rbxts/react@17.3.7-ts.1)
       '@rbxts/ripple':
         specifier: ^0.10.2
         version: 0.10.2
@@ -238,10 +238,10 @@ packages:
     peerDependencies:
       '@rbxts/react': '>=17.0.0'
 
-  '@rbxts/react-roblox@17.3.7-ts.1':
-    resolution: {integrity: sha512-lsH3lP+X0JUS/6Fg5MJfP8OjMn7bjxapbg3r1ajrpvwZGPGU1WOFcFDS/xMMk/2RK/GNYRmkduNM8pQ9vHw54Q==}
+  '@rbxts/react-roblox@17.3.7-ts.2':
+    resolution: {integrity: sha512-T5a9noru9M0Ye4+k8Py43z2lLfnsLfxoigssIiDkU7+776BsnG2IlQVRiM7ICZaMFAlckIQj2HxYL5oyNK4HQQ==}
     peerDependencies:
-      '@rbxts/react': ^17.3.7-ts.1
+      '@rbxts/react': ^17.3.7-ts.2
 
   '@rbxts/react@17.3.7-ts.1':
     resolution: {integrity: sha512-/jqZ2TvyLSAPwC30h95loUmy4XN2PwPhv6fBARJKtZfyozFx2RuxC9FiQSjpEZ2uOOPzr60It0MBUf94D+tsMg==}
@@ -764,10 +764,10 @@ snapshots:
 
   '@rbxts/object-utils@1.0.4': {}
 
-  '@rbxts/pretty-react-hooks@0.6.4(@rbxts/react-roblox@17.3.7-ts.1(@rbxts/react@17.3.7-ts.1))(@rbxts/react@17.3.7-ts.1)':
+  '@rbxts/pretty-react-hooks@0.6.4(@rbxts/react-roblox@17.3.7-ts.2(@rbxts/react@17.3.7-ts.1))(@rbxts/react@17.3.7-ts.1)':
     dependencies:
       '@rbxts/react': 17.3.7-ts.1
-      '@rbxts/react-roblox': 17.3.7-ts.1(@rbxts/react@17.3.7-ts.1)
+      '@rbxts/react-roblox': 17.3.7-ts.2(@rbxts/react@17.3.7-ts.1)
       '@rbxts/ripple': 0.9.3
       '@rbxts/services': 1.6.0
       '@rbxts/set-timeout': 1.1.2
@@ -779,7 +779,7 @@ snapshots:
       '@rbxts/charm': 0.11.0-rc.6
       '@rbxts/react': 17.3.7-ts.1
 
-  '@rbxts/react-roblox@17.3.7-ts.1(@rbxts/react@17.3.7-ts.1)':
+  '@rbxts/react-roblox@17.3.7-ts.2(@rbxts/react@17.3.7-ts.1)':
     dependencies:
       '@rbxts-js/react-roblox': 17.3.7-ts.1
       '@rbxts/react': 17.3.7-ts.1

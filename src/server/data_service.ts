@@ -8,7 +8,11 @@ function Key(Player: Player) {
 	return `${Player.UserId}`;
 }
 
-const Migrations: Record<number, (Profile: DataProfile) => void> = {};
+const Migrations: Record<number, (Profile: DataProfile) => void> = {
+	1: (Profile) => {
+		delete (Profile.Data.Settings as unknown as { MusicMuted: unknown }).MusicMuted;
+	},
+};
 
 export type DataProfile = Profile<string, DataFormat, DataService["Store"]>;
 
