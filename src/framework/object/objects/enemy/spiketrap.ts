@@ -15,7 +15,13 @@ type Data = {
  * @augments BaseObj
  */
 @Component({ tag: "SpikeTrap" })
-class SpikeTrap extends BaseObject<Model> {
+class SpikeTrap extends BaseObject<
+	Model & {
+		ObjectModel: Model & {
+			Spikes: BasePart;
+		};
+	}
+> {
 	public Data!: Attributes<Data>;
 	public State: boolean = false;
 	public TickProgress: number = 0;
@@ -79,10 +85,9 @@ class SpikeTrap extends BaseObject<Model> {
 	}
 
 	protected UpdateState() {
-		// TODO: change model
 		this.Enabled = this.State;
 
-		(this.Object.WaitForChild("Spikes") as Part).Transparency = this.Enabled ? 0 : 1;
+		this.instance.ObjectModel.Spikes.Transparency = this.Enabled ? 0 : 1;
 	}
 
 	public OnTouch(Client: Client) {
