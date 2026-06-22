@@ -33,5 +33,5 @@ export type RS = ReplicatedStorage & {
 type StandardRobloxTypes = Folder | Model | Part | Attachment | ReplicatedStorage;
 
 export type Exclusive<T> = {
-	[K in keyof T]: K extends keyof StandardRobloxTypes ? never : K extends string ? K : never;
+	[K in keyof T]: K extends keyof StandardRobloxTypes ? never : K extends `_nominal_${string}` ? never : K extends string ? K : never;
 }[keyof T];
