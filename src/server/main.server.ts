@@ -14,6 +14,7 @@ export class ServerService implements OnStart {
 		ServerEvents.Respawn.connect((Player) => this.SpawnCharacter(Player));
 
 		ServerEvents.Update.connect((Sender, Data) => ServerEvents.Update.except(Sender, Data));
+		ServerEvents.SpawnEffect.connect((Sender, Effect, Pivot) => ServerEvents.SpawnEffect.except(Sender, Effect, Pivot));
 
 		Players.PlayerAdded.Connect((Player) => {
 			let Profile: DataProfile;

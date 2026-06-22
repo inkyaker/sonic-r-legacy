@@ -14,6 +14,7 @@ import { ClientEvents } from "./client_networking";
 import { Input } from "./control/input";
 import { AnimationController } from "./draw/animation";
 import { Camera } from "./draw/camera";
+import type { EffectController } from "./draw/effect_controller";
 import { PackDrawInfo, Renderer } from "./draw/renderer";
 import { SoundController } from "./draw/sound";
 import { Rail, SetRail } from "./modules/rail";
@@ -240,6 +241,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	constructor(
 		public Controller: GameController,
 		public UI: UIController,
+		public Effects: EffectController,
 	) {
 		super();
 

@@ -1,5 +1,6 @@
 import { Networking } from "@flamework/networking";
 import type { DataFormat } from "./data";
+import type { Exclusive, RS } from "./types";
 
 export interface UpdatePacket {
 	PeerId: number;
@@ -13,12 +14,13 @@ export interface UpdatePacket {
 interface CTSEvents {
 	Respawn(): void;
 	Update: Networking.Unreliable<(Data: UpdatePacket) => void>;
-	RunEffect: Networking.Unreliable<(EffectName: string) => void>;
+	SpawnEffect: Networking.Unreliable<(Effect: Exclusive<RS["Assets"]["Effects"]>, Pivot: CFrame) => void>;
 }
 
 interface STCEvents {
 	Update: Networking.Unreliable<(Data: UpdatePacket) => void>;
 	ReplicateProfile(Data: DataFormat): void;
+	SpawnEffect: Networking.Unreliable<(Effect: Exclusive<RS["Assets"]["Effects"]>, Pivot: CFrame) => void>;
 }
 
 interface CTSFunctions {}

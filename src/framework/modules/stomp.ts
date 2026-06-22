@@ -55,6 +55,7 @@ export class StateStomp extends StateBase {
 			if (this.GroundedTicks === 0) {
 				Client.Sound.Stop("Character/StompStart");
 				Client.Sound.Play("Character/StompLand");
+				Client.Effects.ReplicateEffect("StompLand", Client.GetCFrame());
 
 				Client.Animation.Current = "StompLand";
 				Client.Land();

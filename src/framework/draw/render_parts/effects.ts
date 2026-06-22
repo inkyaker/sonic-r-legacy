@@ -1,4 +1,4 @@
-import type { AssetsDir } from "shared/common/types";
+import type { AssetsDir, Exclusive } from "shared/common/types";
 import type { DrawInfo, Renderer } from "../renderer";
 import { RenderPart } from "./render_part";
 
@@ -24,7 +24,7 @@ export class Effects extends RenderPart {
 		}
 	}
 
-	public SetGroupEnabled(Group: keyof AssetsDir["Effects"]["Root"], Enabled: boolean) {
+	public SetGroupEnabled(Group: Exclusive<AssetsDir["Effects"]["Root"]>, Enabled: boolean) {
 		for (const [_, Part] of pairs(((this.Model as AssetsDir["Effects"]).Root[Group] as Instance).GetDescendants())) {
 			if (Part.IsA("ParticleEmitter")) Part.Enabled = Enabled;
 		}
