@@ -9,6 +9,7 @@ import { CheckSlide } from "./slide";
 export function CheckStomp(Client: Client) {
 	if (Client.Input.Button.Stomp.DidPress) {
 		CancelBoost(Client);
+		Client.Flags.TrailEnabled = true;
 		Client.Speed = Client.Speed.WithY(-6);
 		Client.State.Current = Client.State.States.Stomp;
 		Client.State.States.Stomp.HasGrounded = false;
@@ -53,6 +54,7 @@ export class StateStomp extends StateBase {
 			Client.Speed = Client.Speed.mul(0.225);
 
 			if (this.GroundedTicks === 0) {
+				Client.Flags.TrailEnabled = false; // not needed but, just in case
 				Client.Sound.Stop("Character/StompStart");
 				Client.Sound.Play("Character/StompLand");
 				Client.Effects.ReplicateEffect("StompLand", Client.GetCFrame());
