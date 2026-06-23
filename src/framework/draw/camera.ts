@@ -1,4 +1,5 @@
 import { Players, UserInputService, Workspace } from "@rbxts/services";
+import { CollisionParams } from "framework/physics/collision";
 import type { Client } from "..";
 
 const MouseSensitivity = new Vector2(1, 0.77).mul(math.rad(0.5));
@@ -85,7 +86,10 @@ export class Camera {
 		this.CenterPos = BaseTargetCenter.add(this.OffsetSpringPos);
 
 		const Rotation = CFrame.Angles(0, this.Rotation.Y, 0).mul(CFrame.Angles(this.Rotation.X, 0, 0));
-		const FinalCFrame = Rotation.add(this.CenterPos).add(Rotation.LookVector.mul(-this.Zoom));
+		let FinalCFrame = Rotation.add(this.CenterPos).add(Rotation.LookVector.mul(-this.Zoom));
+
+		const Cast = Workspace.Raycast(this.CenterPos, FinalCFrame.Position.sub(this.CenterPos), CollisionParams);
+		if (Cast) FinalCFrame = FinalCFrame.Rotation.add(Cast.Position).add(Cast.Normal.mul(0.1));
 
 		Workspace.CurrentCamera.CFrame = FinalCFrame;
 		Workspace.CurrentCamera.Focus = FinalCFrame;
