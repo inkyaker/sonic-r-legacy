@@ -28,6 +28,7 @@ export class StateHurt extends StateBase {
 			if (this.ShouldDie) {
 				if (this.Locked) return;
 
+				Client.Sound.Play("Character/Death")
 				Client.Animation.Current = "Die";
 				Client.Speed = Vector3.zero;
 

@@ -523,7 +523,8 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 					Ring.Parent = workspace.Level.Objects;
 				}
 
-				this.GameState.AddRings(-this.GameState.Rings);
+				this.GameState.AddRings(-math.min(this.GameState.Rings, 150));
+				this.Sound.Play("Character/RingLoss")
 			} else this.State.States.Hurt.ShouldDie = true;
 		} else this.GameState.Shield = "";
 
