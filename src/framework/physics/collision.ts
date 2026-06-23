@@ -1,5 +1,5 @@
 import { Constants } from "shared/common/constants";
-import { Workspace } from "shared/common/globals";
+import { workspace } from "shared/common/globals";
 import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
 import type { Client } from "..";
@@ -11,7 +11,7 @@ CollisionParams.FilterType = Enum.RaycastFilterType.Include;
 task.spawn(() => {
 	if (!game.IsLoaded()) game.Loaded.Wait();
 
-	CollisionParams.AddToFilter(Workspace.Level.Map.Collision);
+	CollisionParams.AddToFilter(workspace.Level.Map.Collision);
 });
 
 function GetAligned(Client: Client, Normal: Vector3) {
@@ -331,10 +331,10 @@ export function RunCollision(Client: Client) {
 }
 
 export function GetWallDot(Client: Client) {
-	const Cast = Workspace.Raycast(Client.GetMiddle(), Client.Angle.LookVector.mul(math.max(Client.Speed.X, 5)), CollisionParams);
+	const Cast = workspace.Raycast(Client.GetMiddle(), Client.Angle.LookVector.mul(math.max(Client.Speed.X, 5)), CollisionParams);
 	return Cast ? math.max(Cast.Normal.Dot(Client.Angle.LookVector.mul(-1)), 0) : 0;
 }
 
 export function CanGetup(Client: Client) {
-	return !Workspace.Raycast(Client.Position, Client.Angle.UpVector.mul(6), CollisionParams);
+	return !workspace.Raycast(Client.Position, Client.Angle.UpVector.mul(6), CollisionParams);
 }

@@ -1,5 +1,5 @@
 import type BaseObject from "framework/object/objects/baseobj";
-import { Workspace } from "shared/common/globals";
+import { workspace } from "shared/common/globals";
 import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
 import type { Client } from "..";
@@ -376,7 +376,7 @@ export const PhysicsHandler = {
 	 */
 	GetHomingObject(Client: Client): BaseObject<Model> | undefined {
 		const Look = Client.Angle.LookVector;
-		const Colliders = Workspace.GetPartBoundsInRadius(Client.Position, 100 * Client.Config.Scale, PhysicsHandler.ObjectParams);
+		const Colliders = workspace.GetPartBoundsInRadius(Client.Position, 100 * Client.Config.Scale, PhysicsHandler.ObjectParams);
 		const Objects = [];
 
 		for (const [_, Collider] of pairs(Colliders)) {
@@ -386,7 +386,7 @@ export const PhysicsHandler = {
 			const Center = Collider.Position;
 			const Offset = Center.sub(Client.Position);
 			const Dot = Offset.mul(new Vector3(1, 0, 1)).Unit.Dot(Look);
-			const Hit = Workspace.Raycast(Client.Position, Offset, PhysicsHandler.MapCollision);
+			const Hit = workspace.Raycast(Client.Position, Offset, PhysicsHandler.MapCollision);
 			const YOff = Collider.CFrame.PointToObjectSpace(Client.Position).Y;
 			const PosValid = -YOff <= 20 * Client.Config.Scale;
 
@@ -402,7 +402,7 @@ export const PhysicsHandler = {
 };
 
 PhysicsHandler.ObjectParams.FilterType = Enum.RaycastFilterType.Include;
-PhysicsHandler.ObjectParams.AddToFilter(Workspace.Level.Objects);
+PhysicsHandler.ObjectParams.AddToFilter(workspace.Level.Objects);
 
 PhysicsHandler.MapCollision.FilterType = Enum.RaycastFilterType.Include;
-PhysicsHandler.MapCollision.AddToFilter(Workspace.Level.Map.Collision);
+PhysicsHandler.MapCollision.AddToFilter(workspace.Level.Map.Collision);

@@ -1,6 +1,6 @@
 import type { Components } from "@flamework/components";
 import { Controller, Dependency, Modding, type OnStart } from "@flamework/core";
-import { Workspace } from "shared/common/globals";
+import { workspace } from "shared/common/globals";
 import type { GameController } from "shared/loader.server";
 import type BaseObject from "./objects/baseobj";
 import type { OnDraw, OnObjectStart, OnRespawn, OnTick, OnTouch } from "./objects/object_implementables";
@@ -16,11 +16,11 @@ export class ObjectController implements OnStart {
 	constructor(private Components: Components) {
 		this.Params = new RaycastParams();
 		this.Params.FilterType = Enum.RaycastFilterType.Include;
-		this.Params.FilterDescendantsInstances = [Workspace.Level.Objects];
+		this.Params.FilterDescendantsInstances = [workspace.Level.Objects];
 
 		this.OverlapParams = new OverlapParams();
 		this.OverlapParams.FilterType = Enum.RaycastFilterType.Include;
-		this.OverlapParams.FilterDescendantsInstances = [Workspace.Level.Objects];
+		this.OverlapParams.FilterDescendantsInstances = [workspace.Level.Objects];
 	}
 
 	public readonly OnTouchListeners = new Set<OnTouch>();
@@ -48,10 +48,10 @@ export class ObjectController implements OnStart {
 		this.Components.onComponentRemoved<BaseObject<Model>>((Object) => {
 			const ID = Object.attributes.UniqueID;
 			const Data = Object.Serialize();
-			
+
 			this.ObjectDataCache[ID] = Data;
-			
-			Object.OnStreamOut()
+
+			Object.OnStreamOut();
 		});
 	}
 
@@ -59,15 +59,15 @@ export class ObjectController implements OnStart {
 		const ActiveClient = this.Controller.ActiveClient;
 		if (!ActiveClient) return;
 
-		const [Position, LastPosition] = [ActiveClient.GetMiddle(), ActiveClient.LastCFrame.Position.add(ActiveClient.GetYOffset())]
-		if (LastPosition !== Position) {
+		const [Position, LastPosition] = [ActiveClient.GetMiddle(), ActiveClient.LastCFrame.Position.add(ActiveClient.GetYOffset())];
+		if (LastPosition.Distance(ActiveClient.Position) >= .0001) {
 			const Look = CFrame.lookAt(LastPosition, Position);
 			const Magnitude = LastPosition.Distance(Position);
 
 			// TODO: this works for now but maybe a better solution that isnt iterative
 			const Objects = new Set<BaseObject<Model>>();
 			while (true) {
-				const Cast = Workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
+				const Cast = workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
 				if (Cast) {
 					const Object = this.GetObject(Cast.Instance);
 					if (!Object || Objects.has(Object)) break;

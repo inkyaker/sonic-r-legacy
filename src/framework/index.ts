@@ -1,10 +1,12 @@
 import { BaseComponent, Component } from "@flamework/components";
 import type { OnStart } from "@flamework/core";
-import { Players } from "@rbxts/services";
+import { HttpService, Players, ReplicatedStorage } from "@rbxts/services";
 import { CharacterInfo } from "shared/characterinfo";
 import { Constants } from "shared/common/constants";
 import type { CharacterType } from "shared/common/data";
 import { FrameworkState } from "shared/common/frameworkstate";
+import { workspace } from "shared/common/globals";
+import type { RS } from "shared/common/types";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import { AddLog } from "shared/common/utility/logger";
 import * as Render from "shared/common/utility/renderregistry";
@@ -23,6 +25,8 @@ import { StateMachine } from "./statemachine";
 import type { UIController } from "./ui/ui_controller";
 
 const Player = Players.LocalPlayer;
+const PI = math.pi;
+const TAU = PI * 2;
 
 /**
  * Flags list
@@ -386,7 +390,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * @returns Offset to reach middle
 	 */
 	public GetYOffset() {
-		return this.Angle.UpVector.mul(this.Config.Height * this.Config.Scale)
+		return this.Angle.UpVector.mul(this.Config.Height * this.Config.Scale);
 	}
 
 	/**
@@ -508,7 +512,17 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 
 		if (this.GameState.Shield === "") {
 			if (this.GameState.Rings > 0) {
-				//TODO: spilled rings
+				const Count = math.min(this.GameState.Rings, 25);
+				for (const Index of $range(1, Count)) {
+					const Angle = (TAU / Count) * Index;
+					const Ring = (ReplicatedStorage as RS).Assets.Models.Object.SpilledRing.Clone();
+					Ring.SetAttribute("UniqueID", HttpService.GenerateGUID(false));
+					Ring.SetAttribute("Lifetime", 8 * Constants.Tickrate);
+					Ring.PrimaryPart!.AssemblyLinearVelocity = CFrame.Angles(0, Angle, 0).LookVector.mul(1).add(Vector3.yAxis.mul(1));
+					Ring.PivotTo(new CFrame(this.GetMiddle()));
+					Ring.Parent = workspace.Level.Objects;
+				}
+
 				this.GameState.AddRings(-this.GameState.Rings);
 			} else this.State.States.Hurt.ShouldDie = true;
 		} else this.GameState.Shield = "";

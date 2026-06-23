@@ -15,8 +15,9 @@
 */
 import type { Components } from "@flamework/components";
 import { Controller, Flamework, type OnStart } from "@flamework/core";
-import { GuiService, Players } from "@rbxts/services";
+import { GuiService, Players, StarterGui } from "@rbxts/services";
 import type { Client } from "framework";
+import { ClientEvents } from "framework/client_networking";
 import type { PlayerReplicator } from "framework/draw/replication";
 import type { ObjectController } from "framework/object/object_controller";
 
@@ -53,3 +54,15 @@ export class GameController implements OnStart {
 Flamework.addPathsGlob("src/shared/**.ts");
 Flamework.addPathsGlob("src/framework/**.ts");
 Flamework.ignite();
+
+const Event = new Instance("BindableEvent");
+Event.Event.Connect(() => ClientEvents.Respawn());
+
+task.spawn(() => {
+	let Success = false;
+	while (!Success) {
+		Success = pcall(() => StarterGui.SetCore("ResetButtonCallback", Event))[0];
+
+		if (!Success) task.wait(0.15);
+	}
+});

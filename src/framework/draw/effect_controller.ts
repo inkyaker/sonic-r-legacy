@@ -1,7 +1,7 @@
 import { Controller, type OnStart } from "@flamework/core";
 import { ReplicatedStorage } from "@rbxts/services";
 import { ClientEvents } from "framework/client_networking";
-import { Workspace } from "shared/common/globals";
+import { workspace } from "shared/common/globals";
 import type { Exclusive, RS } from "shared/common/types";
 
 @Controller()
@@ -12,7 +12,7 @@ export class EffectController implements OnStart {
 
 	public SpawnEffect(EffectName: Exclusive<RS["Assets"]["Effects"]>, Pivot: CFrame) {
 		const Effect = ((ReplicatedStorage as RS).Assets.Effects[EffectName] as Attachment).Clone();
-		Effect.Parent = Workspace.Level.Effects;
+		Effect.Parent = workspace.Level.Effects;
 		Effect.CFrame = Pivot;
 
 		let Lifetime = 10;

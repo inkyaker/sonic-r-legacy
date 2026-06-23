@@ -1,5 +1,5 @@
 import type { Client } from "framework";
-import { Workspace } from "shared/common/globals";
+import { workspace } from "shared/common/globals";
 import { DecorateState, StateBase } from "./base_state";
 import { StepBoost } from "./boost";
 import { CheckJump } from "./jump";
@@ -108,11 +108,11 @@ export function CheckRail(Client: Client) {
 	const Rail = Client.State.States.Rail;
 	const LastPosition = Client.LastCFrame.Position;
 
-	if (LastPosition !== Client.Position) {
+	if (LastPosition.Distance(Client.Position) >= .0001) {
 		const Look = CFrame.lookAt(LastPosition, Client.Position).LookVector;
 		const Magnitude = LastPosition.Distance(Client.Position);
 
-		const Cast = Workspace.Spherecast(LastPosition.sub(Look.mul(Rail.Skin)), Rail.Skin, Look.mul(Magnitude + Rail.Skin), Rail.Params);
+		const Cast = workspace.Spherecast(LastPosition.sub(Look.mul(Rail.Skin)), Rail.Skin, Look.mul(Magnitude + Rail.Skin), Rail.Params);
 		if (Cast) {
 			SetRail(Client, Cast.Instance as Part);
 		}
@@ -135,7 +135,7 @@ export class StateRail extends StateBase {
 		super();
 
 		this.Params = new RaycastParams();
-		this.Params.FilterDescendantsInstances = [Workspace.Level.Rails];
+		this.Params.FilterDescendantsInstances = [workspace.Level.Rails];
 		this.Params.FilterType = Enum.RaycastFilterType.Include;
 	}
 
@@ -249,7 +249,7 @@ export class StateRail extends StateBase {
 				const Direction = Rail.RailDirection * math.sign(Client.Speed.X);
 				const Offset = Rail.Current.CFrame.Inverse().mul(Client.Position);
 				if (Client.Speed.X !== 0 && Offset.Z * -Direction > Rail.Current.Size.Z / 2) {
-					const Cast = Workspace.Raycast(Rail.Current.Position, Rail.Current.CFrame.LookVector.mul(Rail.Current.Size.Z / 2 + 1).mul(Direction), this.Params);
+					const Cast = workspace.Raycast(Rail.Current.Position, Rail.Current.CFrame.LookVector.mul(Rail.Current.Size.Z / 2 + 1).mul(Direction), this.Params);
 					if (Cast) {
 						SetRail(Client, Cast.Instance as Part);
 					} else {

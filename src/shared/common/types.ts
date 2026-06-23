@@ -21,10 +21,20 @@ export type RS = ReplicatedStorage & {
 	Assets: Folder & {
 		Models: Folder & {
 			Player: Folder & AssetsDir;
+			Object: Folder & {
+				SpilledRing: Model;
+			};
 		};
 		Effects: Folder & {
 			StompLand: Attachment;
 			RingCollect: Attachment;
+		};
+		Animations: Folder & {
+			Object: Folder & {
+				Ring: Folder & {
+					Spin: Animation;
+				};
+			};
 		};
 		Sounds: Folder;
 		Characters: Folder & { [Index in CharacterType]: Model };

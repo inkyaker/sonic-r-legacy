@@ -1,7 +1,7 @@
-import { SoundService as Sounds, Workspace as workspace } from "@rbxts/services";
+import { SoundService as Sounds, Workspace } from "@rbxts/services";
 import type { CharacterType } from "./data";
 
-export const Workspace = workspace as Workspace & {
+export const workspace = Workspace as Workspace & {
 	Level: Folder & {
 		Effects: Folder;
 		Map: Folder & {

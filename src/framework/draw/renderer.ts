@@ -1,6 +1,6 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import type { CharacterType } from "shared/common/data";
-import { Workspace } from "shared/common/globals";
+import { workspace } from "shared/common/globals";
 import type { AssetsDir, RS } from "shared/common/types";
 import type { Client } from "..";
 import { BallTrail } from "./render_parts/ball_trail";
@@ -37,7 +37,7 @@ export class Renderer {
 
 		this.ModelParent = new Instance("Model");
 		this.ModelParent.Name = `DrawModels`;
-		this.ModelParent.Parent = Workspace.CurrentCamera!;
+		this.ModelParent.Parent = workspace.CurrentCamera!;
 
 		this.BallTrail = new BallTrail(this, this.ModelParent);
 		this.JumpBall = new JumpBall(this, this.ModelParent);
