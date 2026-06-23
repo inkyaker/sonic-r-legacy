@@ -24,6 +24,7 @@ export type RS = ReplicatedStorage & {
 		};
 		Effects: Folder & {
 			StompLand: Attachment;
+			RingCollect: Attachment;
 		};
 		Sounds: Folder;
 		Characters: Folder & { [Index in CharacterType]: Model };

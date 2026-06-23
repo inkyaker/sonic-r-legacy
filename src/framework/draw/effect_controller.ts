@@ -12,7 +12,7 @@ export class EffectController implements OnStart {
 
 	public SpawnEffect(EffectName: Exclusive<RS["Assets"]["Effects"]>, Pivot: CFrame) {
 		const Effect = ((ReplicatedStorage as RS).Assets.Effects[EffectName] as Attachment).Clone();
-		Effect.Parent = Workspace;
+		Effect.Parent = Workspace.Level.Effects;
 		Effect.CFrame = Pivot;
 
 		let Lifetime = 10;
