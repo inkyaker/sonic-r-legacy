@@ -1,9 +1,16 @@
 import type { Atom } from "@rbxts/charm";
+import { useMotion } from "@rbxts/pretty-react-hooks";
 /** biome-ignore lint/correctness/noUnusedImports: <react> */
-import React, { useMemo } from "@rbxts/react";
+import React, { useEffect, useMemo, useState } from "@rbxts/react";
 import { useAtom } from "@rbxts/react-charm";
+import { RunService } from "@rbxts/services";
+import { Constants } from "shared/common/constants";
 import type { CharacterType } from "shared/common/data";
 import { BallTrailColors } from "shared/common/globals";
+
+const Red = Color3.fromRGB(173, 0, 0);
+const Yellow = Color3.fromRGB(255, 214, 52);
+const White = Color3.fromRGB(255, 255, 255);
 
 export function GameUI({
 	RingsAtom,
@@ -19,6 +26,31 @@ export function GameUI({
 }) {
 	const [Rings, Score, Mult, CharacterType] = [useAtom(RingsAtom), useAtom(ScoreAtom), useAtom(MultAtom), useAtom(CharacterTypeAtom)];
 	const CharacterColor = useMemo(() => BallTrailColors[CharacterType], [CharacterType]);
+	const [RingColor, Motion] = useMotion(Color3.fromRGB(255, 214, 52));
+	const [RingState, SetRingState] = useState(0);
+
+	useEffect(() => {
+		const NewRingState = Rings <= 0 ? 1 : Rings >= Constants.SuperRingRequirement ? 2 : 3;
+		if (NewRingState !== RingState) SetRingState(NewRingState);
+	}, [Rings]);
+
+	useEffect(() => {
+		if (RingState < 3) {
+			let Time = 0;
+			const [Color1, Color2, StartColor, TimeMult] = [RingState === 1 ? Red : Yellow, RingState === 1 ? Yellow : White, RingColor.getValue(), RingState === 1 ? 6 : 1];
+			const Connection = RunService.RenderStepped.Connect((Delta) => {
+				Time += Delta * TimeMult;
+				const LoopAlpha = (math.sin(Time) + 1) / 2;
+				const CurrentLoopColor = Color1.Lerp(Color2, LoopAlpha);
+				const BlendAlpha = math.clamp(Time / (0.2 * TimeMult), 0, 1);
+
+				Motion.setPosition(StartColor.Lerp(CurrentLoopColor, BlendAlpha));
+			});
+			return () => Connection.Disconnect();
+		}
+
+		Motion.tween(Yellow, { duration: 0.2 });
+	}, [RingState]);
 
 	return (
 		<frame Transparency={1} Size={UDim2.fromScale(1, 1)}>
@@ -48,7 +80,7 @@ export function GameUI({
 						ZIndex={5}
 						BorderSizePixel={0}
 						BackgroundTransparency={1}
-						ImageColor3={Color3.fromRGB(255, 214, 52)}
+						ImageColor3={RingColor}
 						Image={"rbxassetid://115285097247213"}
 						Size={UDim2.fromScale(1, 1)}
 					/>

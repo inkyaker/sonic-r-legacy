@@ -378,7 +378,15 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * @returns Client center position
 	 */
 	public GetMiddle() {
-		return this.Position.add(this.Angle.UpVector.mul(this.Config.Height * this.Config.Scale));
+		return this.Position.add(this.GetYOffset());
+	}
+
+	/**
+	 * Get the player height to middle
+	 * @returns Offset to reach middle
+	 */
+	public GetYOffset() {
+		return this.Angle.UpVector.mul(this.Config.Height * this.Config.Scale)
 	}
 
 	/**

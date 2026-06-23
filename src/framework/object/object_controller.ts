@@ -59,10 +59,10 @@ export class ObjectController implements OnStart {
 		const ActiveClient = this.Controller.ActiveClient;
 		if (!ActiveClient) return;
 
-		const LastPosition = ActiveClient.LastCFrame.Position;
-		if (LastPosition !== ActiveClient.Position) {
-			const Look = CFrame.lookAt(LastPosition, ActiveClient.Position);
-			const Magnitude = LastPosition.Distance(ActiveClient.Position);
+		const [Position, LastPosition] = [ActiveClient.GetMiddle(), ActiveClient.LastCFrame.Position.add(ActiveClient.GetYOffset())]
+		if (LastPosition !== Position) {
+			const Look = CFrame.lookAt(LastPosition, Position);
+			const Magnitude = LastPosition.Distance(Position);
 
 			// TODO: this works for now but maybe a better solution that isnt iterative
 			const Objects = new Set<BaseObject<Model>>();

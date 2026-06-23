@@ -1,3 +1,4 @@
 export const Constants = {
 	Tickrate: 60,
+	SuperRingRequirement: 150, // Rings required for super sonic
 };
