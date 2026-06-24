@@ -155,9 +155,6 @@ export class StateRail extends StateBase {
 			return;
 		}
 
-		//Get grinding state
-		const Crouching = Client.Input.Button.Roll.DidPress;
-
 		//Gravity
 		const Weight = Client.GetWeight();
 		// TODO: Water detection
@@ -170,7 +167,7 @@ export class StateRail extends StateBase {
 			Gravity *= 1.125 + math.abs(Client.Speed.X) / 8;
 		} else {
 			//Have weaker gravity when gravity is working against us
-			Gravity *= (0.5 / (1 + math.abs(Client.Speed.X) / 3.5)) * ((Crouching && 0.75) || 1);
+			Gravity *= (0.5 / (1 + math.abs(Client.Speed.X) / 3.5));
 		}
 
 		//Get drag factor
@@ -178,7 +175,7 @@ export class StateRail extends StateBase {
 
 		//Apply gravity and drag
 		Client.Speed = Client.Speed.add(new Vector3(Gravity, 0, 0));
-		Client.Speed = Client.Speed.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X * ((Crouching && 0.675) || 0.875) * Drag, 0, 0));
+		Client.Speed = Client.Speed.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X * 0.715 * Drag, 0, 0));
 
 		//Make sure player is at a minimum speed
 		if (Client.Speed.X === 0) {

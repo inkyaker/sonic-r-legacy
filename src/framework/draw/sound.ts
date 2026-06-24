@@ -103,19 +103,13 @@ export class SoundController {
 		let Root: Instance | undefined = this.Assets;
 
 		for (const [_, Next] of pairs(Splits)) {
-			if (!Root) {
-				break;
-			}
+			if (!Root) break;
 			Root = Root.FindFirstChild(Next);
 
-			if (!Root || Root.IsA("Sound")) {
-				break;
-			}
+			if (!Root || Root.IsA("Sound")) break;
 		}
 
-		if (Root?.IsA("Sound")) {
-			GetAttribute(Root, "Class", Root.Name);
-		}
+		if (Root?.IsA("Sound")) GetAttribute(Root, "Class", Root.Name);
 
 		return Root as Sound | undefined;
 	}

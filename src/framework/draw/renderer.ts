@@ -1,4 +1,5 @@
 import { ReplicatedStorage } from "@rbxts/services";
+import { RailActive } from "framework/modules/rail";
 import type { CharacterType } from "shared/common/data";
 import { workspace } from "shared/common/globals";
 import type { AssetsDir, RS } from "shared/common/types";
@@ -96,6 +97,7 @@ export function PackDrawInfo(Client?: Client) {
 
 				StompEnabled: Client.State.Current.GetID() === "StateStomp" && !Client.State.States.Stomp.HasGrounded,
 				SlideEnabled: Client.State.Current.GetID() === "StateSlide",
+				RailEffectEnabled: RailActive(Client),
 			}
 		: {
 				YOffset: 0,
@@ -108,6 +110,7 @@ export function PackDrawInfo(Client?: Client) {
 
 				StompEnabled: false,
 				SlideEnabled: false,
+				RailEEffectEnabled: false,
 			};
 }
 

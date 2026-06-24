@@ -3,14 +3,29 @@ import type { DrawInfo, Renderer } from "../renderer";
 import { RenderPart } from "./render_part";
 
 export class Effects extends RenderPart {
-	public StompEnabled = false;
-	public SlideEnabled = false;
+	public Bindings: {
+		EffectName: Exclusive<AssetsDir["Effects"]["Root"]>;
+		DrawInfoName: keyof DrawInfo;
+		Enabled: boolean;
+	}[] = [];
 
 	constructor(Renderer: Renderer, Parent: Instance) {
 		super(Renderer, Parent);
 
 		this.Model = Renderer.Assets.Effects.Clone();
 		this.Model.Parent = Parent;
+
+		this.CreateBinding("Stomp", "StompEnabled")
+		this.CreateBinding("Slide", "SlideEnabled")
+		this.CreateBinding("Rail", "RailEffectEnabled")
+	}
+
+	public CreateBinding(EffectName: Exclusive<AssetsDir["Effects"]["Root"]>, DrawInfoName: keyof DrawInfo) {
+		this.Bindings.push({
+			EffectName: EffectName,
+			DrawInfoName: DrawInfoName,
+			Enabled: false,
+		});
 	}
 
 	public Update(Pivot: CFrame) {
@@ -18,9 +33,12 @@ export class Effects extends RenderPart {
 	}
 
 	public UpdateEffects(DrawInfo: DrawInfo) {
-		if (DrawInfo.StompEnabled !== this.StompEnabled) {
-			this.StompEnabled = DrawInfo.StompEnabled;
-			this.SetGroupEnabled("Stomp", this.StompEnabled);
+		for (const [_, Binding] of pairs(this.Bindings)) {
+			const Enabled = !!DrawInfo[Binding.DrawInfoName];
+			if (Binding.Enabled !== Enabled) {
+				Binding.Enabled = Enabled;
+				this.SetGroupEnabled(Binding.EffectName, Enabled);
+			}
 		}
 	}
 

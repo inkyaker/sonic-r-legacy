@@ -14,12 +14,10 @@ export function AddLog(Value: unknown, Context?: { Error?: boolean }) {
 	if (Verbose) print(Value);
 
 	if (Original !== undefined) {
-		// Insert new log for current registered tick
 		Original.push(Export);
 
 		LogTable.set(Tick, Original);
 	} else {
-		// Register new log for tick
 		let NewValue: Array<string> = new Array();
 		NewValue.push(Export);
 

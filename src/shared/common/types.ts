@@ -13,6 +13,8 @@ export type AssetsDir = Folder & {
 	Effects: Model & {
 		Root: Part & {
 			Stomp: Attachment;
+			Slide: Attachment;
+			Rail: Attachment;
 		};
 	};
 };

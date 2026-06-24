@@ -1,3 +1,4 @@
+// TODO: mostly superseded by flamework's native attributes
 export type ValidAttributeTypes = string | number | boolean | UDim | UDim2 | BrickColor | Color3 | Vector3 | Vector2 | NumberSequence | ColorSequence | NumberRange;
 
 // not a class but Close enough that i dont care.
