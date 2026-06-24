@@ -28,7 +28,7 @@
     "@rbxts/deepcopy": "^0.1.3",
     "@rbxts/lemon-signal": "1.2.0",
     "@rbxts/pretty-react-hooks": "^0.6.4",
-    "@rbxts/profilestore": "file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz",
+    "@rbxts/profilestore": "github:nadia8666/rbxts-profile-store",
     "@rbxts/react": "17.3.7-ts.1",
     "@rbxts/react-charm": "0.4.0-rc.4",
     "@rbxts/react-roblox": "17.3.7-ts.2",

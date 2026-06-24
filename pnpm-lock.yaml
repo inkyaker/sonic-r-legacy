@@ -30,8 +30,8 @@ importers:
         specifier: ^0.6.4
         version: 0.6.4(@rbxts/react-roblox@17.3.7-ts.2(@rbxts/react@17.3.7-ts.1))(@rbxts/react@17.3.7-ts.1)
       '@rbxts/profilestore':
-        specifier: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
-        version: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz
+        specifier: github:nadia8666/rbxts-profile-store
+        version: https://codeload.github.com/nadia8666/rbxts-profile-store/tar.gz/5f398d41d027a5dced712b8d7cd046bd621200f1
       '@rbxts/react':
         specifier: 17.3.7-ts.1
         version: 17.3.7-ts.1
@@ -232,8 +232,8 @@ packages:
       '@rbxts/react': '*'
       '@rbxts/react-roblox': '*'
 
-  '@rbxts/profilestore@file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz':
-    resolution: {integrity: sha512-RDk97vi3jstTsSp/NCXGnVdgnLlsaqTYHQfgHV5jrvmHinNATgGy6x0XOuwMDXE+/FS/6xnNuQjinc3tPo6XGA==, tarball: file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz}
+  '@rbxts/profilestore@https://codeload.github.com/nadia8666/rbxts-profile-store/tar.gz/5f398d41d027a5dced712b8d7cd046bd621200f1':
+    resolution: {gitHosted: true, integrity: sha512-ukBM00GsRliJR6vdBwTScQhL5jvPQ6Z4DW4Nri2iEQ9KfvAb34YFxxFZ+TxZWFvsCNgGQbynCowTlYd2Vsekeg==, tarball: https://codeload.github.com/nadia8666/rbxts-profile-store/tar.gz/5f398d41d027a5dced712b8d7cd046bd621200f1}
     version: 1.0.0
 
   '@rbxts/react-charm@0.4.0-rc.4':
@@ -780,7 +780,7 @@ snapshots:
       '@rbxts/services': 1.6.0
       '@rbxts/set-timeout': 1.1.2
 
-  '@rbxts/profilestore@file:D:/Development/roblox-ts new/packages/profilestore/rbxts-profilestore-1.0.0.tgz': {}
+  '@rbxts/profilestore@https://codeload.github.com/nadia8666/rbxts-profile-store/tar.gz/5f398d41d027a5dced712b8d7cd046bd621200f1': {}
 
   '@rbxts/react-charm@0.4.0-rc.4(@rbxts/react@17.3.7-ts.1)':
     dependencies:
