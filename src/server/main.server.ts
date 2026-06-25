@@ -1,20 +1,7 @@
-/*
-    Copyright 2026 nadia8666
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
 import { Flamework, type OnStart, Service } from "@flamework/core";
 import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
+import type { CharacterType } from "shared/common/data";
+import { workspace } from "shared/common/globals";
 import type { RS } from "shared/common/types";
 import type { DataProfile, DataService } from "./data_service";
 import { ServerEvents } from "./server_networking";
@@ -55,10 +42,16 @@ export class ServerService implements OnStart {
 		const Character = this.Replicated.Assets.Characters[Type].Clone();
 		Character.Name = Player.Name;
 		Character.Parent = Workspace;
-		Character.PivotTo(CFrame.identity.add(Vector3.yAxis.mul(10)));
+		Character.PivotTo(this.GetSpawnLocation(Type));
 		Character.SetAttribute("CharacterType", Type);
 
 		Player.Character = Character;
+	}
+
+	public GetSpawnLocation(Type: CharacterType) {
+		const Spawn = workspace.Level.Spawns[Type] ?? workspace.Level.Spawns.Default;
+		
+		return Spawn.CFrame;
 	}
 }
 

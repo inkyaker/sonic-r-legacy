@@ -33,7 +33,8 @@ export class StateGrounded extends StateBase {
 			const Slip = math.sqrt(1);
 			const Acceleration = math.min(math.abs(Client.Speed.X) / Client.Config.CrashSpeed, 1);
 
-			if (!this.LockedAnimations.has(Client.Animation.Current)) Client.Animation.Current = math.abs(Client.Speed.X) > 0.1 ? "Run" : "Idle";
+			if (!this.LockedAnimations.has(Client.Animation.Current) && !(Client.Animation.Current.lower().find("land")[0] && math.abs(Client.Speed.X) <= 2))
+				Client.Animation.Current = math.abs(Client.Speed.X) > 0.1 ? "Run" : "Idle";
 
 			Client.Animation.Speed = Client.Animation.Current === "Run" ? math.lerp(Client.Speed.X / Slip + (1 - Slip) * 2, Client.Speed.X, Acceleration) : 1;
 			Client.Ground.UngroundedFrames = 0;

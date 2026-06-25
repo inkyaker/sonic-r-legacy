@@ -10,6 +10,7 @@ export const workspace = Workspace as Workspace & {
 		Objects: Folder;
 		Rails: Folder;
 		Water: Folder;
+		Spawns: Folder & { [Index in CharacterType]: Part | undefined } & { Default: Part };
 	};
 };
 

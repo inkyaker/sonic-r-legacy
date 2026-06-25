@@ -31,12 +31,7 @@
 			{
 				"transform": "@runicly/rbxts-transformer-flamework"
 			},
-			{
-				"transform": "rbxts-transform-boost",
-				"optimize": false,
-				"hoist": false,
-				"verbose": false,
-			}
+			
 		]
 	}
 }

@@ -78,9 +78,11 @@ export const CharacterInfo = {
 	Animations: {
 		Land: {
 			0: { AnimationKey: "Land", Looped: false },
+			EndAnimation: "Idle",
 		},
 		LandShort: {
 			0: { AnimationKey: "LandShort", Looped: false },
+			EndAnimation: "Idle",
 		},
 		LandMoving: {
 			0: { AnimationKey: "LandRoll", Looped: false },
