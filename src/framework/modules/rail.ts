@@ -35,14 +35,18 @@ export function GetRailPosition(Client: Client) {
 }
 
 export function GetRailAngle(Client: Client) {
-	if (Client.Rail.Current) {
-		let Angle: number;
-		if (Client.Rail.RailDirection >= 0) {
-			Angle = 0;
-		} else {
-			Angle = math.pi;
+	const Current = Client.Rail.Current;
+	if (Current) {
+		const CurrentAngle = Current.CFrame.Rotation;
+		const Next = workspace.Raycast(Current.Position, Current.CFrame.LookVector.mul(Current.Size.Z + 3), Client.State.States.Rail.Params);
+		let Angle = CurrentAngle;
+
+		if (Next) {
+			const Offset = Current.CFrame.Inverse().mul(Client.Position);
+			Angle = CurrentAngle.Lerp(Next.Instance!.CFrame.Rotation, 1 - (Offset.Z + Current.Size.Z / 2) / Current.Size.Z);
 		}
-		return Client.Rail.Current.CFrame.Rotation.mul(CFrame.Angles(0, Angle, 0));
+
+		return Angle.mul(CFrame.Angles(0, Client.Rail.RailDirection >= 0 ? 0 : math.pi, 0));
 	}
 	return Client.Angle;
 }
@@ -159,10 +163,7 @@ export class StateRail extends StateBase {
 		let Drag = 0.95;
 		Client.Speed = Client.Speed.add(new Vector3(Gravity, 0, 0));
 		Client.Speed = Client.Speed.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X * 0.715 * Drag, 0, 0));
-
-		if (Client.Speed.X === 0) Client.Speed = new Vector3(Client.Config.JogSpeed, Client.Speed.Y, Client.Speed.Z);
-		else if (math.abs(Client.Ground.DotProduct) > 0.95)
-			Client.Speed = new Vector3(math.max(math.abs(Client.Speed.X), Client.Config.JogSpeed) * math.sign(Client.Speed.X), Client.Speed.Y, Client.Speed.Z);
+		Client.Speed = Client.Speed.WithX(math.max(Client.Speed.X, 2.25));
 
 		if (math.abs(Client.Speed.X) >= 8) {
 			Rail.RailBonusTime++;
@@ -192,20 +193,27 @@ export class StateRail extends StateBase {
 			}
 
 			if (Rail.RailSound) Rail.RailSound.Volume = math.sqrt(math.abs(Client.Speed.X) / 8);
+		} else if (Rail.RailSound) {
+			if (
+				Client.Sound.Stop("Character/Grind", {
+					Target: Rail.RailSound,
+				})
+			)
+				Rail.RailSound = undefined;
 		}
 
-		if (RailActive(Client) && (Client.Input.Button.RailSwitchLeft.DidPress || Client.Input.Button.RailSwitchRight.DidPress)) {
+		if (Active && (Client.Input.Button.RailSwitchLeft.DidPress || Client.Input.Button.RailSwitchRight.DidPress)) {
 			const OtherRail = workspace.Raycast(Client.Position, Client.Angle.RightVector.mul(15 * (Client.Input.Button.RailSwitchLeft.DidPress ? -1 : 1)), this.Params);
 			if (OtherRail) {
 				const Position = Client.Position;
 				SetRail(Client, OtherRail.Instance as Part);
 				Rail.RailOffset = Position.sub(Client.Position);
 
-				Client.Sound.Play("Character/Jump")
+				Client.Sound.Play("Character/Jump");
 			}
 		}
 
-		if (RailActive(Client)) {
+		if (Active) {
 			Client.Animation.Current = "Rail";
 			Client.Animation.Speed = Client.Speed.X;
 		} else {
@@ -233,26 +241,19 @@ export class StateRail extends StateBase {
 				const Offset = Rail.Current.CFrame.Inverse().mul(Client.Position);
 				if (Client.Speed.X !== 0 && Offset.Z * -Direction > Rail.Current.Size.Z / 2) {
 					const Cast = workspace.Raycast(Rail.Current.Position, Rail.Current.CFrame.LookVector.mul(Rail.Current.Size.Z / 2 + 1).mul(Direction), this.Params);
-					if (Cast) {
-						SetRail(Client, Cast.Instance as Part);
-					} else {
+					if (Cast) SetRail(Client, Cast.Instance as Part);
+					else {
 						Rail.RailGrace = 1 + math.floor(math.abs(Client.Speed.X) / 3.5);
 						break;
 					}
-				} else {
-					break;
-				}
+				} else break;
 			}
 		}
 
-		if (!Client.Rail.Current && Client.State.Current === Client.State.States.Rail) {
-			Client.State.Current = Client.State.States.Airborne;
-		}
+		if (!Client.Rail.Current && Client.State.Current === Client.State.States.Rail) Client.State.Current = Client.State.States.Airborne;
 	}
 
 	protected OnStep(Client: Client) {
-		if (Client.Rail.RailDebounce > 0) {
-			Client.Rail.RailDebounce--;
-		}
+		if (Client.Rail.RailDebounce > 0) Client.Rail.RailDebounce--;
 	}
 }

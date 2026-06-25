@@ -73,15 +73,13 @@ export class SoundController {
 	}
 
 	public Stop(Path: string, Config?: StopConfig) {
-		if (!Config) {
-			Config = {};
-		}
+		if (!Config) Config = {};
 
 		const Sound = Config.Target || this.PathToSound(Path);
 		if (!Sound) return;
 
 		const Class = Sound.GetAttribute("Class");
-		this.Registry.find((Source, Index) => {
+		return this.Registry.find((Source, Index) => {
 			if ((Sound && Source === Sound) || Source.GetAttribute("Class") === Class) {
 				Source.Destroy();
 				this.Registry[Index] = undefined as unknown as Sound;

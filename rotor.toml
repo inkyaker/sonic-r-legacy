@@ -1,0 +1,22 @@
+#:schema https://raw.githubusercontent.com/uproot/rotor/master/rotor.schema.json
+
+# rotor project configuration — read by `rotor asset sync` and
+# `rotor deploy`. Uncomment the sections you need.
+
+# [assets]
+# mode = "module"                 # "module" (assets.luau) | "macro" ($asset transformer)
+# paths = ["assets/**/*.png", "assets/**/*.ogg"]
+#
+# [assets.output]                 # only used in "module" mode
+# luau = "src/shared/assets.luau"
+# types = "src/shared/assets.d.ts"
+#
+# [assets.creator]
+# type = "user"                   # "user" | "group"
+# id = 0
+
+# [deploy.environments.dev]
+# universeId = 0
+# [deploy.environments.dev.places.start]
+# file = "build/game.rbxl"
+# placeId = 0

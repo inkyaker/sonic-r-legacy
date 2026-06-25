@@ -14,7 +14,12 @@ export type AssetsDir = Folder & {
 		Root: Part & {
 			Stomp: Attachment;
 			Slide: Attachment;
-			Rail: Attachment;
+			Rail: Attachment & {
+				StarMain: ParticleEmitter;
+				Locked: Attachment & {
+					BackgroundMain: ParticleEmitter
+				}
+			};
 		};
 	};
 };
