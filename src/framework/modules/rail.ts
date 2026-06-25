@@ -97,7 +97,7 @@ export function SetRail(Client: Client, Part?: Part) {
 		}
 	} else if (Client.Rail.Current !== undefined) {
 		Rail.Current = undefined;
-		Rail.RailDebounce = 25;
+		Rail.RailDebounce = 10;
 		Rail.RailOffset = Vector3.zero;
 	}
 }

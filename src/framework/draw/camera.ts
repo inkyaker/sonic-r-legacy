@@ -41,8 +41,8 @@ export class Camera {
 	public TouchDelta = Vector2.zero;
 
 	constructor(Client: Client) {
-		this.Rotation = { X: 0, Y: 0, Z: 0 };
-		this.Zoom = 16;
+		this.Rotation = { X: math.rad(-15), Y: 0, Z: 0 };
+		this.Zoom = 20;
 		this.Client = Client;
 		this.InputVector = Vector3.xAxis;
 		this.CenterPos = Client.GetMiddle();
