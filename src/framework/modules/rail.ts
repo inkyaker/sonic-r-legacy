@@ -108,14 +108,12 @@ export function CheckRail(Client: Client) {
 	const Rail = Client.State.States.Rail;
 	const LastPosition = Client.LastCFrame.Position;
 
-	if (LastPosition.Distance(Client.Position) >= .0001) {
+	if (LastPosition.Distance(Client.Position) >= 0.0001) {
 		const Look = CFrame.lookAt(LastPosition, Client.Position).LookVector;
 		const Magnitude = LastPosition.Distance(Client.Position);
 
 		const Cast = workspace.Spherecast(LastPosition.sub(Look.mul(Rail.Skin)), Rail.Skin, Look.mul(Magnitude + Rail.Skin), Rail.Params);
-		if (Cast) {
-			SetRail(Client, Cast.Instance as Part);
-		}
+		if (Cast) SetRail(Client, Cast.Instance as Part);
 	}
 
 	return Client.State.Current === Client.State.States.Rail;
@@ -149,51 +147,30 @@ export class StateRail extends StateBase {
 
 	protected BeforeUpdateHook(Client: Client) {
 		const Rail = Client.Rail;
+		if (!Rail.Current) return;
 
-		//Immediately quit if not on a rail
-		if (!Rail.Current) {
-			return;
-		}
-
-		//Gravity
 		const Weight = Client.GetWeight();
-		// TODO: Water detection
-
 		let Gravity = Client.ToLocal(Client.Flags.Gravity).mul(Weight).X;
 
-		//Amplify gravity
-		if (math.sign(Gravity) === math.sign(Client.Speed.X)) {
-			//Have stronger gravity when gravity is working with us
-			Gravity *= 1.125 + math.abs(Client.Speed.X) / 8;
-		} else {
-			//Have weaker gravity when gravity is working against us
-			Gravity *= (0.5 / (1 + math.abs(Client.Speed.X) / 3.5));
-		}
+		// multiply gravity if its working with or against us
+		if (math.sign(Gravity) === math.sign(Client.Speed.X)) Gravity *= 1.125 + math.abs(Client.Speed.X) / 8;
+		else Gravity *= 0.5 / (1 + math.abs(Client.Speed.X) / 3.5);
 
-		//Get drag factor
 		let Drag = 0.95;
-
-		//Apply gravity and drag
 		Client.Speed = Client.Speed.add(new Vector3(Gravity, 0, 0));
 		Client.Speed = Client.Speed.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X * 0.715 * Drag, 0, 0));
 
-		//Make sure player is at a minimum speed
-		if (Client.Speed.X === 0) {
-			Client.Speed = new Vector3(Client.Config.JogSpeed, Client.Speed.Y, Client.Speed.Z);
-		} else if (math.abs(Client.Ground.DotProduct) > 0.95) {
+		if (Client.Speed.X === 0) Client.Speed = new Vector3(Client.Config.JogSpeed, Client.Speed.Y, Client.Speed.Z);
+		else if (math.abs(Client.Ground.DotProduct) > 0.95)
 			Client.Speed = new Vector3(math.max(math.abs(Client.Speed.X), Client.Config.JogSpeed) * math.sign(Client.Speed.X), Client.Speed.Y, Client.Speed.Z);
-		}
 
-		//Give rail bonus at high speed
 		if (math.abs(Client.Speed.X) >= 8) {
 			Rail.RailBonusTime++;
 			if (Rail.RailBonusTime >= 60) {
-				Client.GameState.AddScore((Client.Speed.X < 0 && 1000) || 700);
+				Client.GameState.AddScore(300);
 				Rail.RailBonusTime = 0;
 			}
-		} else {
-			Rail.RailBonusTime = math.max(Rail.RailBonusTime - 2, 0);
-		}
+		} else Rail.RailBonusTime = math.max(Rail.RailBonusTime - 2, 0);
 	}
 
 	protected AfterUpdateHook(Client: Client) {
@@ -205,9 +182,8 @@ export class StateRail extends StateBase {
 			return;
 		}
 
-		Rail.RailOffset = Rail.RailOffset.mul(0.8);
+		Rail.RailOffset = Rail.RailOffset.mul(0.9);
 
-		//Run sound
 		const Active = RailActive(Client);
 		if (Active) {
 			if (!Rail.RailSound) {
@@ -218,7 +194,17 @@ export class StateRail extends StateBase {
 			if (Rail.RailSound) Rail.RailSound.Volume = math.sqrt(math.abs(Client.Speed.X) / 8);
 		}
 
-		//Set animation
+		if (RailActive(Client) && (Client.Input.Button.RailSwitchLeft.DidPress || Client.Input.Button.RailSwitchRight.DidPress)) {
+			const OtherRail = workspace.Raycast(Client.Position, Client.Angle.RightVector.mul(15 * (Client.Input.Button.RailSwitchLeft.DidPress ? -1 : 1)), this.Params);
+			if (OtherRail) {
+				const Position = Client.Position;
+				SetRail(Client, OtherRail.Instance as Part);
+				Rail.RailOffset = Position.sub(Client.Position);
+
+				Client.Sound.Play("Character/Jump")
+			}
+		}
+
 		if (RailActive(Client)) {
 			Client.Animation.Current = "Rail";
 			Client.Animation.Speed = Client.Speed.X;

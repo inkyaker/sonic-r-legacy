@@ -88,7 +88,7 @@ export function PackDrawInfo(Client?: Client) {
 	return Client
 		? {
 				YOffset: Client.Root.Size.Y / 2 + (Client.Humanoid.HipHeight || 0),
-				Position: Client.RenderCFrame.Position.add(Client.Rail.RailOffset),
+				Position: Client.RenderCFrame.Position,
 				Angle: Client.RenderCFrame.Rotation.mul(CFrame.Angles(Client.Animation.Current === "AirBoost" ? math.clamp(Client.Speed.Y / 8, -1, 1) : 0, 0, 0)),
 				JumpBallEnabled: Client.Flags.BallEnabled && Client.Animation.Current === "Roll",
 				BallTrailEnabled: Client.Flags.TrailEnabled,

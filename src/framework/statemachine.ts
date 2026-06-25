@@ -86,7 +86,7 @@ export class StateMachine {
 			this.TickTimer--;
 
 			this.Client.LastCFrame = this.Client.CurrentCFrame;
-			this.Client.CurrentCFrame = this.Client.Angle.add(this.Client.Position);
+			this.Client.CurrentCFrame = this.Client.Angle.add(this.Client.Position).add(this.Client.Rail.RailOffset);
 		}
 	}
 }

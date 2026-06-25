@@ -312,7 +312,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.State.Update(DeltaTime);
 
 		// Interpolate positions
-		this.RenderCFrame = this.LastCFrame.Lerp(this.Angle.add(this.Position), this.State.TickTimer);
+		this.RenderCFrame = this.LastCFrame.Lerp(this.Angle.add(this.Position).add(this.Rail.RailOffset), this.State.TickTimer);
 
 		const DrawInfo = PackDrawInfo(this);
 		this.Renderer.DrawInfo = DrawInfo;

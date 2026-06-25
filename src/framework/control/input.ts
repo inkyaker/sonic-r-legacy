@@ -26,6 +26,9 @@ export class Input {
 			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
 			Slide: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
 			Debug: new ButtonState([Enum.KeyCode.One, Enum.KeyCode.DPadUp]),
+
+			RailSwitchLeft: new ButtonState([Enum.KeyCode.Q, Enum.KeyCode.ButtonL1]),
+			RailSwitchRight: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonR2]),
 		};
 
 		this.PlatformContext = "PC"; // assume pc by default
@@ -149,7 +152,7 @@ export class Input {
 		let [CameraLook] = VUtil.PlaneProject(game.Workspace.CurrentCamera.CFrame.LookVector, CameraUp);
 		if (CameraLook.Magnitude !== 0) CameraLook = CameraLook.Unit;
 		else CameraLook = Look;
-		
+
 		const CameraTarget = CFrame.fromAxisAngle(CameraUp, math.atan2(-this.Client.Input.Stick.X, -this.Client.Input.Stick.Y)).mul(CameraLook);
 		if (CameraUp.Dot(Up) >= -0.999) this.Client.Flags.LastUp = Up;
 
