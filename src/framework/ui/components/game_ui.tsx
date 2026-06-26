@@ -235,6 +235,8 @@ function InputPopup({
 
 	const [Visible, SetVisible] = useState(true);
 
+	useEffect(() => SetVisible(true), [Icon]);
+
 	useEffect(() => {
 		if (!Visible) {
 			Motion.tween(UDim2.fromScale(0, 0), {
@@ -247,6 +249,9 @@ function InputPopup({
 			const Thread = task.delay(0.25, () => OnFinished());
 			return () => task.cancel(Thread);
 		} else {
+			Motion.setPosition(UDim2.fromScale(0, 0));
+            TextMotion.setPosition(0);
+			
 			Motion.tween(UDim2.fromScale(0.1, 0.1), {
 				easing: "backOut",
 				duration: 0.25,
@@ -266,7 +271,7 @@ function InputPopup({
 			});
 			return () => Connection.Disconnect();
 		}
-	}, [Visible]);
+	}, [Visible, Icon]);
 
 	return (
 		<frame Position={UDim2.fromScale(0.5, 0.95)} Transparency={1} AnchorPoint={new Vector2(0.5, 1)} Size={Size}>
