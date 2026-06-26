@@ -3,17 +3,17 @@
 # rotor project configuration — read by `rotor asset sync` and
 # `rotor deploy`. Uncomment the sections you need.
 
-# [assets]
-# mode = "module"                 # "module" (assets.luau) | "macro" ($asset transformer)
-# paths = ["assets/**/*.png", "assets/**/*.ogg"]
-#
-# [assets.output]                 # only used in "module" mode
-# luau = "src/shared/assets.luau"
-# types = "src/shared/assets.d.ts"
-#
-# [assets.creator]
-# type = "user"                   # "user" | "group"
-# id = 0
+#[assets]
+#mode = "module"             # "module" (assets.luau) | "macro" ($asset transformer)
+#paths = ["assets/**/*.png"]
+
+#[assets.output] # only used in "module" mode
+#luau = "src/shared/assets.luau"
+#types = "src/shared/assets.d.ts"
+
+#assets.creator]
+#ype = "group" # "user" | "group"
+#d = 15871078
 
 # [deploy.environments.dev]
 # universeId = 0

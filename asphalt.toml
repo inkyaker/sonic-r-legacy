@@ -1,0 +1,14 @@
+#:schema https://raw.githubusercontent.com/jackTabsCode/asphalt/refs/heads/main/schema.json
+
+[creator]
+type = "group"
+id = 15871078
+
+[codegen]
+typescript = true
+style = "flat"
+strip_extensions = true
+
+[inputs.assets]
+path = "assets/**/*"
+output_path = "src/shared"

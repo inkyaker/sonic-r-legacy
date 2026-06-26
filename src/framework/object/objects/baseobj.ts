@@ -49,9 +49,7 @@ class BaseObject<T extends Model>
 	}
 
 	public OnTick(_GetClient: () => Client) {
-		if (this.Debounce > 0) {
-			this.Debounce--;
-		}
+		if (this.Debounce > 0) this.Debounce--;
 	}
 
 	/**

@@ -5,3 +5,4 @@
 
 [tools]
 rotor = "uproot/rotor@2.2.1"
+asphalt = "jacktabscode/asphalt@2.0.1"

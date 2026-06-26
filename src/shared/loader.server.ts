@@ -34,7 +34,8 @@ export class GameController implements OnStart {
 	}
 }
 
-Flamework.addPathsGlob("src/shared/**.ts");
+Flamework.addPathsGlob("src/shared/common/**.ts");
+Flamework.addPaths("src/shared/loader.server.ts")
 Flamework.addPathsGlob("src/framework/**.ts");
 Flamework.ignite();
 

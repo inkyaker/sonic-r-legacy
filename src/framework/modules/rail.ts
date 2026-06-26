@@ -59,13 +59,9 @@ export function SetRail(Client: Client, Part?: Part) {
 		const Speed = Client.ToGlobal(Client.Speed).Dot(Part.CFrame.LookVector);
 		let RailDirection: number;
 
-		if (Direction !== 0) {
-			RailDirection = math.sign(Direction);
-		} else if (Speed !== 0) {
-			RailDirection = math.sign(Speed);
-		} else {
-			RailDirection = 1;
-		}
+		if (Direction !== 0) RailDirection = math.sign(Direction);
+		else if (Speed !== 0) RailDirection = math.sign(Speed);
+		else RailDirection = 1;
 
 		if (!Rail.Current) {
 			Client.ResetObjectState();
@@ -92,9 +88,7 @@ export function SetRail(Client: Client, Part?: Part) {
 
 			Client.Angle = GetRailAngle(Client);
 			Client.Position = GetRailPosition(Client);
-		} else {
-			return;
-		}
+		} else return;
 	} else if (Client.Rail.Current !== undefined) {
 		Rail.Current = undefined;
 		Rail.RailDebounce = 10;

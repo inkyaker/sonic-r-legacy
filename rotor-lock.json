@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "assets": {
+    "assets/key_icons/A.png": {
+      "hash": "sha256:8bcea03263f365533ec773ecec83f69e2ef48987b2ef1cdb95bc1046c43cec89",
+      "assetId": 77606733603209
+    },
+    "assets/key_icons/B.png": {
+      "hash": "sha256:fc63a863cec941dcdfb5fdaf7c4653616f024d57773ea87e361704a8cbf7215d",
+      "assetId": 99711980627300
+    },
+    "assets/key_icons/ButtonA.png": {
+      "hash": "sha256:913e59774cd9b6ae299b83c149e6bbebb1fea02608e1cd39f4b4ac313102f6bd",
+      "assetId": 117132195514749
+    },
+    "assets/key_icons/ButtonA_TEMP.png": {
+      "hash": "sha256:48ed24ce1c238cc084e073fb0d5803aaf9ed5d6113eb6ea78c7cc7b785ba987c",
+      "assetId": 84933085329465
+    },
+    "assets/key_icons/ButtonB.png": {
+      "hash": "sha256:329d67ca44ca0f2e059189c33bbf0f25eb8876edfdb5a0ef180e9f81de3fd72e",
+      "assetId": 117024589151581
+    },
+    "assets/key_icons/ButtonCircle.png": {
+      "hash": "sha256:2a328b6588ed8dfa3755bb49be35d4987cf10c3ace874de3b3904d53e26d30fa",
+      "assetId": 102852569744570
+    },
+    "assets/key_icons/ButtonCross.png": {
+      "hash": "sha256:fcc46fba8272fdb4504be36491945359b6ce2f67a7f59818cfa53fc8cd4862a2",
+      "assetId": 75142618993990
+    },
+    "assets/key_icons/ButtonL1.png": {
+      "hash": "sha256:e63bcc131a4f2d7a7ccb4929e76fe5bfa0e9c1c8a3ce13f2b6198d742867a08b",
+      "assetId": 85358507971049
+    },
+    "assets/key_icons/ButtonL2.png": {
+      "hash": "sha256:4604de0a223e03147d4718d52d560573a6e5aee93a97f11f21823ce5dc9ea661",
+      "assetId": 111323105112946
+    },
+    "assets/key_icons/ButtonL3.png": {
+      "hash": "sha256:8367d5673f40b73662920051b5321d9415b9d0cbdc1806415020a26328b99576",
+      "assetId": 100438261426996
+    },
+    "assets/key_icons/ButtonLB.png": {
+      "hash": "sha256:e6c8540376270ac0124934959215ffebe4e12d3d22611609d7bd6f270eeab4d6",
+      "assetId": 139755889141966
+    },
+    "assets/key_icons/ButtonLS.png": {
+      "hash": "sha256:d27902c01bb450156112663473a160175a1fcf9a0eceda7e5d7c96ca0ba11d56",
+      "assetId": 92117578889753
+    },
+    "assets/key_icons/ButtonLT.png": {
+      "hash": "sha256:0d67866002b46fac213fbbb8e7b22258cb52a7625f640c7746bc1e04b8ef9069",
+      "assetId": 92129930172591
+    },
+    "assets/key_icons/ButtonR1.png": {
+      "hash": "sha256:b41fc6c4e8ca392bdafde0e024e956f74995a74f3933bdb49859e36857ebcee5",
+      "assetId": 105922743404910
+    },
+    "assets/key_icons/ButtonR2.png": {
+      "hash": "sha256:3556bc519fc8c26e4ba3c706c33ae37b2ce4ca40a58e336a46ce9171de738aca",
+      "assetId": 78127857693974
+    },
+    "assets/key_icons/ButtonR3.png": {
+      "hash": "sha256:6eae670481d6bd9ab091ba8d273efb21cdf0c38b3cc2438779cf05bd41ac653a",
+      "assetId": 91939630328446
+    },
+    "assets/key_icons/ButtonRB.png": {
+      "hash": "sha256:75189a98a32bd2c2603776a74c594c4d554e379ebe5c5d05275983d70ceac09f",
+      "assetId": 75073529200392
+    },
+    "assets/key_icons/ButtonRS.png": {
+      "hash": "sha256:21cbd553bd552a14e11be5e5ff5cdd9eb52f9ef1bac462148550d1c35a6b9a44",
+      "assetId": 115829623749511
+    },
+    "assets/key_icons/ButtonRT.png": {
+      "hash": "sha256:8eaa38316a63109f85095e07cf483c389a671ba843b52e3235ab2ce0df63698f",
+      "assetId": 110180565457162
+    },
+    "assets/key_icons/ButtonSquare.png": {
+      "hash": "sha256:e99d2c2e825654fb778045a7dcbbfb612b51991161e759638ab87161bd1c2899",
+      "assetId": 104212144087207
+    },
+    "assets/key_icons/ButtonTriangle.png": {
+      "hash": "sha256:566d6fa9a4ff45c9f77822bdee532a2f10402caad7219f6a4601a3f81d79bcd9",
+      "assetId": 70429606647785
+    },
+    "assets/key_icons/ButtonX.png": {
+      "hash": "sha256:127b823d5b9d2877fb8c09fa038940d62a95e5fdeedfab64c9fd76b0afb7fbae",
+      "assetId": 71785287731358
+    },
+    "assets/key_icons/ButtonY.png": {
+      "hash": "sha256:17253bd37c1be71e2c651b4030ddf23a1b33f138663d4dbd7912597a086fe12e",
+      "assetId": 124818390905466
+    },
+    "assets/key_icons/C.png": {
+      "hash": "sha256:ab2b4148550d5223cb83d5172791ef0a7908b30ee716e8dce461a65a287ab5b4",
+      "assetId": 99201290164162
+    },
+    "assets/key_icons/D.png": {
+      "hash": "sha256:06b5d18107989ac21f2523e6b6912afe40f448c77be261e3ab11076cdab57285",
+      "assetId": 130226210266975
+    },
+    "assets/key_icons/E.png": {
+      "hash": "sha256:204e3720e04c97e710a204d776cb8175df7291e8643099f4f821fa59b94b5b4b",
+      "assetId": 76356312166890
+    },
+    "assets/key_icons/Eight.png": {
+      "hash": "sha256:49489dcff063c99b7591408b662c71b4da2d14c3676d5921038e0373e93b0c7c",
+      "assetId": 85595839809577
+    },
+    "assets/key_icons/F.png": {
+      "hash": "sha256:ed859134ba941c73cfa5474caa93a16082e2715b7944a61706fbbaf57b386bbb",
+      "assetId": 105421422457501
+    },
+    "assets/key_icons/Five.png": {
+      "hash": "sha256:362749294b3706663b7cb87ccc304defdc1c8a09fa976836e8960eacd879e199",
+      "assetId": 119386025656647
+    },
+    "assets/key_icons/Four.png": {
+      "hash": "sha256:172cf085bec4f6a683452f8cd34072c97875c1ed3ef160eda58741794d252210",
+      "assetId": 130606562996519
+    },
+    "assets/key_icons/G.png": {
+      "hash": "sha256:402eee52c9ee9c56276fb26140a00d04b1af4e0c391c67873ca522ace01397e5",
+      "assetId": 138404794296878
+    },
+    "assets/key_icons/H.png": {
+      "hash": "sha256:e7e1af53b52b9502e3f9960a40730c8e0c710dd79ee19ddfb866111cd30caa94",
+      "assetId": 88527101320194
+    },
+    "assets/key_icons/I.png": {
+      "hash": "sha256:e531ed75d7366459d046068d38653ba0efcf2fcc07e0848ea1ec2ef5c62ed223",
+      "assetId": 115259934381435
+    },
+    "assets/key_icons/J.png": {
+      "hash": "sha256:5b4dfa087fa86e8a78e86d17ec05a8639523fdb37303f442bae43cd38bd0f9dc",
+      "assetId": 126929316460411
+    },
+    "assets/key_icons/K.png": {
+      "hash": "sha256:81712610e2b2cc1af1fdb2d274aba236ce68d19e81b01c89b12fac0e7aab006a",
+      "assetId": 77244542594759
+    },
+    "assets/key_icons/L.png": {
+      "hash": "sha256:ca89b9e14b33c2be559a4b3cf704eed2a0e993d935cecfaed99732fbd3bcb307",
+      "assetId": 83945279882911
+    },
+    "assets/key_icons/LeftAlt.png": {
+      "hash": "sha256:1853bd025725f096e6ca195cf9d898346b66cea018233f212fd704e3f8d67d97",
+      "assetId": 136136749322012
+    },
+    "assets/key_icons/LeftControl.png": {
+      "hash": "sha256:62e38c3fa0c3206e193c8586d8c4c57b3900b3edfdad47066ab56a87d51aab69",
+      "assetId": 124312709621167
+    },
+    "assets/key_icons/LeftShift.png": {
+      "hash": "sha256:8526fa0c4520371fe99f17da9118921d6e157d1d955347cd927f76c4b851d590",
+      "assetId": 107686032611893
+    },
+    "assets/key_icons/M.png": {
+      "hash": "sha256:d9bc14540a9c44cbce3e36a79c5e5f4179f9b99142596324f51e98fae9316954",
+      "assetId": 95472341207115
+    },
+    "assets/key_icons/N.png": {
+      "hash": "sha256:331ebfa198316b9f2ac0145b9674cb8a37b757526ff4e84b74f796af5eff163e",
+      "assetId": 81656181192818
+    },
+    "assets/key_icons/Nine.png": {
+      "hash": "sha256:43b01574c7f8023cd15b8e3b4441b998fa6395a227ad28486d937f6b7dc06457",
+      "assetId": 122649173764183
+    },
+    "assets/key_icons/O.png": {
+      "hash": "sha256:8cc61e35f709b9168f64d1d4597b6ab337a0cac7462819a96e2a2ce32d0cd332",
+      "assetId": 104226128007360
+    },
+    "assets/key_icons/One.png": {
+      "hash": "sha256:7f4cd4fb5dca267eab00611f30d07210f15be82a23743031a0d173fcd8e4fc1b",
+      "assetId": 84493767659090
+    },
+    "assets/key_icons/P.png": {
+      "hash": "sha256:ae8e40d106ebcfcbcc55259518a009fa041a610e9920ef188480856a4653d468",
+      "assetId": 74104606531366
+    },
+    "assets/key_icons/Q.png": {
+      "hash": "sha256:261bfddcd8bf9da7a2defcb39be70b9922a16fe2982009f6828a4bfc63d2ffce",
+      "assetId": 96031441450648
+    },
+    "assets/key_icons/R.png": {
+      "hash": "sha256:d6e7d21cb84291976dcaef4bf16abd0847571c0138673162223dc2d431625e6d",
+      "assetId": 116319086565061
+    },
+    "assets/key_icons/S.png": {
+      "hash": "sha256:50c225347cfc416eb57703c86369a04b60e25e848a45bb197b2e58133459fd3e",
+      "assetId": 116575673974154
+    },
+    "assets/key_icons/Seven.png": {
+      "hash": "sha256:128b4f644bee39af0294d844c2dc820d778c0d70955832952f7b25e23d106d91",
+      "assetId": 104086910799094
+    },
+    "assets/key_icons/Six.png": {
+      "hash": "sha256:1c34292f6cb0fb22c7bcbfaea64121b365f9b999de01f3d06dc5ed8b826723f6",
+      "assetId": 99863102948956
+    },
+    "assets/key_icons/Space.png": {
+      "hash": "sha256:ff445462d1508f806b5bad37f519cb1fda130883a5d64dfd3fac2b8652aa85f0",
+      "assetId": 82261413924590
+    },
+    "assets/key_icons/T.png": {
+      "hash": "sha256:c36e783cfc2e53409d709c77baab0af52133437f16f2df163229d97eb72a7276",
+      "assetId": 122762052920780
+    },
+    "assets/key_icons/Tab.png": {
+      "hash": "sha256:f2f3eb84c7a8ca4d21016fcfde76b5f9c09e68775793c540c801f80cf001dc63",
+      "assetId": 118438318589307
+    },
+    "assets/key_icons/Three.png": {
+      "hash": "sha256:85b160099564bcbfb3d28bcb8e0c60072a23f3b250e05d1b9bccd920bdb07fac",
+      "assetId": 124788698833068
+    },
+    "assets/key_icons/Two.png": {
+      "hash": "sha256:71fe001d3292f2040fe02eb92ab393c2855f999f81bbcd20cc419d9d9d2f888c",
+      "assetId": 96372440657058
+    },
+    "assets/key_icons/U.png": {
+      "hash": "sha256:a37ad9f9c031f60c2eed75e1873eb1aec1dc7c169e22cf0c2a8b9e5e2b50d103",
+      "assetId": 139858997773278
+    },
+    "assets/key_icons/V.png": {
+      "hash": "sha256:99d1b667486652e6d9045fc289c9bf71951bd9a595a912ad14485c24d8fc8efc",
+      "assetId": 129359522004546
+    },
+    "assets/key_icons/W.png": {
+      "hash": "sha256:eca16447839d47ccb9c6f687ef557f8573fd80813f531c6e945e9e60792c346e",
+      "assetId": 94135848248845
+    },
+    "assets/key_icons/X.png": {
+      "hash": "sha256:14d865acc97e366daa4c3583b23939fc9f1261a8a52bdbfd40adee162c0e5667",
+      "assetId": 112049130237450
+    },
+    "assets/key_icons/Y.png": {
+      "hash": "sha256:4e2ed8859e3b10ca3899f82a2c63be4f19a6308928efba473f68e791f828705f",
+      "assetId": 70579583472859
+    },
+    "assets/key_icons/Z.png": {
+      "hash": "sha256:92c91d5c059a4b384d39a77f167bca07e66068f96465ae7d6429da83d4e780e3",
+      "assetId": 101433284890838
+    },
+    "assets/key_icons/Zero.png": {
+      "hash": "sha256:39f00216d94e4d212dbe21be36c5fb0b93e76b9cb848c04204df005854bbf461",
+      "assetId": 85719688020731
+    }
+  }
+}

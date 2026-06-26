@@ -4,9 +4,11 @@ import { useMotion } from "@rbxts/pretty-react-hooks";
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
 import { useAtom } from "@rbxts/react-charm";
 import { RunService } from "@rbxts/services";
+import { Environment } from "@rbxts/ui-labs";
 import { Constants } from "shared/common/constants";
 import type { CharacterType } from "shared/common/data";
 import { BallTrailColors } from "shared/common/globals";
+import type { InputPopup as PopupData } from "../ui_controller";
 
 const Red = Color3.fromRGB(173, 0, 0);
 const Yellow = Color3.fromRGB(255, 214, 52);
@@ -216,24 +218,103 @@ function RingCounter({ Rings, Score, Mult, CharacterColor }: { Rings: number; Sc
 	);
 }
 
+function InputPopup({
+	Data: Icon,
+	Duration,
+	OnFinished,
+}: {
+	Data: {
+		Text: string;
+		Image: string;
+	};
+	Duration: number;
+	OnFinished: () => void;
+}) {
+	const [Size, Motion] = useMotion(UDim2.fromScale(0, 0));
+	const [TextSize, TextMotion] = useMotion(0);
+
+	const [Visible, SetVisible] = useState(true);
+
+	useEffect(() => {
+		if (!Visible) {
+			Motion.tween(UDim2.fromScale(0, 0), {
+				duration: 0.1,
+			});
+			TextMotion.tween(0, {
+				duration: 0.1,
+			});
+
+			const Thread = task.delay(0.25, () => OnFinished());
+			return () => task.cancel(Thread);
+		} else {
+			Motion.tween(UDim2.fromScale(0.1, 0.1), {
+				easing: "backOut",
+				duration: 0.25,
+			});
+
+			TextMotion.tween(100, {
+				duration: 0.1,
+			});
+
+			if (Environment.IsStory()) return;
+
+			let Progress = 0;
+			const Connection = RunService.RenderStepped.Connect((DeltaTime) => {
+				Progress += DeltaTime;
+
+				if (Progress >= Duration) SetVisible(false);
+			});
+			return () => Connection.Disconnect();
+		}
+	}, [Visible]);
+
+	return (
+		<frame Position={UDim2.fromScale(0.5, 0.95)} Transparency={1} AnchorPoint={new Vector2(0.5, 1)} Size={Size}>
+			<uilistlayout Padding={new UDim(0, 15)} HorizontalAlignment={"Center"} VerticalAlignment={"Center"} FillDirection={"Horizontal"} SortOrder={"LayoutOrder"} />
+			<imagelabel key="ImageLabel" BorderSizePixel={0} BackgroundTransparency={1} Image={Icon.Image} Size={UDim2.fromScale(1, 1)} ScaleType={"Fit"} LayoutOrder={-99}>
+				<uiaspectratioconstraint />
+			</imagelabel>
+			<textlabel
+				key="TextLabel"
+				BackgroundTransparency={1}
+				FontFace={new Font("rbxassetid://12187607287", Enum.FontWeight.Bold, Enum.FontStyle.Normal)}
+				Text={Icon.Text}
+				TextColor3={Color3.fromRGB(0, 0, 0)}
+				TextSize={TextSize}
+				AutomaticSize={"X"}
+				Size={UDim2.fromScale(0, 1)}
+				TextTransparency={0.3}
+				TextXAlignment={"Left"}
+			>
+				<uistroke key="UIStroke" Thickness={2} Color={Color3.fromRGB(255, 255, 255)} />
+			</textlabel>
+		</frame>
+	);
+}
+
 export function GameUI({
 	RingsAtom,
 	ScoreAtom,
 	MultAtom,
 	CharacterTypeAtom,
+	PopupAtom,
 }: {
 	RingsAtom: Atom<number>;
 	ScoreAtom: Atom<number>;
 	LivesAtom: Atom<number>;
 	MultAtom: Atom<number>;
 	CharacterTypeAtom: Atom<CharacterType>;
+	PopupAtom: Atom<PopupData | undefined>;
 }) {
 	const [Rings, Score, Mult, CharacterType] = [useAtom(RingsAtom), useAtom(ScoreAtom), useAtom(MultAtom), useAtom(CharacterTypeAtom)];
 	const CharacterColor = useMemo(() => BallTrailColors[CharacterType], [CharacterType]);
+	const ActivePopup = useAtom(PopupAtom);
 
 	return (
 		<frame Transparency={1} Size={UDim2.fromScale(1, 1)}>
 			<RingCounter Rings={Rings} Score={Score} Mult={Mult} CharacterColor={CharacterColor} />
+
+			{ActivePopup ? <InputPopup Duration={ActivePopup.Duration} Data={ActivePopup.Data} OnFinished={() => PopupAtom(undefined)} /> : undefined}
 
 			<textlabel
 				key="TextLabel"

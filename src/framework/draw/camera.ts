@@ -7,8 +7,8 @@ const StickSensitivity = new Vector2(1, 0.77).mul(math.rad(4) * 60);
 const TouchSensitivity = new Vector2(1, 0.66).mul(math.rad(1));
 const PitchMax = math.rad(80);
 
-function ThumbstickCurve(X: number) {
-	const FDeadzone = (math.abs(X) - 0.1) / (1 - 0.1);
+function ThumbstickCurve(X: number, Deadzone: number) {
+	const FDeadzone = (math.abs(X) - Deadzone) / (1 - Deadzone);
 	if (FDeadzone <= 0) return 0;
 
 	const FCurve = (math.exp(2 * FDeadzone) - 1) / (math.exp(2) - 1);
@@ -74,7 +74,9 @@ export class Camera {
 		let GamepadInput = Vector2.zero;
 		const GPState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1);
 
-		for (const Value of GPState) if (Value.KeyCode === Enum.KeyCode.Thumbstick2) GamepadInput = new Vector2(ThumbstickCurve(Value.Position.X), -ThumbstickCurve(Value.Position.Y));
+		const Deadzone = this.Client.Data.Data.Settings.Thumbstick2Deadzone;
+		for (const Value of GPState)
+			if (Value.KeyCode === Enum.KeyCode.Thumbstick2) GamepadInput = new Vector2(ThumbstickCurve(Value.Position.X, Deadzone), -ThumbstickCurve(Value.Position.Y, Deadzone));
 
 		const CamSens = UserSettings().GetService("UserGameSettings").GamepadCameraSensitivity;
 		const YInvert = UserSettings().GetService("UserGameSettings").GetCameraYInvertValue();

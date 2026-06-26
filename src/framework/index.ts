@@ -14,6 +14,7 @@ import { PlaneProject } from "shared/common/utility/vutil";
 import type { GameController } from "shared/loader.server";
 import { ClientEvents } from "./client_networking";
 import { Input } from "./control/input";
+import type { DataController } from "./data_controller";
 import { AnimationController } from "./draw/animation";
 import { Camera } from "./draw/camera";
 import type { EffectController } from "./draw/effect_controller";
@@ -246,6 +247,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		public Controller: GameController,
 		public UI: UIController,
 		public Effects: EffectController,
+		public Data: DataController,
 	) {
 		super();
 
@@ -293,6 +295,8 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * Destroys the Client
 	 */
 	public Destroy() {
+		this.Input.Destroy();
+		this.Renderer.Destroy();
 		this.Sound.Destroy();
 	}
 
@@ -524,7 +528,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 				}
 
 				this.GameState.AddRings(-math.min(this.GameState.Rings, 150));
-				this.Sound.Play("Character/RingLoss")
+				this.Sound.Play("Character/RingLoss");
 			} else this.State.States.Hurt.ShouldDie = true;
 		} else this.GameState.Shield = "";
 

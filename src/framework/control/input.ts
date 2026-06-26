@@ -1,4 +1,6 @@
 import { UserInputService } from "@rbxts/services";
+import { Trash as Bin } from "@rbxts/trash";
+import assets from "shared/assets";
 import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
 import type { Client } from "..";
@@ -11,43 +13,57 @@ type ButtonUnion = ExtractKeys<Input["Button"], ButtonState>;
  */
 export class Input {
 	public Button;
-	public PlatformContext: string;
-	public ControllerContext: String;
+	public PlatformContext: "PC" | "Mobile" | "Gamepad";
 	public Stick;
 	private Client: Client;
+	private Connections = new Bin();
 
 	constructor(Client: Client) {
 		this.Client = Client;
 		this.Button = {
-			Jump: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA]),
-			Boost: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX]),
-			Roll: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonR2]),
-			Bounce: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonL2]),
-			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
-			Slide: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB]),
-			Debug: new ButtonState([Enum.KeyCode.One, Enum.KeyCode.DPadUp]),
+			Jump: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA], "Jump"),
+			Boost: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX], "Boost"),
+			Roll: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonR2], "Roll"),
+			Bounce: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonL2], "Bounce"),
+			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB], "Stomp"),
+			Slide: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB], "Slide"),
+			Debug: new ButtonState([Enum.KeyCode.One, Enum.KeyCode.DPadUp], "Debug"),
 
-			RailSwitchLeft: new ButtonState([Enum.KeyCode.Q, Enum.KeyCode.ButtonL1]),
-			RailSwitchRight: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonR2]),
+			RailSwitchLeft: new ButtonState([Enum.KeyCode.Q, Enum.KeyCode.ButtonL1], "Switch Left"),
+			RailSwitchRight: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonR1], "Switch Right"),
 		};
 
-		this.PlatformContext = "PC"; // assume pc by default
-		this.ControllerContext = "Xbox";
+		/* 
+		platform context is purely for visual state (ex: button icons)
+		it does not acutally affect inputs, those are gathered in bulk and combined so you can use any combination of any input type, including the camera.
+		something roblox does not support with its default controlscripts
+		*/
+		this.PlatformContext = "PC";
 		this.Stick = Vector2.zero;
+
+		this.Connections.add(
+			UserInputService.InputBegan.Connect((Input) => {
+				if (Input.UserInputType === Enum.UserInputType.Keyboard) this.PlatformContext = "PC";
+				else if (Input.UserInputType === Enum.UserInputType.Touch) this.PlatformContext = "Mobile";
+				else if (Input.UserInputType === Enum.UserInputType.Gamepad1) this.PlatformContext = "Gamepad";
+			}),
+		);
+	}
+
+	public Destroy() {
+		this.Connections.destroy();
 	}
 
 	/**
 	 * Translates a KeyCode to a list of all binded `Input.Button`s
 	 * @param Key KeyCode
-	 * @returns List of all keys currently
+	 * @returns List of all keys currently bound to `Key`
 	 */
 	public KeyCodeToButton(Key: Enum.KeyCode) {
 		const List: ButtonUnion[] = [];
 		for (const [Index, Button] of pairs(this.Button)) {
 			const Target = Button.KeyCodes.find((Object) => Object === Key);
-			if (Target) {
-				List.push(Index);
-			}
+			if (Target) List.push(Index);
 		}
 
 		return List;
@@ -61,6 +77,19 @@ export class Input {
 		const MobileState: InputObject[] = []; // TODO: automatically create mobile buttons and match them to keycodes
 
 		return $tuple(KeyboardState, ControllerState, MobileState);
+	}
+
+	public GetIconForButton(Button: ButtonState) {
+		let PrimaryKeyCode: Enum.KeyCode | undefined = Button.KeyCodes.filter((Key) => {
+			if (this.PlatformContext === "PC") return !Key.Name.find("Button")[0];
+			else if (this.PlatformContext === "Gamepad") return !!Key.Name.find("Button")[0];
+			else return false;
+		})[0];
+
+		if (!PrimaryKeyCode) return "rbxassetid://0";
+		const ID = (assets as Record<string, string>)[`key_icons/${this.PlatformContext === "PC" ? PrimaryKeyCode.Name : UserInputService.GetStringForKeyCode(PrimaryKeyCode)}`];
+
+		return ID ? `rbxthumb://type=Asset&id=${ID.match("%d+")[0]}&w=150&h=150` : "rbxassetid://0";
 	}
 
 	/**
@@ -109,9 +138,7 @@ export class Input {
 
 		ControllerState.forEach((Key) => {
 			if (Key.KeyCode === Enum.KeyCode.Thumbstick1) {
-				if (Key.Position.Magnitude <= 0.15) {
-					return;
-				} // TODO: customizable deadzone
+				if (Key.Position.Magnitude <= this.Client.Data.Data.Settings.Thumbstick1Deadzone) return;
 
 				CStickX = Key.Position.X;
 				CStickY = -Key.Position.Y;
@@ -119,13 +146,9 @@ export class Input {
 		});
 
 		this.Stick = new Vector2(PCStickX + CStickX, PCStickY + CStickY);
-		if (this.Stick.Magnitude > 0) {
-			this.Stick = this.Stick.Unit;
-		}
+		if (this.Stick.Magnitude > 0) this.Stick = this.Stick.Unit;
 
 		// TODO: mobile stick
-
-		// TODO: Update platform & controller context
 	}
 
 	public PrepareReset() {
