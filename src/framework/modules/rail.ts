@@ -196,8 +196,8 @@ export class StateRail extends StateBase {
 				Rail.RailSound = undefined;
 		}
 
-		if (Active && (Client.Input.Button.RailSwitchLeft.DidPress || Client.Input.Button.RailSwitchRight.DidPress)) {
-			const OtherRail = workspace.Raycast(Client.Position, Client.Angle.RightVector.mul(15 * (Client.Input.Button.RailSwitchLeft.DidPress ? -1 : 1)), this.Params);
+		if (Active && (Client.Input.Button.RailSwitchLeft.IsDown || Client.Input.Button.RailSwitchRight.IsDown)) {
+			const OtherRail = workspace.Spherecast(Client.Position, 1, Client.Angle.RightVector.mul(15 * (Client.Input.Button.RailSwitchLeft.IsDown ? -1 : 1)), this.Params);
 			if (OtherRail) {
 				const Position = Client.Position;
 				SetRail(Client, OtherRail.Instance as Part);
