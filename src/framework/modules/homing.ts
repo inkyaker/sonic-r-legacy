@@ -11,7 +11,7 @@ import { CheckBounce } from "./bounce";
  * @returns Move successful
  */
 export function CheckHomingAttack(Client: Client) {
-	if (Client.Input.Button.Jump.DidPress && Client.Flags.BallEnabled) {
+	if (Client.Input.Button.HomingAttack.DidPress && Client.Flags.BallEnabled) {
 		const Object = PhysicsHandler.GetHomingObject(Client);
 		Client.Sound.Play("Character/Dash");
 

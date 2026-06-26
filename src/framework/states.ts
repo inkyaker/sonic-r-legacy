@@ -6,7 +6,6 @@ import { StateNone } from "./modules/none";
 import { StateRail } from "./modules/rail";
 import { StateSkid } from "./modules/skid";
 import { StateSlide } from "./modules/slide";
-import { StateRoll } from "./modules/spindash";
 import { StateStomp } from "./modules/stomp";
 
 /**
@@ -21,7 +20,6 @@ export class StateList {
 	public Hurt = new StateHurt();
 
 	// Move states
-	public Roll = new StateRoll();
 	public Skid = new StateSkid();
 	public Rail = new StateRail();
 	public Homing = new StateHoming();
