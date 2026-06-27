@@ -47,7 +47,6 @@ export function GetRailAngle(Client: Client) {
 
 		if (Next) {
 			const Offset = Current.CFrame.Inverse().mul(Client.Position);
-			print(1 - (Offset.Z + Current.Size.Z / 2) / Current.Size.Z);
 			Angle = CurrentAngle.Lerp(Next.Instance!.CFrame.Rotation, 1 - (Offset.Z + Current.Size.Z / 2) / Current.Size.Z);
 		}
 
