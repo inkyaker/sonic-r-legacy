@@ -12,9 +12,9 @@ export function CalculateBoostSpeed(Client: Client) {
 
 export function StepBoost(Client: Client) {
 	Client.Flags._BoostTicked = true;
-	
+
 	const WasBoosting = Client.Flags.Boosting;
-	Client.Flags.Boosting = Client.Input.Button.Boost.IsDown && !Client.Flags.LockTimer && !Client.Flags.InBounce;
+	Client.Flags.Boosting = Client.Input.Button.Boost.IsDown && !Client.Flags.InBounce && !Client.Flags.BoostDisabled;
 	if (Client.Flags.Boosting) {
 		if (!WasBoosting) {
 			Client.Sound.Play("Character/BoostCharge");
@@ -23,7 +23,7 @@ export function StepBoost(Client: Client) {
 		}
 
 		Client.Flags.BoostTicks++;
-		Client.Speed = CalculateBoostSpeed(Client);
+		if (Client.Flags.LockTimer <= 0) Client.Speed = CalculateBoostSpeed(Client);
 
 		if (Client.State.Current.GetID() === "StateAirborne") {
 			Client.Animation.Current = "AirBoost";

@@ -24,7 +24,7 @@ export class Input {
 			Jump: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA], "Jump"),
 			HomingAttack: new ButtonState([Enum.KeyCode.Space, Enum.KeyCode.ButtonA], "Homing Attack"),
 
-			Boost: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX], "Boost"),
+			Boost: new ButtonState([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonX], "Boost", true),
 			Bounce: new ButtonState([Enum.KeyCode.E, Enum.KeyCode.ButtonL2], "Bounce"),
 			Stomp: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB], "Stomp"),
 			Slide: new ButtonState([Enum.KeyCode.F, Enum.KeyCode.ButtonB], "Slide"),
@@ -71,8 +71,6 @@ export class Input {
 	}
 
 	public GetInputState() {
-		if (this.Client.Flags.LockTimer > 0) return $tuple([], [], []);
-
 		const KeyboardState = UserInputService.GetKeysPressed();
 		const ControllerState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1);
 		const MobileState: InputObject[] = []; // TODO: automatically create mobile buttons and match them to keycodes
@@ -115,7 +113,7 @@ export class Input {
 						if (!KeyList.find((Object) => Object === Key)) {
 							KeyList.push(Key);
 
-							this.Button[Key].Update(true);
+							if (this.Client.Query ? this.Client.Query === this.Button[Key] : !this.Client.Flags.LockTimer || this.Button[Key].BypassLock) this.Button[Key].Update(true);
 						}
 					}
 				});
@@ -123,11 +121,7 @@ export class Input {
 		});
 
 		// Update unpressed keys
-		for (const [Index, Button] of pairs(this.Button)) {
-			if (Button.IsDown && !KeyList.find((Object) => Object === Index)) {
-				Button.Update(false);
-			}
-		}
+		for (const [Index, Button] of pairs(this.Button)) if (Button.IsDown && !KeyList.find((Object) => Object === Index)) Button.Update(false);
 
 		// Stick
 		let PCStickX = 0;
@@ -153,6 +147,12 @@ export class Input {
 		if (this.Stick.Magnitude > 0) this.Stick = this.Stick.Unit;
 
 		// TODO: mobile stick
+
+		if (this.Client.Query?.DidPress) {
+			this.Client.QueryCallback?.();
+			this.Client.Query = undefined;
+			this.Client.QueryCallback = undefined;
+		}
 	}
 
 	public PrepareReset() {

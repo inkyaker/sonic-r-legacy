@@ -50,7 +50,7 @@ export class StateMachine {
 	 * Update the state machine, **only run this if you know what you're doing!**
 	 */
 	public Update(DeltaTime: number) {
-		if (FrameworkState.GameSpeed === 0) {
+		if (FrameworkState.GameSpeed <= 0) {
 			this.Client.Input.PrepareReset();
 			this.Client.Input.Update();
 

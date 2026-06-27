@@ -1,5 +1,6 @@
 import { BaseComponent, Component } from "@flamework/components";
 import type { OnStart } from "@flamework/core";
+import { HttpService } from "@rbxts/services";
 import type { Client } from "framework";
 import { Connector } from "shared/common/class/connector";
 import { AddLog } from "shared/common/utility/logger";
@@ -16,6 +17,7 @@ class BaseObject<T extends Model>
 	extends BaseComponent<
 		{
 			UniqueID: string;
+			Events?: string;
 		},
 		T
 	>
@@ -71,11 +73,10 @@ class BaseObject<T extends Model>
 	}
 
 	public TouchClient(Client: Client) {
-		if (this.Debounce > 0) {
-			return;
-		}
+		if (this.Debounce > 0) return;
 
 		this.OnTouch(Client);
+		if (this.attributes.Events) for (const Event of HttpService.JSONDecode(this.attributes.Events) as (keyof (typeof Client)["EventHandlers"])[]) Client.EventHandlers[Event]();
 	}
 
 	public Draw(DeltaTime: number) {

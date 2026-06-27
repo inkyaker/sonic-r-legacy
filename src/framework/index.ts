@@ -13,6 +13,7 @@ import * as Render from "shared/common/utility/renderregistry";
 import { PlaneProject } from "shared/common/utility/vutil";
 import type { GameController } from "shared/loader.server";
 import { ClientEvents } from "./client_networking";
+import type { ButtonState } from "./control/buttonstate";
 import { Input } from "./control/input";
 import type { DataController } from "./data_controller";
 import { AnimationController } from "./draw/animation";
@@ -20,6 +21,7 @@ import { Camera } from "./draw/camera";
 import type { EffectController } from "./draw/effect_controller";
 import { PackDrawInfo, Renderer } from "./draw/renderer";
 import { SoundController } from "./draw/sound";
+import { CancelBoost } from "./modules/boost";
 import { Rail, SetRail } from "./modules/rail";
 import type BaseObject from "./object/objects/baseobj";
 import { StateMachine } from "./statemachine";
@@ -71,6 +73,7 @@ class Flags {
 	public _BoostTicked = false;
 	public Boosting = false;
 	public BoostTicks = 0;
+	public BoostDisabled = false;
 }
 
 /**
@@ -243,6 +246,25 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	public GameState!: GameState;
 	public HomingAttack!: HomingAttack;
 
+	// Event system
+	public Query: ButtonState | undefined;
+	public QueryCallback: (() => void) | undefined;
+	public EventHandlers = {
+		WaitForHoming: () => {
+			this.Flags.LockTimer = 0;
+			this.Query = this.Input.Button.HomingAttack;
+			this.Flags.BoostDisabled = true;
+			this.EnterBall();
+			this.Animation.Current = "Roll";
+			this.QueryCallback = () => {
+				FrameworkState.GameSpeed = 1;
+				this.Flags.BoostDisabled = false;
+			};
+
+			CancelBoost(this);
+		},
+	};
+
 	constructor(
 		public Controller: GameController,
 		public UI: UIController,
@@ -252,6 +274,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		super();
 
 		this.Controller.Object.Respawn();
+		FrameworkState.GameSpeed = 1;
 	}
 
 	public onStart() {

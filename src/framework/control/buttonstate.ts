@@ -8,7 +8,11 @@ export class ButtonState {
 	private LastActivated;
 	public KeyCodes: Enum.KeyCode[];
 
-	constructor(InitialCodes: Enum.KeyCode[], public DisplayName: string) {
+	constructor(
+		InitialCodes: Enum.KeyCode[],
+		public DisplayName: string,
+		public BypassLock: boolean = false,
+	) {
 		this.DidPress = false;
 		this.IsDown = false;
 		this.LastActivated = false;

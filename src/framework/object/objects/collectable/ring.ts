@@ -131,7 +131,7 @@ class Ring extends BaseObject<
 		if (!Fake) this.Root.CanQuery = Transparency <= 0;
 	}
 
-	public Serialize(): unknown {
+	public Serialize() {
 		return this.State.Serialize();
 	}
 
