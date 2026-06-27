@@ -38,11 +38,16 @@ export function GetRailAngle(Client: Client) {
 	const Current = Client.Rail.Current;
 	if (Current) {
 		const CurrentAngle = Current.CFrame.Rotation;
-		const Next = workspace.Raycast(Current.Position, Current.CFrame.LookVector.mul(Current.Size.Z + 3), Client.State.States.Rail.Params);
+		const Next = workspace.Raycast(
+			Current.Position,
+			Current.CFrame.LookVector.mul(Current.Size.Z + 3).mul(Client.Rail.RailDirection >= 0 ? 1 : -1),
+			Client.State.States.Rail.Params,
+		);
 		let Angle = CurrentAngle;
 
 		if (Next) {
 			const Offset = Current.CFrame.Inverse().mul(Client.Position);
+			print(1 - (Offset.Z + Current.Size.Z / 2) / Current.Size.Z);
 			Angle = CurrentAngle.Lerp(Next.Instance!.CFrame.Rotation, 1 - (Offset.Z + Current.Size.Z / 2) / Current.Size.Z);
 		}
 
@@ -197,7 +202,12 @@ export class StateRail extends StateBase {
 		}
 
 		if (Active && (Client.Input.Button.RailSwitchLeft.IsDown || Client.Input.Button.RailSwitchRight.IsDown)) {
-			const OtherRail = workspace.Spherecast(Client.Position, 1, Client.Angle.RightVector.mul(15 * (Client.Input.Button.RailSwitchLeft.IsDown ? -1 : 1)), this.Params);
+			const OtherRail = workspace.Spherecast(
+				Client.Position.sub(Client.Angle.UpVector.mul(0.25)),
+				1,
+				Client.Angle.RightVector.mul(15 * (Client.Input.Button.RailSwitchLeft.IsDown ? -1 : 1)),
+				this.Params,
+			);
 			if (OtherRail) {
 				const Position = Client.Position;
 				SetRail(Client, OtherRail.Instance as Part);
