@@ -30,6 +30,7 @@ declare const assets: {
 	"key_icons/S": string
 	"key_icons/T": string
 	"key_icons/U": string
+	"key_icons/Unknown": string
 	"key_icons/V": string
 	"key_icons/W": string
 	"key_icons/X": string

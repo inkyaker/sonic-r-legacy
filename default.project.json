@@ -9,6 +9,12 @@
 				"$path": "out/server"
 			}
 		},
+		"ReplicatedFirst": {
+			"$className": "ReplicatedFirst",
+			"TS": {
+				"$path": "out/loader"
+			}
+		},
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
 			"rbxts_include": {

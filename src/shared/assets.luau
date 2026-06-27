@@ -30,6 +30,7 @@ local assets = {
 	["key_icons/S"] = "rbxassetid://82745272067059",
 	["key_icons/T"] = "rbxassetid://84858254202675",
 	["key_icons/U"] = "rbxassetid://110804706675738",
+	["key_icons/Unknown"] = "rbxassetid://104626931832457",
 	["key_icons/V"] = "rbxassetid://136346599631802",
 	["key_icons/W"] = "rbxassetid://98290579143560",
 	["key_icons/X"] = "rbxassetid://92252378484301",

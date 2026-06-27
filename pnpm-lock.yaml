@@ -70,8 +70,8 @@ importers:
         specifier: 1.3.3
         version: 1.3.3(typescript@5.5.3)
       rbxts-transform-boost:
-        specifier: ^1.5.2
-        version: 1.5.2
+        specifier: ^1.5.5
+        version: 1.5.5
       roblox-ts:
         specifier: ^3.0.0
         version: 3.0.0
@@ -509,8 +509,8 @@ packages:
     resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
     engines: {node: '>=8.6'}
 
-  rbxts-transform-boost@1.5.2:
-    resolution: {integrity: sha512-uMbBS+Aji17OFqOLCuV/pf7SOoe+SdHpQw8+4WKLTnOhjmbqX7ameqCfGOQfVeAcZpU6aqA6P/dirUWRLOLFdw==}
+  rbxts-transform-boost@1.5.5:
+    resolution: {integrity: sha512-co+hDdf7meK8UdwYOO1c5nR4HxW96Hg3bhVCCFUA1Olu/1zTLSHSZ8zV0Mw0UCkFE+6ONHW1757Ldbw8MHmV2A==}
 
   readdirp@3.6.0:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
@@ -1054,7 +1054,7 @@ snapshots:
 
   picomatch@2.3.2: {}
 
-  rbxts-transform-boost@1.5.2: {}
+  rbxts-transform-boost@1.5.5: {}
 
   readdirp@3.6.0:
     dependencies:

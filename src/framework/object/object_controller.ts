@@ -1,20 +1,21 @@
 import type { Components } from "@flamework/components";
 import { Controller, Dependency, Modding, type OnStart } from "@flamework/core";
 import { workspace } from "shared/common/globals";
+import type { RayParams } from "shared/common/types";
 import type { GameController } from "shared/loader.server";
 import type BaseObject from "./objects/baseobj";
 import type { OnDraw, OnObjectStart, OnRespawn, OnTick, OnTouch } from "./objects/object_implementables";
 
 @Controller()
 export class ObjectController implements OnStart {
-	public Params: RaycastParams;
+	public Params: RayParams;
 	public OverlapParams: OverlapParams;
 	public Skin: number = 3;
 	public Controller!: GameController;
 	public ObjectDataCache: Record<string, unknown> = {};
 
 	constructor(private Components: Components) {
-		this.Params = new RaycastParams();
+		this.Params = new RaycastParams() as RayParams;
 		this.Params.FilterType = Enum.RaycastFilterType.Include;
 		this.Params.FilterDescendantsInstances = [workspace.Level.Objects];
 
@@ -60,21 +61,26 @@ export class ObjectController implements OnStart {
 		if (!ActiveClient) return;
 
 		const [Position, LastPosition] = [ActiveClient.GetMiddle(), ActiveClient.LastCFrame.Position.add(ActiveClient.GetYOffset())];
-		if (LastPosition.Distance(ActiveClient.Position) >= .0001) {
+		if (LastPosition.Distance(ActiveClient.Position) >= 0.0001) {
 			const Look = CFrame.lookAt(LastPosition, Position);
 			const Magnitude = LastPosition.Distance(Position);
 
-			// TODO: this works for now but maybe a better solution that isnt iterative
-			const Objects = new Set<BaseObject<Model>>();
+			const Filter: Instance[] = [];
+			this.Params.ExcludeInstances = Filter;
+
 			while (true) {
 				const Cast = workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
 				if (Cast) {
 					const Object = this.GetObject(Cast.Instance);
-					if (!Object || Objects.has(Object)) break;
+					if (!Object) break; // what
+					Filter.push(Object.Object);
 					Object.TouchClient(ActiveClient);
-					Objects.add(Object);
 				} else break;
 			}
+
+			const Parts = workspace.GetPartBoundsInRadius(Position, this.Skin, this.OverlapParams);
+			const Models = new Set(Parts.map((Part) => Part.FindFirstAncestorOfClass("Model")));
+			for (const Model of Models) if (Model) this.GetObject(Model.PrimaryPart!)?.TouchClient(ActiveClient);
 		}
 	}
 

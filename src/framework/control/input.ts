@@ -87,10 +87,13 @@ export class Input {
 			else return false;
 		})[0];
 
-		if (!PrimaryKeyCode) return "rbxassetid://0";
-		const ID = (assets as Record<string, string>)[`key_icons/${this.PlatformContext === "PC" ? PrimaryKeyCode.Name : UserInputService.GetStringForKeyCode(PrimaryKeyCode)}`];
+		if (!PrimaryKeyCode) return assets["key_icons/Unknown"];
+		let KeyName = UserInputService.GetStringForKeyCode(PrimaryKeyCode);
+		if (KeyName === "") KeyName = PrimaryKeyCode.Name;
 
-		return ID ? `rbxthumb://type=Asset&id=${ID.match("%d+")[0]}&w=150&h=150` : "rbxassetid://0";
+		const ID = (assets as Record<string, string>)[`key_icons/${KeyName}`];
+
+		return ID ? `${ID}` : assets["key_icons/Unknown"];
 	}
 
 	/**

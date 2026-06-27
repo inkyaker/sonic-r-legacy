@@ -4,7 +4,7 @@ import type { ButtonState } from "framework/control/buttonstate";
 import { Attributes } from "shared/common/class/attributes";
 import BaseObject from "../baseobj";
 
-type Data = { Button: string };
+type Data = { Button: string; DebugMode: boolean; IsHold: boolean };
 
 /**
  * @class
@@ -14,24 +14,21 @@ type Data = { Button: string };
 @Component({ tag: "InputHint" })
 export class InputHint extends BaseObject<Model> {
 	public Data!: Attributes<Data>;
-	public Button!: string;
 	public OnStart() {
 		this.Data = Attributes<Data>(this.Object);
-
-		this.Button = this.Data.Button;
-		this.Connections.Add(this.Data("Button").Connect(() => (this.Button = this.Data.Button)));
+		if (this.Data.DebugMode) this.Root.Transparency = 0.8;
 	}
 
 	public OnTouch(Client: Client) {
-		const Button = (Client.Input.Button as Record<string, ButtonState | undefined>)[this.Button];
+		const Button = (Client.Input.Button as Record<string, ButtonState | undefined>)[this.Data.Button];
 		if (!Button) return;
 
 		Client.UI.InputPopupAtom({
 			Data: {
 				Image: Client.Input.GetIconForButton(Button),
-				Text: Button.DisplayName,
+				Text: `${this.Data.IsHold ? "HOLD " : ""}${Button.DisplayName.upper()}`,
 			},
-			Duration: 3,
+			Duration: 4.25,
 		});
 		this.Debounce = 30;
 	}

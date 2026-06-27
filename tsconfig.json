@@ -30,8 +30,7 @@
 		"plugins": [
 			{
 				"transform": "@runicly/rbxts-transformer-flamework"
-			},
-			
+			}
 		]
 	}
 }
