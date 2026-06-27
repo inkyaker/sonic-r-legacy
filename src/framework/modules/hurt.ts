@@ -14,7 +14,7 @@ export class StateHurt extends StateBase {
 	public Locked = false;
 
 	protected CheckInput(Client: Client) {
-		return CheckRail(Client);
+		return !this.ShouldDie && !this.Locked && CheckRail(Client);
 	}
 
 	protected BeforeUpdateHook(Client: Client) {
