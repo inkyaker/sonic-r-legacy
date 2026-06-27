@@ -41,7 +41,10 @@ export class ObjectController implements OnStart {
 
 		Modding.onListenerAdded<OnRespawn>((Obj) => this.OnRespawnListeners.add(Obj));
 		Modding.onListenerRemoved<OnRespawn>((Obj) => this.OnRespawnListeners.delete(Obj));
-		Modding.onListenerAdded<OnObjectStart>((Obj) => Obj.OnStart(this.ObjectDataCache[(Obj as unknown as BaseObject<Model>).attributes.UniqueID]));
+		Modding.onListenerAdded<OnObjectStart>((Obj) => {
+			if (!(Obj as unknown as BaseObject<Model>).Object) return;
+			Obj.OnStart(this.ObjectDataCache[(Obj as unknown as BaseObject<Model>).attributes.UniqueID]);
+		});
 
 		this.Controller = Dependency<GameController>(); // antipattern!
 

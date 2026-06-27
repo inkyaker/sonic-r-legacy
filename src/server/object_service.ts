@@ -20,7 +20,8 @@ export class ObjectService implements OnInit {
 		Model.Parent = Object;
 		Model.PivotTo(Object.GetPivot());
 		Model.Name = "ObjectModel";
-		Object.PrimaryPart!.Transparency = 1;
+		if (Object.PrimaryPart)
+			Object.PrimaryPart!.Transparency = 1;
 
 		Model.GetDescendants()
 			.filter((v) => v.IsA("BasePart"))
