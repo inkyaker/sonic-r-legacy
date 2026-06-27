@@ -16,8 +16,7 @@ export class ObjectController implements OnStart {
 
 	constructor(private Components: Components) {
 		this.Params = new RaycastParams() as RayParams;
-		this.Params.FilterType = Enum.RaycastFilterType.Include;
-		this.Params.FilterDescendantsInstances = [workspace.Level.Objects];
+		this.Params.IncludeInstances = [workspace.Level.Objects];
 
 		this.OverlapParams = new OverlapParams();
 		this.OverlapParams.FilterType = Enum.RaycastFilterType.Include;
@@ -72,12 +71,18 @@ export class ObjectController implements OnStart {
 				const Cast = workspace.Spherecast(LastPosition.sub(Look.LookVector.mul(this.Skin)), this.Skin, Look.LookVector.mul(Magnitude + this.Skin), this.Params);
 				if (Cast) {
 					const Object = this.GetObject(Cast.Instance);
-					if (!Object) break; // what
+					if (!Object) {
+						warn(`CLIPPED THROUGH OBJECT ${Cast.Instance.Name} @ ${Cast.Instance.Position}?`);
+						continue;
+					} // shouldn't happen
+
 					Filter.push(Object.Object);
+					this.Params.ExcludeInstances = Filter;
 					Object.TouchClient(ActiveClient);
 				} else break;
 			}
 
+			// backup, but should never be needed :)
 			const Parts = workspace.GetPartBoundsInRadius(Position, this.Skin, this.OverlapParams);
 			const Models = new Set(Parts.map((Part) => Part.FindFirstAncestorOfClass("Model")));
 			for (const Model of Models) if (Model) this.GetObject(Model.PrimaryPart!)?.TouchClient(ActiveClient);

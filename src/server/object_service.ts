@@ -21,5 +21,14 @@ export class ObjectService implements OnInit {
 		Model.PivotTo(Object.GetPivot());
 		Model.Name = "ObjectModel";
 		Object.PrimaryPart!.Transparency = 1;
+
+		Model.GetDescendants()
+			.filter((v) => v.IsA("BasePart"))
+			.forEach((v) => {
+				v.CanQuery = false;
+				v.CanCollide = false;
+				v.CanTouch = false;
+				v.AudioCanCollide = false;
+			});
 	}
 }

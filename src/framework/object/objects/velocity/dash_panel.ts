@@ -27,6 +27,7 @@ class DashPanel extends BaseObject<Model> {
 
 	public OnTouch(Client: Client) {
 		Client.ResetObjectState();
+		Client.State.Current = Client.State.States.Grounded;
 		Client.Sound.Play("Object/DashPanel/Activate");
 
 		Client.Angle = this.Root.GetPivot().Rotation;
