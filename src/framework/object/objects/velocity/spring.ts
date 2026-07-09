@@ -39,6 +39,7 @@ class Spring extends BaseObject<Model> {
 
 	public OnTouch(Client: Client) {
 		Client.ResetObjectState();
+		Client.EnterBall();
 
 		Client.Speed = new Vector3(0, this.Force, 0);
 

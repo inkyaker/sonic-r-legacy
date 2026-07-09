@@ -24,10 +24,12 @@ export class EffectController implements OnStart {
 		}
 
 		task.delay(Lifetime, () => Effect.Destroy());
+
+		return Effect;
 	}
 
 	public ReplicateEffect(EffectName: Exclusive<RS["Assets"]["Effects"]>, Pivot: CFrame) {
 		ClientEvents.SpawnEffect.fire(EffectName, Pivot);
-		this.SpawnEffect(EffectName, Pivot);
+		return this.SpawnEffect(EffectName, Pivot);
 	}
 }

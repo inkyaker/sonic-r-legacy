@@ -12,6 +12,13 @@ const Migrations: Record<number, (Profile: DataProfile) => void> = {
 	1: (Profile) => {
 		delete (Profile.Data.Settings as unknown as { MusicMuted: unknown }).MusicMuted;
 	},
+	2: (Profile) => {
+		Profile.Data.Settings.MusicVolume = DataTemplate.Settings.MusicVolume;
+		Profile.Data.Settings.SFXVolume = DataTemplate.Settings.SFXVolume;
+		Profile.Data.Settings.ObjectSFXVolume = DataTemplate.Settings.ObjectSFXVolume;
+		Profile.Data.Settings.FootstepVolume = DataTemplate.Settings.FootstepVolume;
+		Profile.Data.Settings.OtherPlayerVolume = DataTemplate.Settings.OtherPlayerVolume;
+	},
 };
 
 export type DataProfile = Profile<string, DataFormat, DataService["Store"]>;

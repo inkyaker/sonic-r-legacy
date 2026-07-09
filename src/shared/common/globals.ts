@@ -1,5 +1,8 @@
+import { atom, subscribe } from "@rbxts/charm";
+import Signal from "@rbxts/lemon-signal";
 import { SoundService as Sounds, Workspace } from "@rbxts/services";
 import type { CharacterType } from "./data";
+import { AddGameSpeedModifier, RemoveGameSpeedModifier } from "./frameworkstate";
 
 export const workspace = Workspace as Workspace & {
 	Level: Folder & {
@@ -16,8 +19,10 @@ export const workspace = Workspace as Workspace & {
 
 export const SoundService = Sounds as SoundService & {
 	CharacterSFX: SoundGroup;
+	FootstepSFX: SoundGroup;
 	Music: SoundGroup;
 	ObjectSFX: SoundGroup;
+	OtherCharacterSFX: SoundGroup;
 };
 
 export const BallTrailColors: { [K in CharacterType]: Color3 } = {
@@ -351,3 +356,22 @@ export const AnimationSet = {
 } as const satisfies {
 	[Index: string]: AnimationSetData;
 };
+
+export const WindowAtom = atom<"Settings" | "Pause" | "Controls" | "Characters" | undefined>();
+let Paused = false;
+subscribe(WindowAtom, (NewValue) => {
+	const IsPaused = NewValue !== undefined;
+	if (Paused !== IsPaused) {
+		Paused = IsPaused;
+
+		if (IsPaused) {
+			AddGameSpeedModifier(0, 9999, "Pause");
+		} else RemoveGameSpeedModifier("Pause");
+	}
+});
+
+export const RestartLevelSignal = new Signal();
+
+export function PickFromArray<T>(Array: T[]) {
+	return Array[math.random(1, Array.size()) - 1];
+}

@@ -1,4 +1,6 @@
+import { Dependency } from "@flamework/core";
 import { UserInputService, Workspace } from "@rbxts/services";
+import type { DataController } from "framework/data_controller";
 import { CollisionParams } from "framework/physics/collision";
 import type { Client } from "..";
 
@@ -28,6 +30,7 @@ function AdjustTouchPitchSensitivity(Delta: Vector2, Pitch: number) {
  * @class
  */
 export class Camera {
+	private Data = Dependency<DataController>();
 	private Client: Client;
 	public InputChanged: RBXScriptConnection;
 	public Zoom: number;
@@ -78,13 +81,13 @@ export class Camera {
 		for (const Value of GPState)
 			if (Value.KeyCode === Enum.KeyCode.Thumbstick2) GamepadInput = new Vector2(ThumbstickCurve(Value.Position.X, Deadzone), -ThumbstickCurve(Value.Position.Y, Deadzone));
 
-		const CamSens = UserSettings().GetService("UserGameSettings").GamepadCameraSensitivity;
+		const CamSens = UserSettings().GetService("UserGameSettings").GamepadCameraSensitivity * this.Data.Data.Settings.ControllerCameraSensitivity;
 		const YInvert = UserSettings().GetService("UserGameSettings").GetCameraYInvertValue();
 		const InvertVector = new Vector2(1, YInvert);
 
 		const DeltaGamepad = GamepadInput.mul(StickSensitivity).mul(CamSens).mul(DeltaTime);
-		const DeltaMouse = this.MouseDelta.mul(MouseSensitivity);
-		const DeltaTouch = AdjustTouchPitchSensitivity(this.TouchDelta, this.Rotation.X).mul(TouchSensitivity);
+		const DeltaMouse = this.MouseDelta.mul(MouseSensitivity).mul(this.Data.Data.Settings.MouseCameraSensitivity);
+		const DeltaTouch = AdjustTouchPitchSensitivity(this.TouchDelta, this.Rotation.X).mul(TouchSensitivity).mul(this.Data.Data.Settings.TouchCameraSensitivity);
 
 		const TotalDelta = DeltaGamepad.add(DeltaMouse).add(DeltaTouch).mul(InvertVector);
 

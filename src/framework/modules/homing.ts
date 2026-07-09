@@ -5,6 +5,15 @@ import { DecorateState, StateBase } from "./base_state";
 import { CheckBounce } from "./bounce";
 
 /**
+ * Update homing object for UI & homing attack
+ * @param Client
+ */
+export function UpdateHomingObject(Client: Client) {
+	Client.HomingAttack.Ticked = true;
+	Client.HomingAttack.Target = PhysicsHandler.GetHomingObject(Client);
+}
+
+/**
  * Function ran in `State.CheckInput`
  * @move
  * @param Client
@@ -12,13 +21,13 @@ import { CheckBounce } from "./bounce";
  */
 export function CheckHomingAttack(Client: Client) {
 	if (Client.Input.Button.HomingAttack.DidPress && Client.Flags.BallEnabled) {
-		const Object = PhysicsHandler.GetHomingObject(Client);
+		const Object = Client.HomingAttack.Target;
 		Client.Sound.Play("Character/Dash");
+		PhysicsHandler.TurnToStick(Client);
 
 		if (Object) {
 			Client.EnterBall();
 			Client.Animation.Current = "Roll";
-			Client.HomingAttack.Target = Object;
 			Client.HomingAttack.Timer = 0;
 
 			Client.State.Current = Client.State.States.Homing;
@@ -49,20 +58,23 @@ export class StateHoming extends StateBase {
 	}
 
 	protected BeforeUpdateHook(Client: Client) {
+		Client.HomingAttack.Ticked = true;
 		Client.Angle = CFrame.fromRotationBetweenVectors(Client.Angle.UpVector, Vector3.yAxis).mul(Client.Angle);
 
 		const Collider = Client.HomingAttack.Target!.Root;
+		const Middle = Client.GetMiddle();
+		const Center = Client.HomingAttack.Target!.GetCenter();
 
-		const Center = Collider.Position;
-		const Look = Center.sub(Client.Position).mul(new Vector3(1, 0, 1)).Unit;
+		const [MiddleFlat, CenterFlat] = [Middle.WithY(0), Center.WithY(0)];
+		if (MiddleFlat.Distance(CenterFlat) >= 0.0001) {
+			const MaxTurn = math.rad(65) * (1 + Client.HomingAttack.Timer / 180);
+			const Turn = SignedAngle(Client.Angle.LookVector, Center.sub(Middle).mul(new Vector3(1, 0, 1)).Unit, Vector3.yAxis);
 
-		const MaxTurn = math.rad(65) * (1 + Client.HomingAttack.Timer / 180);
-		const Turn = SignedAngle(Client.Angle.LookVector, Look, Vector3.yAxis);
+			PhysicsHandler.TurnRaw(Client, math.clamp(Turn, -MaxTurn, MaxTurn));
+		}
 
-		PhysicsHandler.TurnRaw(Client, math.clamp(Turn, -MaxTurn, MaxTurn));
-
-		const ObjectPos = new CFrame(Client.Position).mul(Client.Angle).Inverse().mul(Center);
-		const ObjectPosSpeed = new CFrame(Client.Position.add(Client.ToGlobal(Client.Speed.mul(Client.Config.Scale)))).mul(Client.Angle).Inverse().mul(Center);
+		const ObjectPos = new CFrame(Middle).mul(Client.Angle).Inverse().mul(Center);
+		const ObjectPosSpeed = new CFrame(Middle.add(Client.ToGlobal(Client.Speed.mul(Client.Config.Scale)))).mul(Client.Angle).Inverse().mul(Center);
 
 		// Speed
 		const Speed = Client.HomingAttack.Speed * (Client.HomingAttack.Timer >= 180 ? 0.7 + math.random() * 0.1 : 1);
@@ -80,7 +92,7 @@ export class StateHoming extends StateBase {
 
 		Client.HomingAttack.Timer++;
 
-		if (Client.HomingAttack.Timer >= 300) {
+		if (Client.HomingAttack.Timer >= 300 && Client.State.Current.Is("StateHoming")) {
 			Client.State.Current = Client.State.States.Airborne;
 
 			Client.HomingAttack.Target = undefined;

@@ -57,17 +57,17 @@ export class StateStomp extends StateBase {
 				Client.Flags.TrailEnabled = false; // not needed but, just in case
 				Client.Sound.Stop("Character/StompStart");
 				Client.Sound.Play("Character/StompLand");
-				Client.Effects.ReplicateEffect("StompLand", Client.GetCFrame());
+				if (Client.Data.Data.Settings.StompLandEffectEnabled) Client.Effects.ReplicateEffect("StompLand", Client.GetCFrame());
 
 				Client.Animation.Current = "StompLand";
 				Client.Land();
 			} else if (this.GroundedTicks >= 67) Client.State.Current = Client.State.States.Grounded;
 
-			if (Client.Ground.Grounded) CheckSlide(Client);
+			if (Client.Ground.Grounded && CheckSlide(Client)) Client.State.States.Slide.FromStomp = true;
 			this.GroundedTicks++;
 		} else {
 			if (Client.Input.Button.Boost.DidPress) Client.State.Current = Client.State.States.Airborne;
-			Client.Speed = Client.Speed.mul(0.98).WithY(Client.Speed.Y);
+			Client.Speed = Client.Speed.mul(0.925).WithY(Client.Speed.Y);
 		}
 	}
 

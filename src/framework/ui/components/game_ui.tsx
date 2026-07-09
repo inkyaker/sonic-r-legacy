@@ -1,14 +1,20 @@
-import type { Atom } from "@rbxts/charm";
-import { useMotion } from "@rbxts/pretty-react-hooks";
+import { type Atom, atom } from "@rbxts/charm";
+import { useMotion, useMountEffect } from "@rbxts/pretty-react-hooks";
 /** biome-ignore lint/correctness/noUnusedImports: <react> */
 import React, { useEffect, useMemo, useState } from "@rbxts/react";
 import { useAtom } from "@rbxts/react-charm";
-import { RunService } from "@rbxts/services";
+import { RunService, StarterGui, UserInputService } from "@rbxts/services";
 import { Environment } from "@rbxts/ui-labs";
+import type BaseObject from "framework/object/objects/baseobj";
+import { SettingsUI } from "framework/settings_controller";
 import { Constants } from "shared/common/constants";
 import type { CharacterType } from "shared/common/data";
-import { BallTrailColors } from "shared/common/globals";
+import { BallTrailColors, WindowAtom, workspace } from "shared/common/globals";
+import { RegisterStepped, UnregisterStepped } from "shared/common/utility/renderregistry";
 import type { InputPopup as PopupData } from "../ui_controller";
+import { usePx } from "../usepx";
+import { CharacterSelect } from "./character_select";
+import { PauseMenu, PauseSelectedItemAtom } from "./pause_menu";
 
 const Red = Color3.fromRGB(173, 0, 0);
 const Yellow = Color3.fromRGB(255, 214, 52);
@@ -250,8 +256,8 @@ function InputPopup({
 			return () => task.cancel(Thread);
 		} else {
 			Motion.setPosition(UDim2.fromScale(0, 0));
-            TextMotion.setPosition(0);
-			
+			TextMotion.setPosition(0);
+
 			Motion.tween(UDim2.fromScale(0.1, 0.1), {
 				easing: "backOut",
 				duration: 0.25,
@@ -297,50 +303,145 @@ function InputPopup({
 	);
 }
 
+const HomingRotationAtom = atom(0);
+function HomingReticle({ Object, CharacterColor }: { Object: BaseObject<Model> | undefined; CharacterColor: Color3 }) {
+	const Px = usePx();
+	const [Position, SetPosition] = useState(UDim2.fromScale(0, 0));
+	const Rotation = useAtom(HomingRotationAtom);
+	const [Size, SizeMotion] = useMotion(0);
+
+	useEffect(() => {
+		if (!Object) {
+			HomingRotationAtom(0);
+
+			return;
+		}
+
+		SizeMotion.setPosition(0);
+		SizeMotion.tween(65, {
+			duration: 0.3,
+			easing: "backOut",
+		});
+
+		RegisterStepped("HomingReticle", Enum.RenderPriority.Input.Value + 10, (DeltaTime: number) => {
+			const [Pos] = workspace.CurrentCamera!.WorldToScreenPoint(Object!.GetCenter());
+			SetPosition(UDim2.fromOffset(Pos.X, Pos.Y));
+			HomingRotationAtom(HomingRotationAtom() + DeltaTime * 95);
+		});
+
+		return () => UnregisterStepped("HomingReticle");
+	}, [Object]);
+
+	return (
+		<frame
+			Visible={!!Object}
+			key="HomingIndicator"
+			BorderSizePixel={0}
+			AnchorPoint={new Vector2(0.5, 0.5)}
+			Position={Position}
+			BackgroundTransparency={1}
+			Size={Size.map((Size) => Px.toUDim2(Size, Size))}
+			Rotation={Rotation}
+		>
+			<uiaspectratioconstraint key="UIAspectRatioConstraint" />
+			<imagelabel
+				key="Top"
+				BorderSizePixel={0}
+				AnchorPoint={new Vector2(0.5, 0.5)}
+				Position={new UDim2(0.5, 0, 0, 0)}
+				BackgroundTransparency={1}
+				Image={"rbxassetid://136709325316655"}
+				Size={UDim2.fromOffset(100, 100)}
+				ImageColor3={CharacterColor}
+			/>
+			<imagelabel
+				key="Bottom"
+				BorderSizePixel={0}
+				AnchorPoint={new Vector2(0.5, 0.5)}
+				Position={new UDim2(0.5, 0, 1, 0)}
+				BackgroundTransparency={1}
+				Image={"rbxassetid://136709325316655"}
+				Size={UDim2.fromOffset(100, 100)}
+				Rotation={180}
+				ImageColor3={CharacterColor}
+			/>
+		</frame>
+	);
+}
+
 export function GameUI({
 	RingsAtom,
 	ScoreAtom,
 	MultAtom,
 	CharacterTypeAtom,
 	PopupAtom,
+	HomingObjectAtom,
 }: {
 	RingsAtom: Atom<number>;
 	ScoreAtom: Atom<number>;
-	LivesAtom: Atom<number>;
 	MultAtom: Atom<number>;
 	CharacterTypeAtom: Atom<CharacterType>;
 	PopupAtom: Atom<PopupData | undefined>;
+	HomingObjectAtom: Atom<BaseObject<Model> | undefined>;
 }) {
-	const [Rings, Score, Mult, CharacterType] = [useAtom(RingsAtom), useAtom(ScoreAtom), useAtom(MultAtom), useAtom(CharacterTypeAtom)];
+	const [Rings, Score, Mult, CharacterType, HomingObject] = [useAtom(RingsAtom), useAtom(ScoreAtom), useAtom(MultAtom), useAtom(CharacterTypeAtom), useAtom(HomingObjectAtom)];
 	const CharacterColor = useMemo(() => BallTrailColors[CharacterType], [CharacterType]);
 	const ActivePopup = useAtom(PopupAtom);
+	const Window = useAtom(WindowAtom);
+	const ShowHUD = Window === undefined;
+
+	useMountEffect(() => {
+		StarterGui.SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false);
+
+		//TODO: mobile
+		const Connection = UserInputService.InputBegan.Connect((Input, GPE) => {
+			if (GPE) return;
+
+			if (Input.KeyCode === Enum.KeyCode.Tab || Input.KeyCode === Enum.KeyCode.ButtonSelect) {
+				const Current = WindowAtom();
+				WindowAtom(Current !== "Pause" ? "Pause" : undefined);
+				if (Current === undefined) PauseSelectedItemAtom("Resume");
+			}
+		});
+
+		return () => Connection.Disconnect();
+	});
 
 	return (
-		<frame Transparency={1} Size={UDim2.fromScale(1, 1)}>
-			<RingCounter Rings={Rings} Score={Score} Mult={Mult} CharacterColor={CharacterColor} />
+		<frame Transparency={1} Size={UDim2.fromScale(1, 1)} key={"GameUI"}>
+			{ShowHUD && (
+				<frame Transparency={1} Size={UDim2.fromScale(1, 1)} key={"HUD"}>
+					<RingCounter Rings={Rings} Score={Score} Mult={Mult} CharacterColor={CharacterColor} />
+					<HomingReticle Object={HomingObject} CharacterColor={CharacterColor}></HomingReticle>
 
-			{ActivePopup ? <InputPopup Duration={ActivePopup.Duration} Data={ActivePopup.Data} OnFinished={() => PopupAtom(undefined)} /> : undefined}
-
-			<textlabel
-				key="TextLabel"
-				AutomaticSize={Enum.AutomaticSize.XY}
-				BorderSizePixel={0}
-				TextXAlignment={Enum.TextXAlignment.Right}
-				BackgroundTransparency={1}
-				FontFace={new Font("rbxassetid://12187362578", Enum.FontWeight.ExtraBold, Enum.FontStyle.Normal)}
-				Text={`SONIC:R
+					<textlabel
+						key="TextLabel"
+						AutomaticSize={Enum.AutomaticSize.XY}
+						BorderSizePixel={0}
+						TextXAlignment={Enum.TextXAlignment.Right}
+						BackgroundTransparency={1}
+						FontFace={new Font("rbxassetid://12187362578", Enum.FontWeight.ExtraBold, Enum.FontStyle.Normal)}
+						Text={`SONIC:R
 VERSION ${Constants.GameVersion}
 HASH ${Constants.GitStamp}`}
-				TextColor3={Color3.fromRGB(191, 191, 191)}
-				AnchorPoint={new Vector2(1, 1)}
-				TextSize={14}
-				Size={UDim2.fromOffset(50, 50)}
-				TextTransparency={0.5}
-				Position={UDim2.fromScale(1, 1)}
-			>
-				<uistroke key="UIStroke" Transparency={0.85} />
-				<uipadding key="UIPadding" PaddingRight={new UDim(0, 10)} PaddingBottom={new UDim(0, 10)} />
-			</textlabel>
+						TextColor3={Color3.fromRGB(191, 191, 191)}
+						AnchorPoint={new Vector2(1, 1)}
+						TextSize={14}
+						Size={UDim2.fromOffset(50, 50)}
+						TextTransparency={0.5}
+						Position={UDim2.fromScale(1, 1)}
+					>
+						<uistroke key="UIStroke" Transparency={0.85} />
+						<uipadding key="UIPadding" PaddingRight={new UDim(0, 10)} PaddingBottom={new UDim(0, 10)} />
+					</textlabel>
+				</frame>
+			)}
+
+			{Window === "Settings" && <SettingsUI CharacterColor={CharacterColor} />}
+			{Window === "Pause" && <PauseMenu CharacterColor={CharacterColor} WindowAtom={WindowAtom} />}
+			{Window === "Characters" && <CharacterSelect CharacterColor={CharacterColor} WindowAtom={WindowAtom} />}
+
+			{ActivePopup ? <InputPopup Duration={ActivePopup.Duration} Data={ActivePopup.Data} OnFinished={() => PopupAtom(undefined)} /> : undefined}
 		</frame>
 	);
 }

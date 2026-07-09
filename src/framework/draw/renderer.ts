@@ -1,4 +1,6 @@
+import { Dependency } from "@flamework/core";
 import { ReplicatedStorage } from "@rbxts/services";
+import type { DataController } from "framework/data_controller";
 import { RailActive } from "framework/modules/rail";
 import type { CharacterType } from "shared/common/data";
 import { workspace } from "shared/common/globals";
@@ -17,6 +19,8 @@ const TAU = PI * 2;
  * @class
  */
 export class Renderer {
+	public Data = Dependency<DataController>();
+
 	// Draw Information
 	public Angle: CFrame = CFrame.identity;
 	public Position: Vector3 = Vector3.zero;
@@ -56,16 +60,22 @@ export class Renderer {
 		const Pivot = this.Angle.add(this.DrawInfo.Position.add(this.Angle.UpVector.mul(this.DrawInfo.YOffset)));
 		Character.PivotTo(Pivot);
 
-		this.BallTrail.SetVisible(this.DrawInfo.BallTrailEnabled, Pivot);
+		const Settings = this.Data.Data.Settings;
+		this.BallTrail.SetVisible(Settings.DashTrailEnabled && this.DrawInfo.BallTrailEnabled, Pivot);
 		this.BallTrail.Update(Pivot.Position);
 
-		this.JumpBall.SetVisible(this.DrawInfo.JumpBallEnabled, Pivot);
+		this.JumpBall.SetVisible(Settings.JumpBallEnabled && this.DrawInfo.JumpBallEnabled, Pivot);
 		this.JumpBall.Update(Pivot, DeltaTime, this.DrawInfo.BallRotationSpeed);
 
-		this.BoostAura.SetVisible(this.DrawInfo.BoostEnabled);
+		this.BoostAura.SetVisible(Settings.BoostAuraEnabled && this.DrawInfo.BoostEnabled);
 		this.BoostAura.Update(Pivot, DeltaTime);
 
-		this.Effects.Update(Pivot);
+		// VFX
+		if (!Settings.StompEffectsEnabled) this.DrawInfo.StompEnabled = false;
+		if (!Settings.SlideEffectsEnabled) this.DrawInfo.SlideEnabled = false;
+		if (!Settings.GrindEffectsEnabled) this.DrawInfo.RailEffectEnabled = false;
+
+		this.Effects.Update(Pivot.mul(CFrame.Angles(0, this.DrawInfo.EffectsFlipped ? PI : 0, 0)));
 		this.Effects.UpdateEffects(this.DrawInfo);
 	}
 
@@ -98,6 +108,7 @@ export function PackDrawInfo(Client?: Client) {
 				StompEnabled: Client.State.Current.GetID() === "StateStomp" && !Client.State.States.Stomp.HasGrounded,
 				SlideEnabled: Client.State.Current.GetID() === "StateSlide",
 				RailEffectEnabled: RailActive(Client),
+				EffectsFlipped: RailActive(Client) && Client.Speed.X < 0,
 			}
 		: {
 				YOffset: 0,
@@ -111,6 +122,7 @@ export function PackDrawInfo(Client?: Client) {
 				StompEnabled: false,
 				SlideEnabled: false,
 				RailEEffectEnabled: false,
+				EffectsFlipped: false,
 			};
 }
 

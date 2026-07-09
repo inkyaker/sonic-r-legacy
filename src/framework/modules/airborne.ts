@@ -3,7 +3,7 @@ import { PhysicsHandler } from "framework/physics/physics";
 import { DecorateState, StateBase } from "./base_state";
 import { StepBoost } from "./boost";
 import { CheckBounce } from "./bounce";
-import { CheckHomingAttack } from "./homing";
+import { CheckHomingAttack, UpdateHomingObject } from "./homing";
 import { CheckRail } from "./rail";
 import { CheckStomp } from "./stomp";
 
@@ -14,6 +14,7 @@ import { CheckStomp } from "./stomp";
 @DecorateState()
 export class StateAirborne extends StateBase {
 	protected CheckInput(Client: Client) {
+		UpdateHomingObject(Client)
 		return (!Client.Flags.Boosting && CheckHomingAttack(Client)) || CheckBounce(Client) || CheckStomp(Client) || CheckRail(Client);
 	}
 

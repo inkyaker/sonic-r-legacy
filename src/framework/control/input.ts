@@ -1,11 +1,16 @@
-import { UserInputService } from "@rbxts/services";
+import { Controller, type OnStart } from "@flamework/core";
+import { atom } from "@rbxts/charm";
+import Signal from "@rbxts/lemon-signal";
+import { RunService, UserInputService } from "@rbxts/services";
 import { Trash as Bin } from "@rbxts/trash";
+import type { DataController } from "framework/data_controller";
 import assets from "shared/assets";
 import * as CFUtil from "shared/common/utility/cfutil";
 import * as VUtil from "shared/common/utility/vutil";
 import type { Client } from "..";
 import { ButtonState } from "./buttonstate";
 
+export const PlatformContextAtom = atom<"PC" | "Mobile" | "Gamepad">("PC");
 type ButtonUnion = ExtractKeys<Input["Button"], ButtonState>;
 
 /**
@@ -13,7 +18,7 @@ type ButtonUnion = ExtractKeys<Input["Button"], ButtonState>;
  */
 export class Input {
 	public Button;
-	public PlatformContext: "PC" | "Mobile" | "Gamepad";
+	public PlatformContext: "PC" | "Mobile" | "Gamepad" = PlatformContextAtom();
 	public Stick;
 	private Client: Client;
 	private Connections = new Bin();
@@ -44,9 +49,19 @@ export class Input {
 
 		this.Connections.add(
 			UserInputService.InputBegan.Connect((Input) => {
-				if (Input.UserInputType === Enum.UserInputType.Keyboard) this.PlatformContext = "PC";
-				else if (Input.UserInputType === Enum.UserInputType.Touch) this.PlatformContext = "Mobile";
-				else if (Input.UserInputType === Enum.UserInputType.Gamepad1) this.PlatformContext = "Gamepad";
+				const Platform =
+					Input.UserInputType === Enum.UserInputType.Keyboard || Input.UserInputType.Name.find("Mouse")[0]
+						? "PC"
+						: Input.UserInputType === Enum.UserInputType.Touch
+							? "Mobile"
+							: Input.UserInputType.Name.find("Gamepad")[0]
+								? "Gamepad"
+								: "PC";
+
+				if (this.PlatformContext !== Platform) {
+					PlatformContextAtom(Platform);
+					this.PlatformContext = Platform;
+				}
 			}),
 		);
 	}
@@ -71,6 +86,8 @@ export class Input {
 	}
 
 	public GetInputState() {
+		if (UserInputService.GetFocusedTextBox()) return $tuple([], [], []);
+
 		const KeyboardState = UserInputService.GetKeysPressed();
 		const ControllerState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1);
 		const MobileState: InputObject[] = []; // TODO: automatically create mobile buttons and match them to keycodes
@@ -198,5 +215,107 @@ export class Input {
 	 */
 	public Get() {
 		return $tuple(!this.InputLocked() && this.Stick.Magnitude !== 0, this.GetTurn(), this.Stick.Magnitude);
+	}
+}
+
+export namespace Nav {
+	export const OnNavigateUp = new Signal();
+	export const OnNavigateDown = new Signal();
+	export const OnNavigateLeft = new Signal();
+	export const OnNavigateRight = new Signal();
+
+	export const OnNavigateSelect = new Signal();
+	export const OnNavigateBack = new Signal();
+
+	export const OnMoveLeft = new Signal();
+	export const OnMoveRight = new Signal();
+
+	export const OnPageLeft = new Signal();
+	export const OnPageRight = new Signal();
+}
+
+@Controller()
+// biome-ignore lint/correctness/noUnusedVariables: <controller>
+class NavigationInputController implements OnStart {
+	private ActiveDir: "Left" | "Right" | undefined = undefined;
+	private HoldTime = 0;
+	private StickCooldown = 0;
+	private IsRepeating = false;
+
+	constructor(private Data: DataController) {}
+
+	public onStart() {
+		UserInputService.InputBegan.Connect((Input, GPE) => {
+			if (GPE) return;
+
+			const Code = Input.KeyCode;
+
+			if ([Enum.KeyCode.Up, Enum.KeyCode.DPadUp].includes(Code as never)) Nav.OnNavigateUp.Fire();
+			if ([Enum.KeyCode.Down, Enum.KeyCode.DPadDown].includes(Code as never)) Nav.OnNavigateDown.Fire();
+			if ([Enum.KeyCode.Space, Enum.KeyCode.ButtonA].includes(Code as never)) Nav.OnNavigateSelect.Fire();
+			if ([Enum.KeyCode.LeftShift, Enum.KeyCode.ButtonB].includes(Code as never)) Nav.OnNavigateBack.Fire();
+			if ([Enum.KeyCode.Q, Enum.KeyCode.ButtonL1].includes(Code as never)) Nav.OnPageLeft.Fire();
+			if ([Enum.KeyCode.E, Enum.KeyCode.ButtonR1].includes(Code as never)) Nav.OnPageRight.Fire();
+
+			if ([Enum.KeyCode.Left, Enum.KeyCode.DPadLeft].includes(Code as never)) this.SetActiveDirection("Left");
+			if ([Enum.KeyCode.Right, Enum.KeyCode.DPadRight].includes(Code as never)) this.SetActiveDirection("Right");
+		});
+
+		UserInputService.InputEnded.Connect((Input) => {
+			const Code = Input.KeyCode;
+			if (this.ActiveDir === "Left" && [Enum.KeyCode.Left, Enum.KeyCode.DPadLeft].includes(Code as never)) this.ActiveDir = undefined;
+			if (this.ActiveDir === "Right" && [Enum.KeyCode.Right, Enum.KeyCode.DPadRight].includes(Code as never)) this.ActiveDir = undefined;
+		});
+
+		RunService.Heartbeat.Connect((DeltaTime) => {
+			this.MoveHold(DeltaTime);
+			this.MoveStick(DeltaTime);
+		});
+	}
+
+	private SetActiveDirection(Dir: "Left" | "Right") {
+		this.ActiveDir = Dir;
+		this.HoldTime = 0;
+		this.IsRepeating = false;
+		if (Dir === "Left") Nav.OnMoveLeft.Fire();
+		else Nav.OnMoveRight.Fire();
+
+		if (Dir === "Left") Nav.OnNavigateLeft.Fire();
+		else Nav.OnNavigateRight.Fire();
+	}
+
+	private MoveHold(DeltaTime: number) {
+		if (!this.ActiveDir) return;
+
+		this.HoldTime += DeltaTime;
+		const Threshold = this.IsRepeating ? 0.1 : 0.35;
+
+		if (this.HoldTime >= Threshold) {
+			this.HoldTime = 0;
+			this.IsRepeating = true;
+			if (this.ActiveDir === "Left") Nav.OnMoveLeft.Fire();
+			else Nav.OnMoveRight.Fire();
+		}
+	}
+
+	private MoveStick(DeltaTime: number) {
+		if (this.ActiveDir || !this.Data.HasLoaded) return;
+
+		const GamepadState = UserInputService.GetGamepadState(Enum.UserInputType.Gamepad1);
+		const Thumbstick = GamepadState.find((Input) => Input.KeyCode === Enum.KeyCode.Thumbstick1);
+		if (!Thumbstick?.Position) return;
+
+		const XAxis = Thumbstick.Position.X;
+		if (math.abs(XAxis) < this.Data.Data.Settings.Thumbstick1Deadzone) return;
+
+		const AbsX = math.abs(XAxis);
+		if (AbsX <= 0.2) return;
+
+		this.StickCooldown -= DeltaTime;
+		if (this.StickCooldown <= 0) {
+			this.StickCooldown = math.lerp(0.2, 0.03, (AbsX - 0.2) / 0.8);
+			if (XAxis < 0) Nav.OnMoveLeft.Fire();
+			else Nav.OnMoveRight.Fire();
+		}
 	}
 }

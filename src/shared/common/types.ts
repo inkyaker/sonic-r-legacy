@@ -17,8 +17,8 @@ export type AssetsDir = Folder & {
 			Rail: Attachment & {
 				StarMain: ParticleEmitter;
 				Locked: Attachment & {
-					BackgroundMain: ParticleEmitter
-				}
+					BackgroundMain: ParticleEmitter;
+				};
 			};
 		};
 	};
@@ -35,6 +35,7 @@ export type RS = ReplicatedStorage & {
 		Effects: Folder & {
 			StompLand: Attachment;
 			RingCollect: Attachment;
+			FootstepGeneric: Attachment;
 		};
 		Animations: Folder & {
 			Object: Folder & {
@@ -55,6 +56,6 @@ export type Exclusive<T> = {
 }[keyof T];
 
 export interface RayParams extends RaycastParams {
-	ExcludeInstances: Instance[]
-	IncludeInstances: Instance[]
+	ExcludeInstances: Instance[];
+	IncludeInstances: Instance[];
 }

@@ -34,6 +34,7 @@ export class StateMachine {
 	 * Internal method for ticking the current state
 	 */
 	private TickCurrentState() {
+		this.Client.HomingAttack.Ticked = false;
 		this.Client.Flags._BoostTicked = false; // TODO: move to some sort of client.pretick method if i end up needing more of these, thigns.
 
 		this.Current.CheckMoves(this.Client);
@@ -50,9 +51,12 @@ export class StateMachine {
 	 * Update the state machine, **only run this if you know what you're doing!**
 	 */
 	public Update(DeltaTime: number) {
+		if (this.Client.Dead) return;
+
 		if (FrameworkState.GameSpeed <= 0) {
 			this.Client.Input.PrepareReset();
 			this.Client.Input.Update();
+			this.Client.Animation.Animate(this.Client);
 
 			return;
 		}
@@ -79,6 +83,8 @@ export class StateMachine {
 			// Tick character
 			this.Client.Controller.Object.TickObjects();
 			this.TickCurrentState();
+
+			if (this.Client.Position.Y <= 0 || this.Client.Humanoid.Health <= 0) this.Client.Respawn();
 
 			// Step states
 			for (const [_, State] of pairs(this.States)) State.Step(this.Client);

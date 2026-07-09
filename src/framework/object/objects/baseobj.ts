@@ -25,6 +25,7 @@ class BaseObject<T extends Model>
 {
 	public HomingTarget = false;
 	public HomingWeight = 1;
+	public IsRail = false;
 
 	public Object!: Model;
 	public Root!: BasePart;
@@ -106,6 +107,10 @@ class BaseObject<T extends Model>
 	 * @param Data
 	 */
 	public Deserialize(_Data: unknown) {}
+
+	public GetCenter() {
+		return this.Root.Position;
+	}
 }
 
 export = BaseObject;

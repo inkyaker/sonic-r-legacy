@@ -58,7 +58,7 @@ class Ring extends BaseObject<
 		Client.Sound.Play("Object/Ring/Activate");
 		Client.GameState.AddRings(1);
 		Client.GameState.AddScore(10);
-		Client.Effects.ReplicateEffect("RingCollect", this.Root.CFrame);
+		Client.Effects.SpawnEffect("RingCollect", this.Root.CFrame);
 
 		if (this.Lifetime > 0) this.Destroy();
 	}

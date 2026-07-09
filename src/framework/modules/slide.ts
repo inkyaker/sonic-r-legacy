@@ -22,6 +22,7 @@ export function CheckSlide(Client: Client) {
 @DecorateState()
 export class StateSlide extends StateBase {
 	public SlideTicks = 0;
+	public FromStomp = false;
 
 	protected CheckInput(Client: Client) {
 		return CheckJump(Client) || CheckRail(Client);
@@ -34,6 +35,16 @@ export class StateSlide extends StateBase {
 	}
 
 	protected AfterUpdateHook(Client: Client) {
+		if (this.FromStomp && this.SlideTicks <= 10 && !Client.Input.Button.Slide.IsDown) {
+			const Stomp = Client.State.States.Stomp;
+			Stomp.HasGrounded = true;
+			Stomp.GroundedTicks = 10;
+			Client.State.Current = Stomp;
+			Client.Animation.Current = "StompLand";
+
+			return;
+		}
+
 		Client.Animation.Current = "Slide";
 		Client.Speed = Client.Speed.mul(new Vector3(0.985, 1, 0.25));
 		if (Client.Speed.X < 2) Client.Speed = Client.Speed.WithX(2);
@@ -55,6 +66,9 @@ export class StateSlide extends StateBase {
 	}
 
 	protected OnStep(Client: Client) {
-		if (this.SlideTicks > 0 && Client.State.Current.GetID() !== "StateSlide") this.SlideTicks = 0;
+		if (this.SlideTicks > 0 && Client.State.Current.GetID() !== "StateSlide") {
+			this.SlideTicks = 0;
+			this.FromStomp = false;
+		}
 	}
 }

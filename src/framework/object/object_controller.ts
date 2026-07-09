@@ -63,9 +63,10 @@ export class ObjectController implements OnStart {
 		if (!ActiveClient) return;
 
 		const [Position, LastPosition] = [ActiveClient.GetMiddle(), ActiveClient.LastCFrame.Position.add(ActiveClient.GetYOffset())];
-		if (LastPosition.Distance(ActiveClient.Position) >= 0.0001) {
+		const Magnitude = LastPosition.Distance(Position);
+
+		if (Magnitude >= 0.0001) {
 			const Look = CFrame.lookAt(LastPosition, Position);
-			const Magnitude = LastPosition.Distance(Position);
 
 			const Filter: Instance[] = [];
 			this.Params.ExcludeInstances = Filter;
@@ -75,6 +76,7 @@ export class ObjectController implements OnStart {
 				if (Cast) {
 					const Object = this.GetObject(Cast.Instance);
 					if (!Object) {
+						Filter.push(Cast.Instance.FindFirstAncestorOfClass("Model") ?? Cast.Instance);
 						warn(`CLIPPED THROUGH OBJECT ${Cast.Instance.Name} @ ${Cast.Instance.Position}?`);
 						continue;
 					} // shouldn't happen

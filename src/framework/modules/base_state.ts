@@ -25,12 +25,12 @@ export class StateBase {
 	}
 
 	public DefineTransition<T extends StateBase>(Direction: "To" | "From", State: T | "All", Callback: (Client: Client) => void) {
-		this.Transitions[Direction].push({State: State, Callback: Callback})
+		this.Transitions[Direction].push({ State: State, Callback: Callback });
 	}
 
 	public Transitions = {
-		To: [] as Array<{State: StateBase | "All", Callback: (Client: Client) => void}>,
-		From: [] as Array<{State: StateBase | "All", Callback: (Client: Client) => void}>,
+		To: [] as Array<{ State: StateBase | "All"; Callback: (Client: Client) => void }>,
+		From: [] as Array<{ State: StateBase | "All"; Callback: (Client: Client) => void }>,
 	};
 
 	/**
@@ -50,9 +50,7 @@ export class StateBase {
 	 */
 	public Tick(Client: Client) {
 		// Pre update
-		if (this.BeforeUpdateHook(Client) !== undefined) {
-			return;
-		}
+		if (this.BeforeUpdateHook(Client) !== undefined) return;
 
 		// Tick global code in every state
 		RunCollision(Client);

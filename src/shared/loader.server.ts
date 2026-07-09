@@ -1,5 +1,6 @@
 import type { Components } from "@flamework/components";
 import { Controller, Flamework, type OnStart } from "@flamework/core";
+import Konsole from "@kyrorblx/konsole";
 import { GuiService, Players, StarterGui } from "@rbxts/services";
 import type { Client } from "framework";
 import { ClientEvents } from "framework/client_networking";
@@ -35,7 +36,7 @@ export class GameController implements OnStart {
 }
 
 Flamework.addPathsGlob("src/shared/common/**.ts");
-Flamework.addPaths("src/shared/loader.server.ts")
+Flamework.addPaths("src/shared/loader.server.ts");
 Flamework.addPathsGlob("src/framework/**.ts");
 Flamework.ignite();
 
@@ -50,3 +51,7 @@ task.spawn(() => {
 		if (!Success) task.wait(0.15);
 	}
 });
+
+Konsole.hide();
+Konsole.setEnabled(true);
+Konsole.setActivationKeys([Enum.KeyCode.Semicolon]);

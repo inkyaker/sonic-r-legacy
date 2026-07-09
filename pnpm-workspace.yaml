@@ -2,5 +2,7 @@ autoInstallPeers: true
 minimumReleaseAgeExclude:
   - "@rbxts/*"
   - "rbxts-transform-boost"
+  - "@kyrorblx/*"
 publicHoistPattern:
   - '*@rbxts*'
+  - "*@kyrorblx*"

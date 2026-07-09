@@ -26,6 +26,8 @@ class DamageBox extends BaseObject<Model> {
 	public OnTouch(Client: Client) {
 		if (!this.Enabled) return;
 
+		if (this.Object.Name === "FloatingSpikes" && Client.Rail.RailOffset.Magnitude >= 4) return;
+
 		this.Debounce = 30;
 		Client.Damage(this.Root.Position);
 	}

@@ -1,11 +1,12 @@
 import { BaseComponent, Component } from "@flamework/components";
 import type { OnStart } from "@flamework/core";
 import { HttpService, Players, ReplicatedStorage } from "@rbxts/services";
+import { Trash } from "@rbxts/trash";
 import { CharacterInfo } from "shared/characterinfo";
 import { Constants } from "shared/common/constants";
 import type { CharacterType } from "shared/common/data";
-import { FrameworkState } from "shared/common/frameworkstate";
-import { workspace } from "shared/common/globals";
+import { FrameworkState, ResetGameSpeed } from "shared/common/frameworkstate";
+import { RestartLevelSignal, workspace } from "shared/common/globals";
 import type { RS } from "shared/common/types";
 import { FromToRotation } from "shared/common/utility/cfutil";
 import { AddLog } from "shared/common/utility/logger";
@@ -20,7 +21,7 @@ import { AnimationController } from "./draw/animation";
 import { Camera } from "./draw/camera";
 import type { EffectController } from "./draw/effect_controller";
 import { PackDrawInfo, Renderer } from "./draw/renderer";
-import { SoundController } from "./draw/sound";
+import { SoundHandler } from "./draw/sound";
 import { CancelBoost } from "./modules/boost";
 import { Rail, SetRail } from "./modules/rail";
 import type BaseObject from "./object/objects/baseobj";
@@ -203,8 +204,23 @@ class Ground {
  */
 class HomingAttack {
 	public Target: BaseObject<Model> | undefined;
+	private LastHomeable = false;
 	public Timer: number = 0;
 	public Speed: number = 0;
+	public Ticked = false;
+
+	public Update(Client: Client) {
+		if (!this.Ticked) this.Target = undefined;
+
+		const IsDifferent = this.Target && Client.UI.HomingObject()?.attributes.UniqueID !== this.Target.attributes.UniqueID;
+		const CanHome = (this.Target && Client.InBall() && Client.Data.Data.Settings.HomingIndicatorEnabled) || false;
+		if (CanHome !== this.LastHomeable || IsDifferent) {
+			this.LastHomeable = CanHome;
+			Client.UI.HomingObject(CanHome ? this.Target : undefined);
+
+			if (CanHome && IsDifferent && Client.Data.Data.Settings.HomingLockSoundEnabled) Client.Sound.Play(`UI/Reticle${Client.Data.Data.Settings.HomingLockSound}`);
+		}
+	}
 }
 
 /**
@@ -224,9 +240,12 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	public CurrentCFrame!: CFrame;
 	public RenderCFrame!: CFrame;
 	public PreviousAngle!: CFrame;
+	public Connections = new Trash();
 
 	// Flags
 	public Flags!: Flags;
+	public Dead = false;
+	public Paused = false;
 
 	// Character info
 	public Config!: (typeof CharacterInfo)["Config"];
@@ -239,7 +258,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	public Renderer!: Renderer;
 	public Input!: Input;
 	public Rail!: Rail;
-	public Sound!: SoundController;
+	public Sound!: SoundHandler;
 
 	// Components
 	public Ground!: Ground;
@@ -257,7 +276,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 			this.EnterBall();
 			this.Animation.Current = "Roll";
 			this.QueryCallback = () => {
-				FrameworkState.GameSpeed = 1;
+				ResetGameSpeed();
 				this.Flags.BoostDisabled = false;
 			};
 
@@ -273,8 +292,9 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	) {
 		super();
 
+		ResetGameSpeed();
+		this.UI.HomingObject(undefined);
 		this.Controller.Object.Respawn();
-		FrameworkState.GameSpeed = 1;
 	}
 
 	public onStart() {
@@ -298,7 +318,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Renderer = new Renderer(this.attributes.CharacterType);
 		this.Input = new Input(this);
 		this.Rail = new Rail();
-		this.Sound = new SoundController();
+		this.Sound = new SoundHandler();
 
 		this.Ground = new Ground();
 
@@ -311,6 +331,9 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.PreviousAngle = CFrame.identity;
 		this.UI.CharacterType(this.attributes.CharacterType);
 
+		// TODO: remove all other states
+		this.Connections.add(RestartLevelSignal.Connect(() => this.Respawn()));
+
 		AddLog(`Loaded new Client ${this.Character}`);
 	}
 
@@ -318,16 +341,20 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	 * Destroys the Client
 	 */
 	public Destroy() {
+		Render.UnregisterStepped("Client");
 		this.Input.Destroy();
 		this.Renderer.Destroy();
 		this.Sound.Destroy();
+		this.Animation.Destroy();
+		this.Connections.destroy();
 	}
 
 	/**
 	 * Update Client once per frame, **do not run this method if you do not know what you're doing!**
 	 */
 	public Update(DeltaTime: number) {
-		if (Player.GameplayPaused) return;
+		this.Paused = Player.GameplayPaused;
+		if (this.Paused) return;
 
 		if (this.PreviousAngle !== this.Angle) {
 			// Angle reset
@@ -343,14 +370,15 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 
 		const DrawInfo = PackDrawInfo(this);
 		this.Renderer.DrawInfo = DrawInfo;
-		this.Renderer.Draw(this.Character, DeltaTime);
+		this.Renderer.Draw(this.Character, DeltaTime * FrameworkState.GameSpeed);
 		this.Camera.Update(DeltaTime);
 
 		this.Sound.Update(this.State.Current.GetID());
 		this.GameState.Update(this);
+		this.HomingAttack.Update(this);
 
 		this.Controller.Replicator.ReplicateSelf(DrawInfo);
-		this.Controller.Replicator.Draw(DeltaTime);
+		this.Controller.Replicator.Draw(DeltaTime * FrameworkState.GameSpeed);
 	}
 
 	// Utility functions
@@ -560,21 +588,12 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 
 	/**
 	 * Kill and respawn the character
-	 * @param KeepLives If true, skip decrementing lives
 	 */
-	public Respawn(KeepLives?: boolean) {
+	public Respawn() {
+		if (this.Dead) return;
+
+		this.Dead = true;
 		this.State.Current = this.State.States.None;
-
-		if (!KeepLives) {
-			let Lives = FrameworkState.Lives();
-
-			if (Lives <= 1)
-				// TODO: gameover
-				Lives = 5;
-			else Lives--;
-
-			FrameworkState.Lives(Lives);
-		}
 
 		ClientEvents.Respawn();
 	}

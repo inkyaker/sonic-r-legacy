@@ -19,6 +19,7 @@ export class Rail {
 	public RailGrace: number = 0;
 	public RailBonusTime: number = 0;
 	public RailDebounce: number = 0;
+	public RailJumpTime: number = 0;
 
 	public Connections: RBXScriptConnection[] = [];
 }
@@ -38,16 +39,19 @@ export function GetRailAngle(Client: Client) {
 	const Current = Client.Rail.Current;
 	if (Current) {
 		const CurrentAngle = Current.CFrame.Rotation;
-		const Next = workspace.Raycast(
-			Current.Position,
-			Current.CFrame.LookVector.mul(Current.Size.Z + 3).mul(Client.Rail.RailDirection >= 0 ? 1 : -1),
-			Client.State.States.Rail.Params,
-		);
 		let Angle = CurrentAngle;
+		if (Current.Size.Z <= 25) {
+			const Next = workspace.Raycast(
+				Current.Position,
+				Current.CFrame.LookVector.mul(Current.Size.Z + 3).mul(Client.Rail.RailDirection >= 0 ? 1 : -1),
+				Client.State.States.Rail.Params,
+			);
 
-		if (Next) {
-			const Offset = Current.CFrame.Inverse().mul(Client.Position);
-			Angle = CurrentAngle.Lerp(Next.Instance!.CFrame.Rotation, 1 - (Offset.Z + Current.Size.Z / 2) / Current.Size.Z);
+			if (Next) {
+				const Offset = Current.CFrame.Inverse().mul(Client.Position);
+				const Alpha = (Offset.Z + Current.Size.Z / 2) / Current.Size.Z;
+				Angle = CurrentAngle.Lerp(Next.Instance!.CFrame.Rotation, Client.Rail.RailDirection >= 0 ? 1 - Alpha : Alpha);
+			}
 		}
 
 		return Angle.mul(CFrame.Angles(0, Client.Rail.RailDirection >= 0 ? 0 : math.pi, 0));
@@ -82,7 +86,7 @@ export function SetRail(Client: Client, Part?: Part) {
 
 			const PreviousSpeed = Client.ToGlobal(Client.Speed);
 			Client.Angle = GetRailAngle(Client);
-			Client.Speed = new Vector3(Client.ToLocal(PreviousSpeed).X, 0, 0);
+			Client.Speed = new Vector3(math.max(Client.ToLocal(PreviousSpeed).X, 3.5), 0, 0);
 			Client.Animation.Current = "Rail";
 
 			Client.Position = GetRailPosition(Client);
@@ -158,10 +162,9 @@ export class StateRail extends StateBase {
 		if (math.sign(Gravity) === math.sign(Client.Speed.X)) Gravity *= 1.125 + math.abs(Client.Speed.X) / 8;
 		else Gravity *= 0.5 / (1 + math.abs(Client.Speed.X) / 3.5);
 
-		let Drag = 0.95;
 		Client.Speed = Client.Speed.add(new Vector3(Gravity, 0, 0));
-		Client.Speed = Client.Speed.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X * 0.715 * Drag, 0, 0));
-		Client.Speed = Client.Speed.WithX(math.max(Client.Speed.X, 2.25));
+		if (math.abs(Client.Speed.X) >= Client.Config.DashSpeed || Client.Speed.X < 0)
+			Client.Speed = Client.Speed.add(new Vector3(Client.Speed.X * Client.Config.AirResist.X * 0.715 * (math.abs(Client.Speed.X) / Client.Config.DashSpeed), 0, 0));
 
 		if (math.abs(Client.Speed.X) >= 8) {
 			Rail.RailBonusTime++;
@@ -189,8 +192,6 @@ export class StateRail extends StateBase {
 				Client.Sound.Play("Character/GrindContact");
 				Rail.RailSound = Client.Sound.Play("Character/Grind", { BoundState: "StateRail" });
 			}
-
-			if (Rail.RailSound) Rail.RailSound.Volume = math.sqrt(math.abs(Client.Speed.X) / 8);
 		} else if (Rail.RailSound) {
 			if (
 				Client.Sound.Stop("Character/Grind", {
@@ -216,13 +217,18 @@ export class StateRail extends StateBase {
 			}
 		}
 
+		if (Rail.RailJumpTime > 0) {
+			Rail.RailOffset = Rail.RailOffset.add(new Vector3(0, Rail.RailJumpTime / 6, 0));
+			Rail.RailJumpTime--;
+		}
+
 		if (Active) {
 			Client.Animation.Current = "Rail";
 			Client.Animation.Speed = Client.Speed.X;
 		} else {
 			const LocalOffset = Client.Angle.Inverse().mul(Rail.RailOffset);
 
-			Client.Animation.Current = (LocalOffset.X === 0 && Client.Animation.Current) || `RailSwitch${(LocalOffset.X < 0 && "Left") || "Right"}`;
+			Client.Animation.Current = (LocalOffset.Magnitude <= 0.05 && Client.Animation.Current) || `RailSwitch${(LocalOffset.X < 0 && "Left") || "Right"}`;
 		}
 
 		StepBoost(Client);

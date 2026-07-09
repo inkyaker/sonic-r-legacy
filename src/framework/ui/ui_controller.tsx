@@ -3,9 +3,9 @@ import { atom as Atom } from "@rbxts/charm";
 // biome-ignore lint/correctness/noUnusedImports: <react>
 import React, { StrictMode } from "@rbxts/react";
 import { createRoot } from "@rbxts/react-roblox";
-import { Players } from "@rbxts/services";
+import { GuiService, Players } from "@rbxts/services";
+import type BaseObject from "framework/object/objects/baseobj";
 import type { CharacterType } from "shared/common/data";
-import { FrameworkState } from "shared/common/frameworkstate";
 import { DebugUI } from "./components/debug_ui";
 import { GameUI } from "./components/game_ui";
 
@@ -21,9 +21,11 @@ export class UIController implements OnStart {
 	public Rings = Atom(0);
 	public Score = Atom(0);
 	public ScoreMult = Atom(1);
-	public Lives = FrameworkState.Lives;
 	public CharacterType = Atom<CharacterType>("None");
-	public InputPopupAtom = Atom<InputPopup|undefined>(undefined);
+	public InputPopupAtom = Atom<InputPopup | undefined>(undefined);
+	public HomingObject = Atom<BaseObject<Model> | undefined>(undefined, (Prev, New) => {
+		return Prev?.attributes.UniqueID === New?.attributes.UniqueID;
+	});
 
 	public onStart() {
 		const PlayerGui = Players.LocalPlayer.WaitForChild("PlayerGui") as PlayerGui;
@@ -35,9 +37,19 @@ export class UIController implements OnStart {
 		const Root = createRoot(UIRoot);
 		Root.render(
 			<StrictMode>
-				<GameUI CharacterTypeAtom={this.CharacterType} RingsAtom={this.Rings} ScoreAtom={this.Score} LivesAtom={this.Lives} MultAtom={this.ScoreMult} PopupAtom={this.InputPopupAtom} />
+				<GameUI
+					CharacterTypeAtom={this.CharacterType}
+					RingsAtom={this.Rings}
+					ScoreAtom={this.Score}
+					MultAtom={this.ScoreMult}
+					PopupAtom={this.InputPopupAtom}
+					HomingObjectAtom={this.HomingObject}
+				/>
 				<DebugUI />
 			</StrictMode>,
 		);
+
+		GuiService.AutoSelectGuiEnabled = false;
+		GuiService.GuiNavigationEnabled = false;
 	}
 }

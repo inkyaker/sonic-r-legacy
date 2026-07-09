@@ -1,5 +1,7 @@
 import { deepCopy as DeepCopy } from "@rbxts/deepcopy";
+import { Trash } from "@rbxts/trash";
 import type { InferredAnimation, SetAnimation, ValidAnimation } from "shared/characterinfo";
+import { FrameworkState } from "shared/common/frameworkstate";
 import { AnimationSet, type AnimationSetData } from "shared/common/globals";
 import type { Client } from "..";
 
@@ -11,6 +13,7 @@ export class AnimationController {
 	public Current: ValidAnimation;
 	public Speed: number = 0;
 	private Last: ValidAnimation;
+	public Connections = new Trash();
 
 	constructor(Client: Client) {
 		this.Animations = DeepCopy(Client.Animations) as unknown as { [Index in keyof typeof Client.Animations]: SetAnimation };
@@ -18,6 +21,10 @@ export class AnimationController {
 		this.Current = "Fall";
 
 		this.LoadAnimations(Client);
+	}
+
+	public Destroy() {
+		this.Connections.destroy();
 	}
 
 	/**
@@ -46,6 +53,11 @@ export class AnimationController {
 
 					Animation.Asset = AnimationController.LoadAnimation(Asset);
 					Animation.Asset.Looped = Animation.Looped;
+					this.Connections.add(
+						Animation.Asset.GetMarkerReachedSignal("Footstep").Connect(() => {
+							if (Animation.Asset.WeightTarget >= 0.5) Client.Sound.FootstepSound(Client);
+						}),
+					);
 				}
 			}
 		}
@@ -116,15 +128,14 @@ export class AnimationController {
 
 	private UpdateSpeed(Value: InferredAnimation[0]) {
 		if (!Value.Speed) {
+			Value.Asset.AdjustSpeed(FrameworkState.GameSpeed);
 			return;
 		}
 
 		let Speed = Value.Speed.Base + Value.Speed.Increment * this.Speed;
-		if (Value.Speed.Absolute) {
-			Speed = math.abs(Speed);
-		}
+		if (Value.Speed.Absolute) Speed = math.abs(Speed);
 
-		Value.Asset.AdjustSpeed(Speed);
+		Value.Asset.AdjustSpeed(Speed * FrameworkState.GameSpeed);
 	}
 
 	/**
@@ -134,13 +145,8 @@ export class AnimationController {
 	 */
 	private UpdateCurrent(Client: Client, Animation: InferredAnimation) {
 		for (const [Key, Value] of pairs(Animation)) {
-			if (typeOf(Key) !== "number") {
-				continue;
-			}
-
-			if (Value.Position !== undefined) {
-				Value.Asset.AdjustWeight(this.GetCurrentTrack(Client, Animation) === Value.Asset ? 1 : 0.01);
-			}
+			if (typeOf(Key) !== "number") continue;
+			if (Value.Position !== undefined) Value.Asset.AdjustWeight(this.GetCurrentTrack(Client, Animation) === Value.Asset ? 1 : 0.01);
 
 			this.UpdateSpeed(Value);
 		}

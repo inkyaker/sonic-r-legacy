@@ -8,6 +8,17 @@ import type { Client } from "framework";
  */
 export function CheckJump(Client: Client) {
 	if (Client.Input.Button.Jump.DidPress) {
+		if (Client.State.Current.Is("StateRail")) {
+			if (math.abs(Client.Input.GetTurn()) >= math.rad(135)) {
+				Client.Rail.RailDirection *= -1;
+				Client.Rail.RailJumpTime = 8;
+				Client.Sound.Play("Character/Jump");
+				Client.Speed = Client.Speed.WithX(-Client.Speed.X);
+
+				return;
+			}
+		}
+
 		Client.State.Current = Client.State.States.Airborne;
 		Client.Speed = Client.Speed.add(new Vector3(0, Client.Config.JumpInitalForce, 0));
 

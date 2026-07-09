@@ -1,7 +1,7 @@
 import { Component } from "@flamework/components";
 import type { Client } from "framework";
 import { Attributes } from "shared/common/class/attributes";
-import { FrameworkState } from "shared/common/frameworkstate";
+import { SetGameSpeed } from "shared/common/frameworkstate";
 import BaseObject from "../baseobj";
 
 type Data = { Timescale: number; Reusable: boolean };
@@ -21,7 +21,7 @@ export class TimeSlow extends BaseObject<Model> {
 
 	public OnTouch(_Client: Client) {
 		this.Debounce = this.Data.Reusable ? 5 * 60 : math.huge;
-		FrameworkState.GameSpeed = this.Data.Timescale;
+		SetGameSpeed(this.Data.Timescale);
 
 		this.Triggered = true;
 	}

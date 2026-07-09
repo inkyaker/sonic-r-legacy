@@ -1,3 +1,4 @@
+import { SetRail } from "framework/modules/rail";
 import type BaseObject from "framework/object/objects/baseobj";
 import { workspace } from "shared/common/globals";
 import * as CFUtil from "shared/common/utility/cfutil";
@@ -225,7 +226,7 @@ export const PhysicsHandler = {
 	 * @param Client
 	 */
 	Skid: (Client: Client) => {
-		const FrictionMultiplier = 1; // TODO: fricton mult
+		const FrictionMultiplier = 2; // TODO: fricton mult
 
 		const XFriction = Client.Config.SkidFriction * FrictionMultiplier;
 		const ZFriction = Client.Config.GroundFriction.Z * FrictionMultiplier;
@@ -262,6 +263,14 @@ export const PhysicsHandler = {
 	 */
 	TurnRaw: (Client: Client, Turn: number) => {
 		Client.Angle = Client.Angle.mul(CFrame.Angles(0, Turn, 0));
+	},
+
+	/**
+	 * Turn client to face stick, does not include smoothing or inertia!
+	 * @param Client
+	 */
+	TurnToStick: (Client: Client) => {
+		PhysicsHandler.TurnRaw(Client, Client.Input.GetTurn());
 	},
 
 	/**
@@ -368,33 +377,81 @@ export const PhysicsHandler = {
 		return 0;
 	},
 
+	RailParams: new OverlapParams(),
 	ObjectParams: new OverlapParams(),
 	MapCollision: new RaycastParams(),
 
 	/**
 	 * Get targeted object for homing attack
+	 * @param Client
 	 */
 	GetHomingObject(Client: Client): BaseObject<Model> | undefined {
-		const Look = Client.Angle.LookVector;
-		const Colliders = workspace.GetPartBoundsInRadius(Client.Position, 100 * Client.Config.Scale, PhysicsHandler.ObjectParams);
-		const Objects = [];
+		const Look = Client.Angle.mul(CFrame.Angles(0, Client.Input.GetTurn(), 0)).LookVector;
+		const MaxDist = 200 * Client.Config.Scale;
+		const Colliders = workspace.GetPartBoundsInRadius(Client.Position, MaxDist, PhysicsHandler.ObjectParams);
+		workspace.GetPartBoundsInRadius(Client.Position, MaxDist, PhysicsHandler.RailParams).forEach((Value) => Colliders.push(Value));
 
+		const Objects = [];
 		for (const [_, Collider] of pairs(Colliders)) {
-			const Object = Client.Controller.Object.GetObject(Collider);
+			const Object = Collider.IsDescendantOf(workspace.Level.Rails)
+				? ({
+						HomingTarget: true,
+						HomingWeight: 0.75,
+						IsRail: true,
+						Root: {
+							Size: Vector3.one.mul(3),
+						},
+						RailObject: Collider,
+
+						attributes: {
+							UniqueID: Collider.GetAttribute("UniqueID"),
+						},
+
+						TouchClient: (_: unknown, Client: Client) => {
+							SetRail(Client, Collider as Part);
+							Client.HomingAttack.Target = undefined;
+							Client.HomingAttack.Timer = 90000;
+						},
+
+						GetCenter: () => {
+							const Center = Client.RenderCFrame.Position;
+							const Offset = Collider.CFrame.PointToObjectSpace(Center).mul(Vector3.zAxis);
+							return Collider.CFrame.PointToWorldSpace(Offset.WithZ(math.clamp(Offset.Z, -Collider.Size.Z / 2, Collider.Size.Z / 2)));
+						},
+					} as unknown as BaseObject<Model>)
+				: Client.Controller.Object.GetObject(Collider);
 			if (!Object?.HomingTarget) continue;
 
-			const Center = Collider.Position;
+			const Center = Object.GetCenter();
 			const Offset = Center.sub(Client.Position);
 			const Dot = Offset.mul(new Vector3(1, 0, 1)).Unit.Dot(Look);
 			const Hit = workspace.Raycast(Client.Position, Offset, PhysicsHandler.MapCollision);
 			const YOff = Collider.CFrame.PointToObjectSpace(Client.Position).Y;
 			const PosValid = -YOff <= 20 * Client.Config.Scale;
 
-			if (Dot >= 0.3825 && !Hit && PosValid) Objects.push({ Object: Object, Distance: 1 - Offset.Magnitude / 30, Dot: Dot, Weight: Object.HomingWeight });
+			if (Dot >= 0.3825 && !Hit && PosValid) {
+				Objects.push({
+					Object: Object,
+					VDist: math.abs(Offset.Y),
+					HDist: Offset.mul(new Vector3(1, 0, 1)).Magnitude,
+					Dot: Dot,
+					Weight: Object.HomingWeight,
+				});
+			}
 		}
 
 		Objects.sort((A, B) => {
-			return A.Distance + A.Dot * 0.5 + A.Weight > B.Distance + B.Dot * 0.5 + B.Weight;
+			const DotA = A.Dot * 10 * A.Weight;
+			const DotB = B.Dot * 10 * B.Weight;
+			const HeightA = A.HDist * 0.5;
+			const HeightB = B.HDist * 0.5;
+			const DistA = A.VDist;
+			const DistB = B.VDist;
+
+			const TotalA = DistA + HeightA - DotA;
+			const TotalB = DistB + HeightB - DotB;
+
+			return TotalA < TotalB;
 		});
 
 		return Objects[0]?.Object;
@@ -406,3 +463,6 @@ PhysicsHandler.ObjectParams.AddToFilter(workspace.Level.Objects);
 
 PhysicsHandler.MapCollision.FilterType = Enum.RaycastFilterType.Include;
 PhysicsHandler.MapCollision.AddToFilter(workspace.Level.Map.Collision);
+
+PhysicsHandler.RailParams.FilterType = Enum.RaycastFilterType.Include;
+PhysicsHandler.RailParams.AddToFilter(workspace.Level.Rails);
