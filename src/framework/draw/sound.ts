@@ -1,3 +1,4 @@
+import { Controller } from "@flamework/core";
 import { ReplicatedStorage, SoundService } from "@rbxts/services";
 import type { Client } from "framework";
 import { CollisionParams } from "framework/physics/collision";
@@ -43,7 +44,8 @@ const SoundMaterialMap: { [Key in Enum.Material["Name"]]?: (typeof FootstepMater
 	Ground: "Snow",
 };
 
-export class SoundHandler {
+@Controller()
+export class SoundController {
 	public Assets;
 	public Registry: Sound[] = [];
 
@@ -111,7 +113,7 @@ export class SoundHandler {
 		});
 	}
 
-	public Destroy() {
+	public StopAllSounds() {
 		for (const [Index, Target] of pairs(this.Registry)) {
 			Target.Destroy();
 			this.Registry[Index - 1] = undefined as unknown as Sound;
@@ -167,6 +169,6 @@ export class SoundHandler {
 		});
 
 		const Attachment = Client.Effects.SpawnEffect("FootstepGeneric", new CFrame(Cast.Position.add(Cast.Normal.mul(1.5))));
-		Attachment.FindFirstChildOfClass("ParticleEmitter")!.Color = new ColorSequence(Cast.Instance.Color)
+		Attachment.FindFirstChildOfClass("ParticleEmitter")!.Color = new ColorSequence(Cast.Instance.Color);
 	}
 }

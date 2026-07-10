@@ -1,3 +1,4 @@
+import { Dependency } from "@flamework/core";
 import { type Atom, atom } from "@rbxts/charm";
 import { useMotion, useMountEffect } from "@rbxts/pretty-react-hooks";
 /** biome-ignore lint/correctness/noUnusedImports: <react> */
@@ -5,6 +6,7 @@ import React, { useEffect, useMemo, useState } from "@rbxts/react";
 import { useAtom } from "@rbxts/react-charm";
 import { RunService, StarterGui, UserInputService } from "@rbxts/services";
 import { Environment } from "@rbxts/ui-labs";
+import type { SoundController } from "framework/draw/sound";
 import type BaseObject from "framework/object/objects/baseobj";
 import { SettingsUI } from "framework/settings_controller";
 import { Constants } from "shared/common/constants";
@@ -401,6 +403,7 @@ export function GameUI({
 				const Current = WindowAtom();
 				WindowAtom(Current !== "Pause" ? "Pause" : undefined);
 				if (Current === undefined) PauseSelectedItemAtom("Resume");
+				if (Current === "Pause") Dependency<SoundController>().Play("UI/WindowClose");
 			}
 		});
 

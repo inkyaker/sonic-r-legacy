@@ -21,7 +21,7 @@ import { AnimationController } from "./draw/animation";
 import { Camera } from "./draw/camera";
 import type { EffectController } from "./draw/effect_controller";
 import { PackDrawInfo, Renderer } from "./draw/renderer";
-import { SoundHandler } from "./draw/sound";
+import type { SoundController } from "./draw/sound";
 import { CancelBoost } from "./modules/boost";
 import { Rail, SetRail } from "./modules/rail";
 import type BaseObject from "./object/objects/baseobj";
@@ -258,7 +258,6 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 	public Renderer!: Renderer;
 	public Input!: Input;
 	public Rail!: Rail;
-	public Sound!: SoundHandler;
 
 	// Components
 	public Ground!: Ground;
@@ -289,6 +288,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		public UI: UIController,
 		public Effects: EffectController,
 		public Data: DataController,
+		public Sound: SoundController,
 	) {
 		super();
 
@@ -318,7 +318,6 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		this.Renderer = new Renderer(this.attributes.CharacterType);
 		this.Input = new Input(this);
 		this.Rail = new Rail();
-		this.Sound = new SoundHandler();
 
 		this.Ground = new Ground();
 
@@ -344,7 +343,7 @@ export class Client extends BaseComponent<{ CharacterType: CharacterType }, Mode
 		Render.UnregisterStepped("Client");
 		this.Input.Destroy();
 		this.Renderer.Destroy();
-		this.Sound.Destroy();
+		this.Sound.StopAllSounds();
 		this.Animation.Destroy();
 		this.Connections.destroy();
 	}

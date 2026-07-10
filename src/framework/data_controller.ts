@@ -14,6 +14,8 @@ export class DataController implements OnStart {
 	public HasLoaded = false;
 	public onStart() {
 		ClientEvents.ReplicateProfile.connect((Data) => {
+			if (this.HasLoaded) Data.Settings = this.Data.Settings;
+
 			this.Data = Data;
 			this.OnUpdate.Fire();
 			this.HasLoaded = true;

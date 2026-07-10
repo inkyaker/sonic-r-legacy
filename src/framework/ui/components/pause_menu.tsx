@@ -1,30 +1,39 @@
+import { Dependency } from "@flamework/core";
 import { type Atom, atom } from "@rbxts/charm";
+import { useFlameworkDependency } from "@rbxts/flamework-react-utils";
 // biome-ignore lint/correctness/noUnusedImports: <React>
 import React, { useEffect, useMemo } from "@rbxts/react";
 import { useAtom } from "@rbxts/react-charm";
 import { Trash } from "@rbxts/trash";
 import { Nav } from "framework/control/input";
+import type { SoundController } from "framework/draw/sound";
 import { RestartLevelSignal } from "shared/common/globals";
 
 const PauseOptions = ["Resume", "Restart", "Options", "Controls", "Characters", "Return To Title"] as const;
 const Callbacks: { [Key in (typeof PauseOptions)[number]]: (WindowAtom: Atom<"Settings" | "Pause" | "Controls" | "Characters" | undefined>) => void } = {
 	Resume: (WindowAtom) => {
+		Dependency<SoundController>().Play("UI/WindowClose");
 		WindowAtom(undefined);
 	},
 	Restart: (WindowAtom) => {
+		Dependency<SoundController>().Play("UI/WindowClose");
 		WindowAtom(undefined);
 		RestartLevelSignal.Fire();
 	},
 	Options: (WindowAtom) => {
+		Dependency<SoundController>().Play("UI/PauseOptionSelect");
 		WindowAtom("Settings");
 	},
 	Controls: (WindowAtom) => {
+		Dependency<SoundController>().Play("UI/PauseOptionSelect");
 		WindowAtom("Controls");
 	},
 	Characters: (WindowAtom) => {
+		Dependency<SoundController>().Play("UI/PauseOptionSelect");
 		WindowAtom("Characters");
 	},
 	"Return To Title": () => {
+		Dependency<SoundController>().Play("UI/ToMenu");
 		//TODO: return to title
 		error("TODO! if this makes it into the release build: Oops!");
 	},
@@ -54,6 +63,7 @@ function MenuItem({
 			Event={{
 				MouseEnter: () => {
 					PauseSelectedItemAtom(Option);
+					Dependency<SoundController>().Play("UI/PauseOptionChange");
 				},
 				MouseLeave: () => {
 					if (PauseSelectedItemAtom() === Option) PauseSelectedItemAtom(undefined);
@@ -107,6 +117,8 @@ function MenuItem({
 }
 
 export function PauseMenu({ WindowAtom, CharacterColor }: { WindowAtom: Atom<"Settings" | "Pause" | "Controls" | "Characters" | undefined>; CharacterColor: Color3 }) {
+	const SoundController = useFlameworkDependency<SoundController>();
+
 	const Items = useMemo(() => {
 		const Output = [];
 
@@ -118,6 +130,8 @@ export function PauseMenu({ WindowAtom, CharacterColor }: { WindowAtom: Atom<"Se
 	}, [PauseOptions]);
 
 	useEffect(() => {
+		SoundController.Play("UI/PauseOpen");
+
 		const Connections = new Trash();
 
 		function Navigate(Direction: number, Default: (typeof PauseOptions)[number]) {
@@ -128,6 +142,8 @@ export function PauseMenu({ WindowAtom, CharacterColor }: { WindowAtom: Atom<"Se
 				const Next = (PauseOptions.indexOf(Option) + Direction) % OptionsSize;
 				PauseSelectedItemAtom(PauseOptions[Next]);
 			} else PauseSelectedItemAtom(Default);
+
+			SoundController.Play("UI/PauseOptionChange");
 		}
 
 		Connections.add(Nav.OnNavigateUp.Connect(() => Navigate(-1, PauseOptions[PauseOptions.size() - 2])));

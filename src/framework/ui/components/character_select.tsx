@@ -1,3 +1,4 @@
+import { Dependency } from "@flamework/core";
 import type { Atom } from "@rbxts/charm";
 // biome-ignore lint/correctness/noUnusedImports: <React>
 import React, { useEffect, useLayoutEffect, useRef } from "@rbxts/react";
@@ -5,6 +6,7 @@ import { ReplicatedStorage } from "@rbxts/services";
 import { Trash } from "@rbxts/trash";
 import { ClientEvents } from "framework/client_networking";
 import { Nav } from "framework/control/input";
+import type { SoundController } from "framework/draw/sound";
 import type { RS } from "shared/common/types";
 
 const Replicated = ReplicatedStorage as RS;
@@ -34,7 +36,10 @@ export function CharacterSelect({ WindowAtom, CharacterColor }: { WindowAtom: At
 		Connections.add(Nav.OnPageRight.Connect(() => ClientEvents.ChangeCharacter("Shadow")));
 		Connections.add(Nav.OnNavigateBack.Connect(() => WindowAtom("Pause")));
 
-		return () => Connections.destroy();
+		return () => {
+			Connections.destroy();
+			Dependency<SoundController>().Play("UI/WindowClose");
+		};
 	});
 
 	return (

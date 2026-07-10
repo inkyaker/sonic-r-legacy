@@ -22,6 +22,7 @@ export const SoundService = Sounds as SoundService & {
 	FootstepSFX: SoundGroup;
 	Music: SoundGroup;
 	ObjectSFX: SoundGroup;
+	UI: SoundGroup;
 	OtherCharacterSFX: SoundGroup;
 };
 

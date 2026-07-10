@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/complexity/noUselessFragments: <useful fragment> */
-import { Controller, type OnStart } from "@flamework/core";
-import { type Atom, atom } from "@rbxts/charm";
+import { Controller, Dependency, type OnStart } from "@flamework/core";
+import { type Atom, atom, subscribe } from "@rbxts/charm";
 import { useFlameworkDependency } from "@rbxts/flamework-react-utils";
 import Signal from "@rbxts/lemon-signal";
 import { useMotion, useMountEffect } from "@rbxts/pretty-react-hooks";
@@ -14,6 +14,7 @@ import { GetMeta, SettingsCategories, type SettingsData, SettingsKeys } from "sh
 import { ClientEvents } from "./client_networking";
 import { Nav, PlatformContextAtom } from "./control/input";
 import type { DataController } from "./data_controller";
+import type { SoundController } from "./draw/sound";
 
 export const SettingsHoverAtom = atom<string | undefined>();
 export const SettingsFocusAtom = atom<string | undefined>();
@@ -39,6 +40,7 @@ export class SettingsController implements OnStart {
 	public RefreshVolume() {
 		const Settings = this.Data.Data.Settings;
 		SoundService.CharacterSFX.Volume = this.DataLoaded ? Settings.SFXVolume : 0;
+		SoundService.UI.Volume = this.DataLoaded ? Settings.UIVolume : 0;
 		SoundService.FootstepSFX.Volume = this.DataLoaded ? Settings.FootstepVolume : 0;
 		SoundService.Music.Volume = this.DataLoaded ? Settings.MusicVolume : 0;
 		SoundService.ObjectSFX.Volume = this.DataLoaded ? Settings.ObjectSFXVolume : 0;
@@ -56,7 +58,10 @@ function Tab({ TabName, Order, CharacterColor }: { TabName: string; Order: numbe
 				Size={UDim2.fromScale(1, 1)}
 				ZIndex={99}
 				Event={{
-					MouseButton1Click: () => SettingsTabAtom(TabName),
+					MouseButton1Click: () => {
+						SettingsTabAtom(TabName);
+						Dependency<SoundController>().Play("UI/SettingsTabChange");
+					},
 				}}
 			/>
 			<imagelabel
@@ -98,6 +103,7 @@ namespace Modes {
 			if (Direction === 1) LayoutRef.current.Next();
 			else LayoutRef.current.Previous();
 
+			Dependency<SoundController>().Play("UI/CarouselSwitch");
 			SetChanged(Options[LayoutRef.current.CurrentPage!.LayoutOrder]);
 		}, []);
 
@@ -227,7 +233,10 @@ namespace Modes {
 				Text={Value ? "ON" : "OFF"}
 				TextSize={14}
 				Event={{
-					MouseButton1Click: () => Signal.Fire(),
+					MouseButton1Click: () => {
+						Signal.Fire();
+						Dependency<SoundController>().Play("UI/SettingsOptionSelect");
+					},
 				}}
 			/>
 		);
@@ -396,7 +405,10 @@ function Option({
 			BackgroundTransparency={1}
 			Size={UDim2.fromScale(1, 1)}
 			Event={{
-				MouseEnter: () => SettingsHoverAtom(Key),
+				MouseEnter: () => {
+					SettingsHoverAtom(Key);
+					Dependency<SoundController>().Play("UI/SettingsOptionChange");
+				},
 				MouseLeave: () => {
 					if (SettingsHoverAtom() === Key) SettingsHoverAtom(undefined);
 				},
@@ -553,6 +565,12 @@ function GetAtom(Key: string, Value: unknown) {
 	if (!Atom) {
 		Atom = atom(Value);
 		Atoms[Key] = Atom;
+
+		if (GetMeta("Type", Key) === "Slider") {
+			subscribe(Atom, (New, Prev) => {
+				if (New !== Prev) Dependency<SoundController>().Play("UI/SliderClick");
+			});
+		}
 	}
 
 	let EventSignal = Signals[Key];
@@ -647,6 +665,8 @@ export function SettingsUI({ CharacterColor }: { CharacterColor: Color3 }) {
 				SettingsHoverAtom(AllNames[Index]);
 			}
 
+			Dependency<SoundController>().Play("UI/SettingsOptionChange");
+
 			const NewOption = SettingsHoverAtom();
 			if (!NewOption) return;
 
@@ -671,6 +691,7 @@ export function SettingsUI({ CharacterColor }: { CharacterColor: Color3 }) {
 
 			const NextIndex = (Index + Direction) % Size;
 			SettingsTabAtom(SettingsCategories[NextIndex]);
+			Dependency<SoundController>().Play("UI/SettingsTabChange");
 		}
 
 		Connections.add(Nav.OnNavigateUp.Connect(() => Navigate(-1)));
@@ -683,6 +704,7 @@ export function SettingsUI({ CharacterColor }: { CharacterColor: Color3 }) {
 				if (!Hover) return;
 
 				Signals[Hover]?.Fire();
+				Dependency<SoundController>().Play("UI/SettingsOptionSelect");
 			}),
 		);
 		Connections.add(

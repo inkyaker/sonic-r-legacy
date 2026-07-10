@@ -44,6 +44,7 @@ const CarouselConf = Modding.createDecorator<[string[]]>("Property", (descriptor
 
 export class SettingsData {
 	@C("Audio", 10, 1) @c("Music Vol.", "Slider") @SliderConf(0, 1, 0.05, undefined) public MusicVolume = 0.2;
+	@C("Audio", 11, 1) @c("UI Volume", "Slider") @SliderConf(0, 1, 0.05, undefined) public UIVolume = 1;
 	@C("Audio", 20, 1) @c("SFX Volume", "Slider") @SliderConf(0, 1, 0.05, undefined) public SFXVolume = 1;
 	@C("Audio", 30, 1) @c("Object Vol.", "Slider") @SliderConf(0, 1, 0.05, undefined) public ObjectSFXVolume = 1;
 	@C("Audio", 40, 1) @c("Footstep Vol.", "Slider") @SliderConf(0, 1, 0.05, undefined) public FootstepVolume = 0.5;
@@ -84,10 +85,10 @@ export const ReformattedSettingsData = {} as unknown as {
 export const SettingsCategories: string[] = [];
 
 SettingsKeys.forEach((Prop) => {
+	ReformattedSettingsData[Prop as never] = SettingsInstance[Prop as keyof SettingsData] as never;
+
 	const Category = GetMeta<string>("Category", Prop);
 	if (SettingsCategories.includes(Category)) return;
 
 	SettingsCategories.push(Category);
-
-	ReformattedSettingsData[Prop as never] = SettingsInstance[Prop as keyof SettingsData] as never;
 });

@@ -1,6 +1,6 @@
 import { ReformattedSettingsData } from "./settings";
 
-export const DataVersion = 3;
+export const DataVersion = 4;
 
 export const Characters = ["Sonic", "Shadow", "SuperSonic", "SuperShadow", "None"] as const;
 
